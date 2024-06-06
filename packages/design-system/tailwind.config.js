@@ -1,17 +1,8 @@
 /** @type {import('tailwindcss').Config} */
+
+import { designSystemPlugin } from "./lib/plugin.ts";
+
 export default {
-    content: ["./lib/**/*.{html,ts,tsx}"],
-    darkMode: "class",
-    theme: {
-        extend: {},
-        colors: {
-            transparent: "transparent",
-            current: "currentColor",
-            black: "#101010",
-            pink: "#e82070",
-            blue: "#0078c8",
-            white: "#ffffff",
-        },
-    },
-    plugins: [],
+    content: ["./index.html", "./lib/**/*.{html,ts,tsx}"],
+    plugins: [designSystemPlugin],
 };

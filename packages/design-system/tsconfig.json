@@ -15,22 +15,19 @@
         "isolatedModules": true,
         "noEmit": true,
         "jsx": "react-jsx",
+        "typeRoots": ["./dist/types"],
 
         /* Linting */
         "strict": true,
-        // "noUnusedLocals": true,
-        // "noUnusedParameters": true,
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
         "noFallthroughCasesInSwitch": true,
 
         /* Design system */
-        "types": ["@elucidario/pkg-types"],
         "paths": {
             "@/*": ["./lib/*"],
-            "@elucidario/pkg-types": [
-                "./node_modules/@elucidario/pkg-types/dist"
-            ]
-        }
+        },
     },
     "include": ["src", "lib"],
-    "references": [{ "path": "./tsconfig.node.json" }]
+    "references": [{ "path": "./tsconfig.node.json" }],
 }

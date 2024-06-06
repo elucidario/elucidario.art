@@ -10,7 +10,7 @@ import { SystemActionTypes } from "./SystemActionTypes";
 
 import { merge } from "lodash-es";
 
-import '../../input.css';
+import "./tailwind.css";
 
 export const SystemContext = createContext<SystemContextProvider>({
     lang: "pt-BR",
@@ -38,8 +38,6 @@ export const SystemProvider = ({
     const props: SystemState = merge({}, state, {
         // defaults
     });
-
-    console.log("SystemContext.Provider", props);
 
     return (
         <SystemContext.Provider value={props}>

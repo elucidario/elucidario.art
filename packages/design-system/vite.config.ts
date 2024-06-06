@@ -4,21 +4,18 @@ import path from "path";
 import pkg from "./package.json";
 import tsconfigPaths from "vite-tsconfig-paths";
 import dts from "vite-plugin-dts";
+import tailwindcss from "tailwindcss";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [
-        react(),
-        tsconfigPaths(),
-        dts({
-            outDir: "dist/types",
-        }),
-    ],
     build: {
+        copyPublicDir: false,
         sourcemap: true,
+        emptyOutDir: true,
         lib: {
             entry: path.resolve(__dirname, "lib", "index.ts"),
-            formats: ["es"],
+            formats: ["es", "umd"],
+            name: "designSystem",
             fileName: (format) => `${format}/design-system.js`,
         },
         rollupOptions: {
@@ -32,8 +29,24 @@ export default defineConfig({
                 globals: {
                     react: "React",
                     "react-dom": "ReactDOM",
+                    tailwindcss: "tailwindcss",
                 },
             },
         },
     },
+    plugins: [
+        react(),
+        tsconfigPaths(),
+        dts({
+            include: ["lib"],
+            outDir: "dist/types",
+        }),
+    ],
+    css: {
+        postcss: {
+            plugins: [
+                tailwindcss,
+            ],
+        },
+    }
 });
