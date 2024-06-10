@@ -4,7 +4,7 @@ import type {
     MdorimProvider as MdorimProviderType,
     MdorimContext as MdorimContextType,
     Entity,
-} from "@elucidario/pkg-types";
+} from "@elucidario/types-mdorim";
 
 import Mdorim from "@elucidario/pkg-mdorim";
 
