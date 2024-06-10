@@ -1,7 +1,7 @@
 import { I18n } from "i18n";
 import path from "path";
 import { getPaths } from "@elucidario/pkg-paths";
-import type { GetPathsReturn } from "@elucidario/pkg-types";
+import type { GetPathsReturn } from "@elucidario/types-paths";
 
 const paths = getPaths();
 
