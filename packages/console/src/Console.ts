@@ -1,12 +1,13 @@
 import chalk from "chalk";
 
 import type {
-    PackageProps,
     LogOptions,
     LogProps,
     LogType,
     Message,
-} from "@elucidario/pkg-types";
+} from "@elucidario/types-console";
+
+import type { PackageProps } from "@elucidario/types-paths";
 
 /**
  * Console

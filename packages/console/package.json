@@ -3,7 +3,6 @@
     "version": "0.2.1",
     "license": "MIT",
     "type": "module",
-    "main": "dist/mjs/index.min.mjs",
     "exports": {
         ".": {
             "types": "./dist/types/index.d.ts",
@@ -11,6 +10,7 @@
             "require": "./dist/cjs/index.min.cjs"
         }
     },
+    "main": "dist/mjs/index.min.mjs",
     "scripts": {
         "build": "pnpm clean && tsc && rollup -c",
         "clean": "rm -rf dist/*",
@@ -23,9 +23,10 @@
         "@babel/plugin-syntax-import-attributes": "^7.24.7",
         "@babel/plugin-transform-json-strings": "^7.24.7",
         "@babel/preset-env": "^7.24.7",
-        "@elucidario/pkg-types": "workspace:^",
         "@elucidario/tool-rollup": "workspace:^",
         "@elucidario/tool-tsconfig": "workspace:^",
+        "@elucidario/types-console": "workspace:^",
+        "@elucidario/types-paths": "workspace:^",
         "@vdemedes/prettier-config": "^2.0.1",
         "eslint-plugin-react": "^7.34.2",
         "eslint-plugin-react-hooks": "^4.6.2",
