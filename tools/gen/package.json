@@ -1,0 +1,21 @@
+{
+    "name": "@elucidario/tool-gen",
+    "version": "0.1.0",
+    "description": "Monorepo tool to generate packages in the Elucidario project",
+    "keywords": [],
+    "license": "ISC",
+    "author": "",
+    "main": "index.js",
+    "type": "module",
+    "bin": {
+        "gen": "./bin/gen.js"
+    },
+    "scripts": {
+        "gen": "node ./bin/gen.js"
+    },
+    "dependencies": {
+        "@elucidario/pkg-console": "workspace:^",
+        "@elucidario/pkg-paths": "workspace:^",
+        "commander": "^12.1.0"
+    }
+}

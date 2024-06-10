@@ -1,5 +1,6 @@
 packages:
+    - "apps/*"
     - "packages/*"
     - "publications/*"
-    - "apps/*"
     - "tools/*"
+    - "types/*"
