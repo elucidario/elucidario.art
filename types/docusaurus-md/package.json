@@ -1,0 +1,17 @@
+{
+    "name": "@elucidario/types-docusaurus-md",
+    "version": "0.1.0",
+    "keywords": [],
+    "license": "MIT",
+    "author": "Henrique Godinho <ola@hgod.in>",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "clean": "rm -rf dist",
+        "dev": "tsc -w"
+    },
+    "devDependencies": {
+        "@elucidario/tool-tsconfig": "workspace:^",
+        "typescript": "^5.4.5"
+    }
+}

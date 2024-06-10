@@ -13,9 +13,10 @@
         "dev": "pnpm build -w"
     },
     "devDependencies": {
-        "@elucidario/pkg-types": "workspace:^",
         "@elucidario/tool-rollup": "workspace:^",
         "@elucidario/tool-tsconfig": "workspace:^",
+        "@elucidario/types-docusaurus-md": "workspace:^",
+        "@types/jest": "^29.5.12",
         "@types/node": "^18.19.34",
         "jest": "^29.7.0",
         "rollup": "^3.29.4",

@@ -1,0 +1,1 @@
+# `@elucidario/types-docusaurus-md`
