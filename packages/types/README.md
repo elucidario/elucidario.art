@@ -1,1 +1,0 @@
-# Tipagem para Elucidário.art
