@@ -14,7 +14,7 @@ export default defineConfig({
         emptyOutDir: true,
         lib: {
             entry: path.resolve(__dirname, "lib", "index.ts"),
-            formats: ["es", "umd"],
+            formats: ["es"],
             name: "designSystem",
             fileName: (format) => `${format}/design-system.js`,
         },
@@ -48,5 +48,11 @@ export default defineConfig({
                 tailwindcss,
             ],
         },
+    },
+    resolve: {
+        alias: {
+            "@": path.resolve(__dirname, "lib"),
+            "@/assets": path.resolve(__dirname, "assets"),
+        }
     }
 });

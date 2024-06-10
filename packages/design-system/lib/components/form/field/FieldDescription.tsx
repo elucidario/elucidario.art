@@ -1,13 +1,12 @@
 import React from "react";
 
-import type { FieldDescriptionProps } from "@elucidario/pkg-types";
+import type { FieldDescriptionProps } from "@elucidario/types-design-system";
 
 import { Box } from "@/components";
 
 import useFieldContext from "./useFieldContext";
 
 export const FieldDescription = (props: FieldDescriptionProps) => {
-
     const { description } = useFieldContext();
 
     const classNames = [
@@ -20,9 +19,11 @@ export const FieldDescription = (props: FieldDescriptionProps) => {
     ];
 
     return description !== undefined ? (
-        <Box className={classNames.join(' ')}>
+        <Box className={classNames.join(" ")}>
             {/* <InfoCircledIcon className="w-5 h-5 mr-2" /> */}
-            <p className="text-sm"><>{description}</></p>
+            <p className="text-sm">
+                <>{description}</>
+            </p>
         </Box>
     ) : null;
-}
+};

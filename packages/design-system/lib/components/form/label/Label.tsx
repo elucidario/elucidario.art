@@ -1,6 +1,6 @@
 import React from "react";
 
-import type { LabelProps } from "@elucidario/pkg-types";
+import type { LabelProps } from "@elucidario/types-design-system";
 
 export const Label = ({ children, ...labelProps }: LabelProps) => {
     const className = [
@@ -13,7 +13,7 @@ export const Label = ({ children, ...labelProps }: LabelProps) => {
     ];
 
     return (
-        <label {...labelProps} className={className.join(' ')}>
+        <label {...labelProps} className={className.join(" ")}>
             <>{children}</>
         </label>
     );

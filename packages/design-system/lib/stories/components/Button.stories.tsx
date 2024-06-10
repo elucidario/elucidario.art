@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Button } from "@/components";
+import { Button } from "@/components/ui";
 
-import { ButtonProps } from "@elucidario/pkg-types";
+import { ButtonProps } from "@elucidario/types-design-system";
 import { ComponentTemplate } from "../ComponentTemplate";
 
 const Template = (args: ButtonProps) => {

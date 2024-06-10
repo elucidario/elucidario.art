@@ -1,11 +1,11 @@
 import React, { useMemo, useCallback, FC } from "react";
 import type {
-    Schema,
-    DataTypes,
     FieldSchema,
     InputType,
     UseFieldComponent,
-} from "@elucidario/pkg-types";
+} from "@elucidario/types-design-system";
+
+import type { Schema, DataTypes } from "@elucidario/types-mdorim";
 
 export const useFieldComponent: UseFieldComponent = (schema) => {
     const parseSchema = useCallback(

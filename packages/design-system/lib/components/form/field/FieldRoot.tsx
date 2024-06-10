@@ -1,5 +1,5 @@
 import React from "react";
-import type { FieldRootProps } from "@elucidario/pkg-types";
+import type { FieldRootProps } from "@elucidario/types-design-system";
 import { FieldProvider } from "./FieldProvider";
 import { FieldLabel } from "./FieldLabel";
 import { FieldDescription } from "./FieldDescription";
@@ -28,28 +28,31 @@ export const FieldRoot = ({
     })();
 
     // Cria um componente de acordo com o tipo de dado
-    const As = as !== undefined ? (() => {
-        switch (schema.type) {
-            case "object":
-            case "array":
-                return 'fieldset';
-            default:
-                return 'div';
-        }
-    })() : 'div';
+    const As =
+        as !== undefined
+            ? (() => {
+                switch (schema.type) {
+                    case "object":
+                    case "array":
+                        return "fieldset";
+                    default:
+                        return "div";
+                }
+            })()
+            : "div";
 
     const props: FieldRootProps = {
         schema,
         translations,
         map,
         language,
-        name
-    }
+        name,
+    };
 
     return (
         <FieldProvider {...props}>
             <As className="field flex flex-col mb-4">
-                <FieldLabel type={'fieldset' === As ? 'legend' : 'label'} />
+                <FieldLabel type={"fieldset" === As ? "legend" : "label"} />
                 <Component />
                 <FieldDescription />
             </As>

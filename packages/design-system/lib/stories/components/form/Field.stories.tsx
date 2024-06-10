@@ -1,57 +1,57 @@
-import React from 'react';
+import React from "react";
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { Field } from '@/components';
-import { ComponentTemplate } from '../../ComponentTemplate';
-import { FieldRootProps } from '@elucidario/pkg-types';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Field } from "@/components";
+import { ComponentTemplate } from "../../ComponentTemplate";
+import { FieldRootProps } from "@elucidario/types-design-system";
 
 const Template = (args: FieldRootProps) => {
     return (
         <ComponentTemplate form={true}>
             <Field.Root {...args} />
         </ComponentTemplate>
-    )
-}
+    );
+};
 
 const meta = {
-    title: '@elucidario/pkg-design-system/components/Form/Field',
+    title: "@elucidario/pkg-design-system/components/Form/Field",
     component: Template,
-    tags: ['autodocs'],
+    tags: ["autodocs"],
     args: {
         schema: {
-            type: 'string',
-            title: 'Label',
-            description: 'Description',
+            type: "string",
+            title: "Label",
+            description: "Description",
         },
         translations: {
             label: [
                 {
                     lang: "pt-BR",
-                    content: "Nome"
+                    content: "Nome",
                 },
                 {
                     lang: "es-ES",
-                    content: "Nombre"
+                    content: "Nombre",
                 },
                 {
                     lang: "en-US",
-                    content: "Name"
-                }
+                    content: "Name",
+                },
             ],
             description: [
                 {
                     lang: "pt-BR",
-                    content: "Descrição do campo"
+                    content: "Descrição do campo",
                 },
                 {
                     lang: "es-ES",
-                    content: "Descripción de la propiedad"
+                    content: "Descripción de la propiedad",
                 },
                 {
                     lang: "en-US",
-                    content: "Description of the field"
-                }
-            ]
+                    content: "Description of the field",
+                },
+            ],
         },
         map: {
             version: "0.1.0",
@@ -59,23 +59,23 @@ const meta = {
                 {
                     standard: "la",
                     metadata: "identified_by",
-                    link: "https://linked.art/api/1.0/shared/"
+                    link: "https://linked.art/api/1.0/shared/",
                 },
                 {
                     standard: "crm",
                     metadata: "PI_is_identified_by",
-                    link: "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by"
-                }
-            ]
+                    link: "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+                },
+            ],
         },
-        id: 'field',
-        language: '',
+        id: "field",
+        language: "",
     },
     argTypes: {
         language: {
             control: "select",
-            options: ["pt-BR", "es-ES", "en-US"]
-        }
+            options: ["pt-BR", "es-ES", "en-US"],
+        },
     },
     decorators: [
         (Story: any) => (
@@ -85,7 +85,7 @@ const meta = {
         ),
     ],
     parameters: {
-        layout: 'fullscreen'
+        layout: "fullscreen",
     },
 } satisfies Meta<React.FC<FieldRootProps>>;
 

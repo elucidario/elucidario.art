@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Input } from "@/components";
-import type { InputProps } from "@elucidario/pkg-types";
+import type { InputProps } from "@elucidario/types-design-system";
 import { ComponentTemplate } from "@/stories";
 
 const Template = (args: InputProps) => {
@@ -8,8 +8,8 @@ const Template = (args: InputProps) => {
         <ComponentTemplate form={true}>
             <Input {...args} />
         </ComponentTemplate>
-    )
-}
+    );
+};
 
 const meta = {
     title: "@elucidario/pkg-design-system/components/Form/Input",

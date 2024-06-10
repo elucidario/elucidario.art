@@ -26,8 +26,9 @@
         /* Design system */
         "paths": {
             "@/*": ["./lib/*"],
-        },
+            "@/assets/*": ["./assets/*"]
+        }
     },
     "include": ["src", "lib"],
-    "references": [{ "path": "./tsconfig.node.json" }],
+    "references": [{ "path": "./tsconfig.node.json" }]
 }

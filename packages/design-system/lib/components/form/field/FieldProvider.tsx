@@ -1,6 +1,9 @@
 import React, { createContext, useMemo } from "react";
 
-import type { FieldContextProps, FieldContextProvider } from "@elucidario/pkg-types";
+import type {
+    FieldContextProps,
+    FieldContextProvider,
+} from "@elucidario/types-design-system";
 import { useSystemProvider } from "@/provider";
 
 export const FieldContext = createContext<FieldContextProvider>({
@@ -8,13 +11,19 @@ export const FieldContext = createContext<FieldContextProvider>({
         type: "string",
     },
     // context: null,
-    name: null,
+    name: "name",
     label: "",
     description: "",
 });
 
-export const FieldProvider = ({ children, schema, translations, map, language, name }: React.PropsWithChildren & FieldContextProvider) => {
-
+export const FieldProvider = ({
+    children,
+    schema,
+    translations,
+    map,
+    language,
+    name,
+}: React.PropsWithChildren & FieldContextProvider) => {
     const { lang } = useSystemProvider();
 
     if (!language) language = lang;
@@ -27,7 +36,7 @@ export const FieldProvider = ({ children, schema, translations, map, language, n
                 if (translations && language) {
                     const label = translations.label.find(
                         ({ lang }: { lang: string; content: string }) =>
-                            lang === language
+                            lang === language,
                     );
                     if (label) return label.content;
                 }
@@ -39,18 +48,21 @@ export const FieldProvider = ({ children, schema, translations, map, language, n
                 if (translations && language) {
                     const description = translations.description.find(
                         ({ lang }: { lang: string; content: string }) =>
-                            lang === language
+                            lang === language,
                     );
                     if (description) return description.content;
                 }
                 return schema.description;
             })(),
-        }
+        };
     }, [schema, translations, map, language]);
 
-    const componentProps = useMemo(() => {
-
-    }, [schema, translations, map, language]);
+    const componentProps = useMemo(() => { }, [
+        schema,
+        translations,
+        map,
+        language,
+    ]);
 
     const props: FieldContextProvider = {
         // defaults
@@ -72,8 +84,6 @@ export const FieldProvider = ({ children, schema, translations, map, language, n
     // })
 
     return (
-        <FieldContext.Provider value={props}>
-            {children}
-        </FieldContext.Provider>
+        <FieldContext.Provider value={props}>{children}</FieldContext.Provider>
     );
-}
+};

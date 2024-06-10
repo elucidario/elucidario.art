@@ -1,6 +1,6 @@
 import React from "react";
 import * as RadixPopover from "@radix-ui/react-popover";
-import type { PopoverProps } from "@elucidario/pkg-types";
+import type { PopoverProps } from "@elucidario/types-design-system";
 import { Cross2Icon } from "@radix-ui/react-icons";
 
 export const Popover = ({ Trigger, Content, contentProps }: PopoverProps) => {
