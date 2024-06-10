@@ -2,7 +2,7 @@ import type {
     BuildCallbackProps,
     BuildOptions,
     FNCallbackProps,
-} from "@elucidario/pkg-types";
+} from "@elucidario/types-paths";
 
 import { Console } from "@elucidario/pkg-console";
 import { debounce } from "lodash-es";
