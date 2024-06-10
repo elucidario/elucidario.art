@@ -4,9 +4,9 @@ import type { Schema as JsonSchema, ValidationError } from "jsonschema";
 import {
     ValidateProps,
     SchemaValidatorInterface,
-    Schema,
-    DataTypes,
-} from "@elucidario/pkg-types";
+} from "@elucidario/types-schema-validator";
+
+import { Schema, DataTypes } from "@elucidario/types-mdorim";
 
 /**
  * SchemaValidator

@@ -8,11 +8,11 @@
         "emitDeclarationOnly": true,
         "declarationDir": "lib/types",
 
-        "types": ["@elucidario/pkg-types", "@elucidario/pkg-paths"],
+        "types": ["@elucidario/types-mdorim", "@elucidario/pkg-paths"],
 
         "paths": {
-            "@elucidario/pkg-types": [
-                "./node_modules/@elucidario/pkg-types/dist/index.d.ts"
+            "@elucidario/types-mdorim": [
+                "./node_modules/@elucidario/types-mdorim/dist/index.d.ts"
             ],
             "@elucidario/pkg-paths": [
                 "./node_modules/@elucidario/pkg-paths/dist/types/index.d.ts"

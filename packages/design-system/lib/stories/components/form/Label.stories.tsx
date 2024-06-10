@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { Label } from "@/components";
-import { LabelProps } from "@elucidario/pkg-types";
+import { LabelProps } from "@elucidario/types-design-system";
 import { ComponentTemplate } from "@/stories";
 
 const Template = (args: LabelProps) => {
@@ -9,8 +9,8 @@ const Template = (args: LabelProps) => {
         <ComponentTemplate>
             <Label {...args} />
         </ComponentTemplate>
-    )
-}
+    );
+};
 
 const meta = {
     title: "@elucidario/pkg-design-system/components/Form/Label",

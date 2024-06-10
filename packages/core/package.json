@@ -23,7 +23,6 @@
         "react-dom": "^18.3.1"
     },
     "devDependencies": {
-        "@elucidario/pkg-types": "workspace:^",
         "@elucidario/tool-rollup": "workspace:^",
         "@elucidario/tool-tsconfig": "workspace:^",
         "@types/node": "^18.19.34",

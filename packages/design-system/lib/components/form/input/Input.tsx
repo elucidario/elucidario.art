@@ -1,11 +1,10 @@
 import React from "react";
-import type { Input as InputType } from "@elucidario/pkg-types";
+import type { Input as InputType } from "@elucidario/types-design-system";
 import { useFormContext } from "react-hook-form";
 import { useFieldContext } from "../field";
 
 export const Input: InputType = ({ children, ...props }) => {
-
-    const { componentProps, name, } = useFieldContext();
+    const { componentProps, name } = useFieldContext();
     // const { register } = useFormContext();
 
     const className = [
@@ -30,7 +29,5 @@ export const Input: InputType = ({ children, ...props }) => {
 
     // console.warn({ options, componentProps, name });
 
-    return (
-        <input className={className.join(' ')} {...props} />
-    );
+    return <input className={className.join(" ")} {...props} />;
 };

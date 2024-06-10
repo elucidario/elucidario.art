@@ -3,7 +3,7 @@ import type {
     FieldLabelProps,
     LabelProps,
     LegendProps,
-} from "@elucidario/pkg-types";
+} from "@elucidario/types-design-system";
 
 import { Legend } from "../legend";
 import { Label } from "../label";
@@ -19,14 +19,19 @@ export const FieldLabel = ({ children, type, ...props }: FieldLabelProps) => {
         //     ? map !== undefined && <FieldMapping map={map} />
         //     : children;
 
-        const fieldTitle = label !== undefined ? label : props.label !== undefined ? props.label : false;
+        const fieldTitle =
+            label !== undefined
+                ? label
+                : props.label !== undefined
+                    ? props.label
+                    : false;
         // if (fieldTitle) {
         return (
             <>
                 {fieldTitle}
                 {/* {X} */}
             </>
-        )
+        );
         // }
         // return X;
     }, [children, label, props.label]);

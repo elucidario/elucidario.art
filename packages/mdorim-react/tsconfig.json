@@ -20,7 +20,7 @@
         "strict": true,
         "noFallthroughCasesInSwitch": true,
 
-        "types": ["@elucidario/pkg-types", "@elucidario/pkg-mdorim"],
+        "types": ["@elucidario/types-mdorim", "@elucidario/pkg-mdorim"],
         "paths": {
             "@elucidario/pkg-mdorim": [
                 "./node_modules/@elucidario/pkg-mdorim/lib"

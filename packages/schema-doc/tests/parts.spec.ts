@@ -13,7 +13,7 @@ import type {
     AnyOfSchema,
     OneOfSchema,
     Entity,
-} from "@elucidario/pkg-types";
+} from "@elucidario/types-mdorim";
 
 describe("entityTable function", () => {
     it("should create a entity table", () => {

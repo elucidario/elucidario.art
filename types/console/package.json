@@ -1,0 +1,15 @@
+{
+    "name": "@elucidario/types-console",
+    "license": "MIT",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "clean": "rm -rf dist",
+        "dev": "tsc -w"
+    },
+    "keywords": [],
+    "devDependencies": {
+        "@elucidario/tool-tsconfig": "workspace:^",
+        "typescript": "^5.4.5"
+    }
+}

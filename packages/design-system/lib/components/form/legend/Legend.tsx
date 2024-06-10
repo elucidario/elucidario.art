@@ -1,6 +1,6 @@
 import React from "react";
 
-import type { LegendProps } from "@elucidario/pkg-types";
+import type { LegendProps } from "@elucidario/types-design-system";
 
 export const Legend = ({ children, ...legendProps }: LegendProps) => {
     const className = [
@@ -13,7 +13,7 @@ export const Legend = ({ children, ...legendProps }: LegendProps) => {
     ];
 
     return (
-        <legend {...legendProps} className={className.join(' ')}>
+        <legend {...legendProps} className={className.join(" ")}>
             <>{children}</>
         </legend>
     );

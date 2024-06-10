@@ -8,11 +8,11 @@
         "declarationDir": "dist/types",
         "emitDeclarationOnly": true,
         "paths": {
-            "@elucidario/pkg-types": [
-                "node_modules/@elucidario/pkg-types/dist/index.d.ts"
+            "@elucidario/types-console": [
+                "node_modules/@elucidario/types-console/dist/index.d.ts"
             ]
         },
-        "types": ["@elucidario/pkg-types"]
+        "types": ["@elucidario/types-console"]
     },
     "include": ["src/index.ts"]
 }
