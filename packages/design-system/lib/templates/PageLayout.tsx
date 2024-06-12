@@ -1,6 +1,7 @@
 import { cn } from "@/utils";
 import { SystemProvider } from "@/provider";
-import { Header } from "@/components";
+import { Layout } from "./Layout";
+import { Header, Sidebar, Footer, Main, Article, Nav } from "@/components";
 import { HTMLAttributes } from "react";
 
 export function PageLayout({
@@ -8,50 +9,77 @@ export function PageLayout({
 }: React.PropsWithChildren<HTMLAttributes<HTMLDivElement>>) {
     return (
         <SystemProvider>
-            <div
-                className={cn(
-                    "grid",
-                    "grid-cols-page",
-                    "grid-rows-page",
-                    "bg-zinc-50",
-                    "text-zinc-900",
-                    "dark:bg-zinc-950",
-                    "dark:text-zinc-50",
-                )}
-            >
+            <Layout>
                 <Header />
+                <Sidebar>
+                    <Nav.Root>
+                        <Nav.List>
+                            <Nav.Item>
+                                <Nav.Toggle
+                                    name="item-1"
+                                    className={cn("flex", "gap-2")}
+                                    icon={true}
+                                >
+                                    Item 1
+                                </Nav.Toggle>
+                                <Nav.List name="item-1">
+                                    <Nav.Item href="sub-item-1">
+                                        sub-Item 1
+                                    </Nav.Item>
+                                    <Nav.Item href="sub-item-2">
+                                        sub-Item 2
+                                    </Nav.Item>
+                                    <Nav.Item>
+                                        <Nav.Toggle
+                                            name="sub-item-3"
+                                            className={cn("flex", "gap-2")}
+                                            icon={true}
+                                        >
+                                            sub-item-3
+                                        </Nav.Toggle>
+                                        <Nav.List name="sub-item-3">
+                                            <Nav.Item href="sub-item-1">
+                                                sub-Item 1
+                                            </Nav.Item>
+                                            <Nav.Item href="sub-item-2">
+                                                sub-Item 2
+                                            </Nav.Item>
+                                            <Nav.Item href="sub-item-3">
+                                                sub-Item 3
+                                            </Nav.Item>
+                                        </Nav.List>
+                                    </Nav.Item>
+                                </Nav.List>
+                            </Nav.Item>
 
-                <aside
-                    className={cn(
-                        "sidebar-left",
-                        "row-start-2",
-                        "col-start-1",
-                        "col-span-1",
-                        "px-8",
-                        "py-4",
-                    )}
-                >
-                    sidebar left
-                </aside>
+                            <Nav.Item active={true}>
+                                <Nav.Toggle
+                                    name="item-2"
+                                    className={cn("flex", "gap-2")}
+                                    icon={true}
+                                >
+                                    Item 2
+                                </Nav.Toggle>
+                                <Nav.List name="item-2">
+                                    <Nav.Item href="sub-item-4">
+                                        sub-Item 4
+                                    </Nav.Item>
+                                    <Nav.Item href="sub-item-5">
+                                        sub-Item 5
+                                    </Nav.Item>
+                                    <Nav.Item href="sub-item-6">
+                                        sub-Item 6
+                                    </Nav.Item>
+                                </Nav.List>
+                            </Nav.Item>
 
-                <main
-                    className={cn(
-                        "row-start-2",
-                        "col-start-2",
-                        "col-span-2",
-                        "grid",
-                        "grid-cols-subgrid",
-                        "py-4",
-                    )}
-                >
-                    <article
-                        className={cn(
-                            "col-start-1",
-                            "col-span-2",
-                            "grid",
-                            "grid-cols-subgrid",
-                        )}
-                    >
+                            <Nav.Item>Item 3</Nav.Item>
+                        </Nav.List>
+                    </Nav.Root>
+                </Sidebar>
+
+                <Main>
+                    <Article>
                         <div
                             className={cn(
                                 "wrapper",
@@ -61,30 +89,13 @@ export function PageLayout({
                         >
                             {children}
                         </div>
-                        <aside className={cn("col-start-2", "col-span-1")}>
-                            sidebar right
-                        </aside>
+                        <Sidebar variant="right">sidebar right</Sidebar>
                         <footer className={cn("footer")}>references</footer>
-                    </article>
-                </main>
+                    </Article>
+                </Main>
 
-                <footer
-                    className={cn(
-                        "footer",
-                        "px-8",
-                        "col-start-1",
-                        "col-span-3",
-                        "row-start-3",
-                        "row-span-3",
-                        "grid",
-                        "grid-cols-subgrid",
-                        "items-center",
-                        "bg-lcdr-blue",
-                    )}
-                >
-                    footer
-                </footer>
-            </div>
+                <Footer>Footer</Footer>
+            </Layout>
         </SystemProvider>
     );
 }
