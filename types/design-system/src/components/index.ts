@@ -1,3 +1,4 @@
+export * from "./typography";
 export * from "./box";
 export * from "./generic";
 export * from "./form";
@@ -9,3 +10,5 @@ export * from "./footer";
 export * from "./main";
 export * from "./article";
 export * from "./popover";
+export * from "./nav";
+export * from "./logo";
