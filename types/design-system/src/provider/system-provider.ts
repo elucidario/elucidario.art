@@ -1,18 +1,15 @@
-
-export type SystemContextProps = {
-    lang?: string
-}
-
 export type SystemState = {
-    lang: string
-}
+    lang: string;
+    variant: "default" | "landing";
+    theme: "light" | "dark";
+};
 
-export type SystemContextProvider = SystemState & {
+export type SystemContextProps = Partial<SystemState>;
 
-}
+export type SystemContextProvider = SystemState & {};
 
 export type SystemAction = {
-    type: string
-    payload: any
-}
+    type: string;
+    payload: Partial<SystemState>;
+};
 
