@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
 import { Object as ObjectType } from "@elucidario/types-design-system";
-import { Box, Field } from "@/components";
-import useFieldContext from "../field/useFieldContext";
+import { Box } from "@/components";
+import * as Form from "@/components/form";
+import useFieldContext from "../field/bk/useFieldContext";
 import { ObjectSchema } from "@elucidario/types-mdorim";
 
 const ObjectComponent: ObjectType = (props) => {
@@ -16,9 +17,13 @@ const ObjectComponent: ObjectType = (props) => {
             <>
                 {Object.entries(properties).map(([name, schema], index) => {
                     return (
-                        <Field.Root key={index} name={name} schema={schema}>
+                        <Form.Field.Root
+                            key={index}
+                            name={name}
+                            schema={schema}
+                        >
                             {name}
-                        </Field.Root>
+                        </Form.Field.Root>
                     );
                 })}
             </>
