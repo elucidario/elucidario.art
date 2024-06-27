@@ -14,8 +14,8 @@ export const theme: Config["theme"] = {
     extend: {
         colors: {
             dark: "#101010",
-            "lcdr-pink": "#e82070",
-            "lcdr-blue": "#0078c8",
+            "lcdr-pink": "var(--lcdr-pink)",
+            "lcdr-blue": "var(--lcdr-blue)",
         },
         gridTemplateRows: {
             page: "80px var(--middle-height) 32px",

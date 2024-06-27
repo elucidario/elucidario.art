@@ -1,22 +1,19 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import Page from "./Page.tsx";
-import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
-import { SystemProvider } from "@/provider";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Soon from "./Soon.tsx";
 
 const router = createBrowserRouter([
     {
-        element: (() => {
-            return (
-                <SystemProvider>
-                    <Outlet />
-                </SystemProvider>
-            );
-        })(),
         children: [
             {
                 path: "/",
                 element: <Page />,
+            },
+            {
+                path: "/soon",
+                element: <Soon />,
             },
         ],
     },

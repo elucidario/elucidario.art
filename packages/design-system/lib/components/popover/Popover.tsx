@@ -1,24 +1,50 @@
-import React from "react";
-import * as RadixPopover from "@radix-ui/react-popover";
-import type { PopoverProps } from "@elucidario/types-design-system";
-import { Cross2Icon } from "@radix-ui/react-icons";
+import * as React from "react";
+import * as PopoverPrimitive from "@radix-ui/react-popover";
 
-export const Popover = ({ Trigger, Content, contentProps }: PopoverProps) => {
-    return (
-        <RadixPopover.Root>
-            <RadixPopover.Trigger />
-            {/* <Trigger className='popover-trigger ml-1' />
-            </RadixPopover.Trigger> */}
-            {/* <RadixPopover.Anchor>Anchor</RadixPopover.Anchor> */}
-            <RadixPopover.Portal>
-                {/* <RadixPopover.Content className='popover-content w-64 ml-5 p-2 bg-white border-solid border border-gray-950' sideOffset={8}>
-                    {Content ? <Content {...contentProps} /> : null}
-                    <RadixPopover.Close />
-                    {/* <Cross2Icon />
-                    </RadixPopover.Close> */}
-                {/* <RadixPopover.Arrow /> */}
-                {/* </RadixPopover.Content> */}
-            </RadixPopover.Portal>
-        </RadixPopover.Root>
-    );
-};
+import { cn } from "@/utils";
+
+export const Popover = PopoverPrimitive.Root;
+
+export const PopoverTrigger = PopoverPrimitive.Trigger;
+
+export const PopoverContent = React.forwardRef<
+    React.ElementRef<typeof PopoverPrimitive.Content>,
+    React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>
+>(({ className, align = "center", sideOffset = 4, ...props }, ref) => (
+    <PopoverPrimitive.Portal>
+        <PopoverPrimitive.Content
+            ref={ref}
+            align={align}
+            sideOffset={sideOffset}
+            className={cn(
+                "z-50",
+                "w-72",
+                "rounded-sm",
+                "border",
+                "border-zinc-200",
+                "bg-zin-100",
+                "p-2",
+                "text-zinc-950",
+                "shadow-md",
+                "outline-none",
+                "data-[state=open]:animate-in",
+                "data-[state=closed]:animate-out",
+                "data-[state=closed]:fade-out-0",
+                "data-[state=open]:fade-in-0",
+                "data-[state=closed]:zoom-out-95",
+                "data-[state=open]:zoom-in-95",
+                "data-[side=bottom]:slide-in-from-top-2",
+                "data-[side=left]:slide-in-from-right-2",
+                "data-[side=right]:slide-in-from-left-2",
+                "data-[side=top]:slide-in-from-bottom-2",
+                "dark:border-zinc-800",
+                "dark:bg-zinc-950",
+                "dark:text-zinc-50",
+                className
+            )}
+            {...props}
+        />
+    </PopoverPrimitive.Portal>
+));
+PopoverContent.displayName = PopoverPrimitive.Content.displayName;
+

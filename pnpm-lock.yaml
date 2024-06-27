@@ -87,9 +87,6 @@ importers:
       '@babel/preset-typescript':
         specifier: ^7.24.7
         version: 7.24.7(@babel/core@7.24.7)
-      '@elucidario/pkg-types':
-        specifier: workspace:^
-        version: link:../../packages/types
       '@storybook/addon-essentials':
         specifier: ^8.1.5
         version: 8.1.5(@types/react-dom@18.3.0)(@types/react@18.3.3)(encoding@0.1.13)(prettier@3.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -994,34 +991,6 @@ importers:
         specifier: ^5.4.5
         version: 5.4.5
 
-  packages/types:
-    dependencies:
-      react:
-        specifier: ^18.2.0
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.3.1(react@18.3.1)
-    devDependencies:
-      '@elucidario/tool-tsconfig':
-        specifier: workspace:^
-        version: link:../../tools/tsconfig
-      '@types/node':
-        specifier: ^20.14.2
-        version: 20.14.2
-      '@types/react':
-        specifier: ^18.3.3
-        version: 18.3.3
-      '@types/react-dom':
-        specifier: ^18.3.0
-        version: 18.3.0
-      jsonschema:
-        specifier: ^1.4.1
-        version: 1.4.1
-      typescript:
-        specifier: ^5.4.5
-        version: 5.4.5
-
   packages/unist:
     dependencies:
       unist-builder:
@@ -1189,6 +1158,9 @@ importers:
       '@types/react-dom':
         specifier: ^18.3.0
         version: 18.3.0
+      class-variance-authority:
+        specifier: ^0.7.0
+        version: 0.7.0
       typescript:
         specifier: ^5.4.5
         version: 5.4.5

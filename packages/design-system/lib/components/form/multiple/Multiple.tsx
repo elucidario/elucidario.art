@@ -1,9 +1,8 @@
-import React from "react";
 import {
     MultipleProps,
     Multiple as MultipleType,
 } from "@elucidario/types-design-system";
-import { Button } from "@/components/ui";
+import { Button } from "@/components";
 // import { Field } from "../field";
 
 export const Multiple: MultipleType = ({ schema, fields }) => {
