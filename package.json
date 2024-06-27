@@ -42,6 +42,7 @@
         }
     },
     "dependencies": {
+        "import-local": "^3.1.0",
         "nx": "^17.3.2"
     },
     "devDependencies": {
