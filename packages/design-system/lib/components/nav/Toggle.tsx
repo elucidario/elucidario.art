@@ -1,7 +1,7 @@
 import { cn } from "@/utils";
 import type { NavToggleProps } from "@elucidario/types-design-system";
 
-import { Button } from "@/components/ui";
+import { Button } from "@/components";
 import { ChevronDown } from "lucide-react";
 import { useContext } from "react";
 import { Context } from "./Context";

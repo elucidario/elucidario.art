@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { Box, Form } from "@/components";
+import { Box } from "@/components";
 import { Body } from "@/templates";
 
 type ComponentTemplateProps = {
@@ -14,7 +14,7 @@ export const ComponentTemplate = (props: ComponentTemplateProps) => {
 
     return (
         <Body>
-            {form ? <Form.Form>{Component}</Form.Form> : Component}
+            {/* {form ? <Form.Form>{Component}</Form.Form> : Component} */}
         </Body>
     )
 };
