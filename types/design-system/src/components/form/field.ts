@@ -1,63 +1,40 @@
-import { FC, HTMLAttributes, TableHTMLAttributes, ReactNode } from "react";
-import type {
-    DataTypes,
-    MappingProps,
-    MdorimProperties,
-    Schema,
-} from "@elucidario/types-mdorim";
+import { JSONSchema7 } from "json-schema";
+import { HTMLAttributes, RefAttributes } from "react";
+import { ChangeHandler } from "react-hook-form";
 
-import type { BoxProps, Component } from "@/components";
-import type { LabelProps, LegendProps, InputType } from "./form";
+export type FieldValue = string | number | undefined | readonly string[];
 
-export type UseFieldComponent = (schema: Schema<DataTypes>) => FieldSchema;
+export type HTML = Record<string, unknown>;
 
-export type FieldSchema = Omit<Schema<DataTypes>, "required"> & {
-    name: string;
-    required?: boolean;
-    type?: InputType;
+export type Schema = JSONSchema7 & {
+    ref?: RefAttributes<HTMLAttributes<HTMLElement>>;
+    html?: HTML;
 };
 
-export interface FieldContextProps {
-    schema: Schema<DataTypes>;
-    name: MdorimProperties;
-    translations?: Record<string, any>;
-    map?: MappingProps;
-    language?: string;
-}
-
-export type FieldContextProvider = FieldContextProps & {
-    label: ReactNode;
-    description?: ReactNode;
-    componentProps?: FieldSchema;
+export type FieldDescriptionProps = React.HTMLAttributes<HTMLDivElement> & {
+    name?: string;
 };
 
-export type FieldRootProps = Component<HTMLAttributes<HTMLDivElement>> &
-    FieldContextProps;
 
-export type FieldLabelType = "label" | "legend";
+export type RenderField<T extends HTMLElement> = (
+    props: FieldProps<T>,
+) => JSX.Element;
 
-export type FieldLabelProps = (LabelProps | LegendProps) & {
-    type: FieldLabelType;
-    label?: ReactNode;
-};
-
-export type FieldDescriptionProps = BoxProps & {
-    description?: string;
-};
-
-export type FieldMappingProps = Component<
-    TableHTMLAttributes<HTMLTableElement>
+export type FieldProps<T extends HTMLElement = HTMLElement> = Omit<
+    HTMLAttributes<T>,
+    "onChange" | "dir"
 > & {
-    map: MappingProps;
+    name: string;
+    schema: Schema;
+    value?: FieldValue;
+    hidden?: boolean;
+    onChange?: ChangeHandler;
+    render?: RenderField<T>;
+    setHidden?: (hidden: boolean) => void;
 };
 
-export type FieldProps = Component<HTMLAttributes<HTMLDivElement>> &
-    FieldContextProps &
-    FieldDescriptionProps;
+export type FieldLabelProps = HTMLAttributes<
+    HTMLLabelElement | HTMLLegendElement
+>;
 
-export type FieldType = {
-    Provider: FC<FieldContextProvider>;
-    Root: FC<FieldRootProps>;
-    Label: FC<FieldLabelProps>;
-    Description: FC<FieldDescriptionProps>;
-};
+export type FieldBodyProps = HTMLAttributes<HTMLDivElement>;
