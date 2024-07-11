@@ -43,21 +43,21 @@
     },
     "dependencies": {
         "import-local": "^3.1.0",
-        "nx": "^17.3.2"
+        "nx": "^19.3.2"
     },
     "devDependencies": {
         "@elucidario/pkg-pub-gen": "workspace:^",
         "@elucidario/tool-eslint-config": "workspace:^",
         "@elucidario/tool-gen": "workspace:^",
-        "@nx/storybook": "^17.3.2",
+        "@nx/storybook": "^19.3.2",
         "commitizen": "^4.3.0",
-        "conventional-changelog": "^5.1.0",
-        "eslint": "^8.57.0",
-        "husky": "^8.0.3",
-        "lerna": "^7.4.2",
-        "lint-staged": "^15.2.5",
-        "prettier": "^3.3.1",
-        "typescript": "^5.4.5"
+        "conventional-changelog": "^6.0.0",
+        "eslint": "^9.5.0",
+        "husky": "^9.0.11",
+        "lerna": "^8.1.5",
+        "lint-staged": "^15.2.7",
+        "prettier": "^3.3.2",
+        "typescript": "^5.5.2"
     },
     "packageManager": "pnpm@9.1.4+sha512.9df9cf27c91715646c7d675d1c9c8e41f6fce88246f1318c1aa6a1ed1aeb3c4f032fcdf4ba63cc69c4fe6d634279176b5358727d8f2cc1e65b65f43ce2f8bfb0",
     "engines": {
