@@ -1,5 +1,3 @@
-import fs from "fs/promises";
-import { statSync } from "fs";
 import path from "path";
 
 import type {
