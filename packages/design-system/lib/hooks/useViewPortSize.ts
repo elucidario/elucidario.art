@@ -22,10 +22,10 @@ function getWindowDimensions() {
         };
     })();
 
-    const { width, height, isDesktop, isMobile, isTablet } = (() => {
+    const { width, height, type, isDesktop, isMobile, isTablet } = (() => {
         if (typeof window !== "undefined") {
             const { innerWidth, innerHeight } = window;
-            return {
+            const viewport = {
                 width: innerWidth,
                 height: innerHeight,
                 isMobile: innerWidth <= breakpoints.sm && innerWidth >= 0,
@@ -34,11 +34,22 @@ function getWindowDimensions() {
                     innerWidth >= breakpoints.md,
                 isDesktop: innerWidth >= breakpoints.lg,
             };
+            return {
+                ...viewport,
+                type: viewport.isMobile
+                    ? "mobile"
+                    : viewport.isTablet
+                        ? "tablet"
+                        : viewport.isDesktop
+                            ? "desktop"
+                            : "unknown",
+            };
         } else {
             // default to mobile for ssr
             return {
                 width: 480,
                 height: 800,
+                type: "mobile",
                 isMobile: true,
                 isTablet: false,
                 isDesktop: false,
@@ -49,6 +60,7 @@ function getWindowDimensions() {
     return {
         width,
         height,
+        type,
         isDesktop,
         isMobile,
         isTablet,

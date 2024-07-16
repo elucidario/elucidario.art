@@ -1,18 +1,18 @@
-import { SystemProvider } from "@/provider";
-import { Layout } from "./Layout";
-import { Header, Footer, Main, Link } from "@/components";
 import { HTMLAttributes } from "react";
-import { cn } from "..";
+import { Footer, Header, Link, Main } from "@/components";
+import { System } from "@/provider";
+import { cn } from "@/utils";
+import { Layout } from "./Layout";
 
 export function LandingPageLayout({
     children,
 }: React.PropsWithChildren<HTMLAttributes<HTMLDivElement>>) {
     return (
-        <SystemProvider variant={"landing"}>
-            <Layout variant={"landing"}>
-                <Header variant={"landing"} />
-                <Main variant={"landing"}>{children}</Main>
-                <Footer variant={"landing"}>
+        <System.Provider variant="landing">
+            <Layout>
+                <Header />
+                <Main>{children}</Main>
+                <Footer>
                     <Link
                         href="https://www.instagram.com/elucidario.art"
                         target="_blank"
@@ -37,6 +37,6 @@ export function LandingPageLayout({
                     </Link>
                 </Footer>
             </Layout>
-        </SystemProvider>
+        </System.Provider>
     );
 }

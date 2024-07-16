@@ -1,11 +1,7 @@
-import {
-    MultipleProps,
-    Multiple as MultipleType,
-} from "@elucidario/types-design-system";
+import { MultipleProps } from "@elucidario/types-design-system";
 import { Button } from "@/components";
-// import { Field } from "../field";
 
-export const Multiple: MultipleType = ({ schema, fields }) => {
+export function Multiple({ schema, fields }: MultipleProps) {
     console.log("Multiple", {
         schema,
         fields,
@@ -27,4 +23,4 @@ export const Multiple: MultipleType = ({ schema, fields }) => {
             <Button>{"Adicionar"}</Button>
         </div>
     );
-};
+}

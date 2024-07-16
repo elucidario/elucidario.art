@@ -12,9 +12,11 @@ import "./tailwind.css";
 import { useViewPortSize } from "@/hooks";
 import { SystemActionTypes, Context, defaultContext } from "./defaultContext";
 
-export const SystemProvider = ({
+export const Provider = ({
     children,
-}: React.PropsWithChildren<SystemContextProps>) => {
+    variant,
+    theme,
+}: React.PropsWithChildren<{}> & SystemContextProps) => {
     /**
      *   _______  _______  _______  _______  _______
      *  |       ||       ||   _   ||       ||       |
@@ -44,8 +46,8 @@ export const SystemProvider = ({
             }
         },
         {
-            variant: defaultContext.variant,
-            theme: defaultContext.theme,
+            variant: variant || defaultContext.variant,
+            theme: theme || defaultContext.theme,
         },
     );
 
@@ -75,7 +77,7 @@ export const SystemProvider = ({
         return {
             middleHeight:
                 viewPort.height -
-                ((state.variant === "default" ? 80 : 128) + 32), // Header + Footer
+                ((state.variant === "default" ? 80 : 128) + 32 - 12), // Header + Footer
         };
     }, [viewPort.height, state.variant]);
 
@@ -125,31 +127,13 @@ export const SystemProvider = ({
         });
     }, [setTheme]);
 
-    /**
-     * Set lang, variant and theme from props to state
-     */
-    // useEffect(() => {
-    //     if (variant !== state.variant && variant) {
-    //         dispatch({
-    //             type: SystemActionTypes.SET_VARIANT,
-    //             payload: { variant },
-    //         });
-    //     }
-    //     if (theme !== state.theme && theme) {
-    //         dispatch({
-    //             type: SystemActionTypes.SET_VARIANT,
-    //             payload: { theme },
-    //         });
-    //     }
-    // }, [lang, variant, theme]);
-
     // TODO remove before PR  [START]
     const debug = {
         viewPort,
         middleHeight,
-        // variant,
-        // lang,
         state,
+        theme,
+        variant,
     };
     useEffect(() => {
         console.log(debug);

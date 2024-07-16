@@ -1,5 +1,3 @@
-import React, { ElementType } from "react";
-
 // export type LabelProps = Omit<Component, 'as'> & LabelHTMLAttributes<HTMLLabelElement> & {
 //     htmlFor?: string;
 // }

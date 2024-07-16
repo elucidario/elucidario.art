@@ -11,7 +11,7 @@ export default defineConfig({
     build: {
         copyPublicDir: false,
         sourcemap: true,
-        emptyOutDir: true,
+        emptyOutDir: false,
         lib: {
             entry: path.resolve(__dirname, "lib", "index.ts"),
             formats: ["es"],

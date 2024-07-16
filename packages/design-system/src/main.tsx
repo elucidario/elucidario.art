@@ -1,8 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import Page from "./Page.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Soon from "./Soon.tsx";
+
+import Page from "./Page";
+import Soon from "./Soon";
 
 const router = createBrowserRouter([
     {

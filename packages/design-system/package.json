@@ -8,8 +8,7 @@
     "exports": {
         ".": {
             "import": "./dist/es/design-system.js",
-            "require": "./dist/umd/design-system.js",
-            "types": "./dist/types/lib/index.d.ts"
+            "types": "./dist/types/index.d.ts"
         },
         "./style.css": "./dist/style.css"
     },

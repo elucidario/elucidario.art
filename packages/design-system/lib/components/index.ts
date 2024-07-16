@@ -12,6 +12,8 @@ export * from "./button";
 export * from "./calendar";
 export * from "./radial-bg";
 export * from "./hero";
+export * from "./image";
+export * from "./visible";
 
 // form
 export * from "./form";
