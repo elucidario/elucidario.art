@@ -9,3 +9,7 @@ export type FormProps = {
         fields?: FieldValues;
     }) => React.ReactNode;
 } & React.FormHTMLAttributes<HTMLFormElement>;
+
+export type LegendProps = React.PropsWithChildren<
+    React.HTMLAttributes<HTMLLegendElement>
+>;

@@ -1,14 +1,35 @@
+import { useSystemProvider } from "@/provider";
 import { cn } from "@/utils";
 import { LayoutProps } from "@elucidario/types-design-system";
 import { cva } from "class-variance-authority";
 
 const layoutVariants = cva(
-    ["bg-zinc-50", "text-zinc-900", "dark:bg-zinc-950", "dark:text-zinc-50"],
+    [
+        "h-svh",
+        "bg-zinc-50",
+        "text-zinc-900",
+        "dark:bg-zinc-950",
+        "dark:text-zinc-50",
+        "grid",
+    ],
     {
         variants: {
             variant: {
-                default: ["grid", "grid-cols-page", "grid-rows-page"],
-                landing: ["h-svh"]
+                default: ["grid-cols-page", "grid-rows-page"],
+                landing: [
+                    "lg:grid-cols-system-lg",
+                    "lg:grid-rows-system-lg",
+                    "lg:gap-2",
+
+                    "md:grid-cols-system-md",
+                    "md:grid-rows-system-md",
+                    "md:gap-2",
+
+                    "sm:grid-cols-system-sm",
+                    "sm:grid-rows-system-sm",
+                    "sm:gap-2",
+                ],
+                app: [],
             },
         },
         defaultVariants: {
@@ -23,8 +44,17 @@ export function Layout({
     children,
     ...props
 }: LayoutProps<typeof layoutVariants>) {
+    const { variant: _variant } = useSystemProvider();
     return (
-        <div {...props} className={cn(layoutVariants({ variant, className }))}>
+        <div
+            {...props}
+            className={cn(
+                layoutVariants({
+                    variant: _variant || variant,
+                    className,
+                }),
+            )}
+        >
             {children}
         </div>
     );

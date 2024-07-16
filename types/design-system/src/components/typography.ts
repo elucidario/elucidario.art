@@ -5,7 +5,11 @@ export type LinkType = {
 };
 
 export type LinkProps = React.PropsWithChildren<
-    React.HTMLAttributes<HTMLAnchorElement> & React.AriaAttributes & LinkType
+    React.HTMLAttributes<HTMLAnchorElement> &
+    LinkType & {
+        active?: boolean;
+        external?: boolean;
+    }
 >;
 
 export type HeadingProps = React.PropsWithChildren<

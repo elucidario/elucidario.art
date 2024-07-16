@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export function useMousePosition() {
+export function useMousePosition(ref?: React.RefObject<HTMLElement>) {
     const [position, setPosition] = useState({
         mouseX: 0,
         mouseY: 0,
@@ -9,19 +9,20 @@ export function useMousePosition() {
     });
 
     useEffect(() => {
-        function handleMouseMove(event: { clientX: any; clientY: any }) {
+        function handleMouseMove(event: MouseEvent) {
+            const bounds = ref?.current?.getBoundingClientRect();
+            const x = bounds ? event.clientX - bounds.left : event.clientX;
+            const y = bounds ? event.clientY - bounds.top : event.clientY;
             setPosition({
-                mouseX: event.clientX,
-                mouseY: event.clientY,
-                percentX: Math.round((event.clientX / window.innerWidth) * 100),
-                percentY: Math.round(
-                    (event.clientY / window.innerHeight) * 100,
-                ),
+                mouseX: x,
+                mouseY: y,
+                percentX: Math.round((x / window.innerWidth) * 100),
+                percentY: Math.round((y / window.innerHeight) * 100),
             });
         }
         window.addEventListener("mousemove", handleMouseMove);
         return () => window.removeEventListener("mousemove", handleMouseMove);
-    }, []);
+    }, [ref]);
 
     return position;
 }

@@ -1,7 +1,15 @@
 import { cn } from "@/utils";
 import { LinkProps } from "@elucidario/types-design-system";
+import { SquareArrowOutUpRight } from "lucide-react";
 
-export function Link({ href, className, active, children, ...props }: LinkProps) {
+export function Link({
+    href,
+    className,
+    active,
+    children,
+    external,
+    ...props
+}: LinkProps) {
     return (
         <a
             {...props}
@@ -15,11 +23,18 @@ export function Link({ href, className, active, children, ...props }: LinkProps)
                 "focus-visible:ring-2",
                 "focus-visible:ring-ring",
                 "focus-visible:ring-offset-2",
-                ...active ? ["font-bold", "underline", "decoration-double"] : [],
+                ...(active
+                    ? ["font-bold", "underline", "decoration-double"]
+                    : []),
                 className,
             )}
         >
             {children}
+            {external && (
+                <SquareArrowOutUpRight
+                    className={cn("inline-block", "w-3", "h-3", "ml-1")}
+                />
+            )}
         </a>
     );
 }

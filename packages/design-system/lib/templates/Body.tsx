@@ -1,5 +1,5 @@
-import { BodyProps } from "@elucidario/types-design-system";
 import React from "react";
+import { BodyProps } from "@elucidario/types-design-system";
 
 export const Body = (props: BodyProps) => {
     const { children, body } = props;

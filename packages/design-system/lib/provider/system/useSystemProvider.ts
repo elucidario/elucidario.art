@@ -1,5 +1,5 @@
 import { useContext } from "react";
 
-import { SystemContext } from "./defaultContext";
+import { Context } from "./defaultContext";
 
-export const useSystemProvider = () => useContext(SystemContext);
+export const useSystemProvider = () => useContext(Context);

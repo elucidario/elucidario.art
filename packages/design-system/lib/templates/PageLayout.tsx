@@ -1,5 +1,5 @@
 import { cn } from "@/utils";
-import { SystemProvider } from "@/provider";
+import { System } from "@/provider";
 import { Layout } from "./Layout";
 import { Header, Sidebar, Footer, Main, Article, Nav } from "@/components";
 import { HTMLAttributes } from "react";
@@ -8,7 +8,7 @@ export function PageLayout({
     children,
 }: React.PropsWithChildren<HTMLAttributes<HTMLDivElement>>) {
     return (
-        <SystemProvider>
+        <System.Provider>
             <Layout>
                 <Header />
                 <Sidebar>
@@ -96,6 +96,6 @@ export function PageLayout({
 
                 <Footer>Footer</Footer>
             </Layout>
-        </SystemProvider>
+        </System.Provider>
     );
 }
