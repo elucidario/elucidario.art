@@ -1,5 +1,4 @@
-import { LinkType } from "./typography";
-import { LinkProps } from "./typography";
+import { LinkType, LinkProps } from "./typography";
 
 export type NavContextType = {
     expanded: string[];
@@ -33,5 +32,5 @@ export type NavListProps = React.PropsWithChildren<
 >;
 
 export type NavItemProps = React.PropsWithChildren<
-    React.HTMLAttributes<HTMLLIElement> & Partial<LinkType> & LinkProps
+    React.HTMLAttributes<HTMLLIElement> & Partial<LinkType> & Partial<LinkProps>
 >;

@@ -13,6 +13,7 @@ export * from "./radial-bg";
 export * from "./hero";
 export * from "./image";
 export * from "./visible";
+export * from "./newsletter";
 
 export * from "./form";
 
