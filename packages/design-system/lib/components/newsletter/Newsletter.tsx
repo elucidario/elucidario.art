@@ -1,31 +1,38 @@
 import * as Form from "@/components/form";
 import { cn } from "@/utils";
 
-export function Newsletter() {
+import type { Fields, NewsletterProps } from "@elucidario/types-design-system";
+
+export function Newsletter({
+    fields,
+    submitLabel,
+    onSubmit,
+    onError,
+}: NewsletterProps) {
+    const defaultFields: Fields = {
+        nome: {
+            name: "nome",
+            schema: {
+                type: "string",
+                title: "Nome",
+            },
+        },
+        email: {
+            name: "email",
+            schema: {
+                type: "string",
+                title: "Email",
+                html: {
+                    placeholder: "nome@dominio.com",
+                },
+            },
+        },
+    };
+
     return (
         <Form.default
             className={cn("flex", "flex-col", "gap-4", "mt-4")}
-            fields={{
-                nome: {
-                    name: "nome",
-                    schema: {
-                        type: "string",
-                        format: "email",
-                        title: "Nome",
-                    },
-                },
-                email: {
-                    name: "email",
-                    schema: {
-                        type: "string",
-                        format: "email",
-                        title: "Email",
-                        html: {
-                            placeholder: "ola mundo",
-                        },
-                    },
-                },
-            }}
+            fields={fields || defaultFields}
             render={({ formProps, fields, methods }) => {
                 return (
                     <>
@@ -41,11 +48,9 @@ export function Newsletter() {
                         })}
                         <Form.Submit
                             variant={"ghost"}
-                            onClick={methods.handleSubmit((values) => {
-                                console.log({ values });
-                            })}
+                            onClick={methods.handleSubmit(onSubmit, onError)}
                         >
-                            enviar
+                            {submitLabel || "enviar"}
                         </Form.Submit>
                     </>
                 );

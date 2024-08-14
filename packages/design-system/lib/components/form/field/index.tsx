@@ -4,13 +4,13 @@ import { Label } from "./Label";
 import { Description } from "./Description";
 import { Error } from "./Error";
 
-import { FieldProps } from "@elucidario/types-design-system";
+import { FieldProviderProps } from "@elucidario/types-design-system";
 
 const Field = { Root, Body, Label, Description, Error };
 
 export { Field };
 
-const Component = (props: FieldProps) => {
+const Component = (props: FieldProviderProps) => {
     return (
         <Root {...props}>
             <Label />

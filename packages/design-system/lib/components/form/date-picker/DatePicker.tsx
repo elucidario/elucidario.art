@@ -89,7 +89,7 @@ export const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>(
                             mode="single"
                             selected={date !== "" ? new Date(date) : undefined}
                             onSelect={onDateChange}
-                            initialFocus
+                        // initialFocus
                         />
                     </PopoverContent>
                 </Popover>

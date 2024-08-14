@@ -1,4 +1,4 @@
-import { FieldProps } from "@elucidario/types-design-system";
+import { FieldProviderProps } from "@elucidario/types-design-system";
 import { useFormContext } from "react-hook-form";
 import { cn } from "@/utils";
 import { Context } from "./Context";
@@ -8,7 +8,7 @@ export function Provider({
     schema,
     children,
     ...rest
-}: FieldProps<HTMLFieldSetElement>) {
+}: FieldProviderProps) {
     const { register } = useFormContext();
 
     const field = register(name, {

@@ -31,6 +31,7 @@ export function Body() {
                     />
                 );
             }
+
             if (
                 typeof schema?.html?.type !== "undefined" &&
                 ["date", "datetime-local", "month", "time", "week"].includes(
