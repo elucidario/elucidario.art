@@ -8,17 +8,13 @@
     "type": "module",
     "main": "lib/index.min.js",
     "scripts": {
-        "db:reset-test": "rm -r ./wp/src/wp-content/database",
-        "index": "node ./.bin/create-index.js",
         "build": "rollup -c",
         "watch": "pnpm build -w",
         "jest": "jest --coverage",
-        "lint": "pnpm .bin/lint.sh",
-        "make-pot": "node ./.bin/make-pot.js",
-        "test": "pnpm .bin/test.sh"
+        "lint": "pnpm eslint",
+        "test": "pnpm vitest"
     },
     "dependencies": {
-        "@elucidario/pkg-mdorim": "workspace:^",
         "react": "^18.3.1",
         "react-dom": "^18.3.1"
     },
@@ -30,21 +26,5 @@
         "@types/react-dom": "^18.3.0",
         "rollup": "^4.18.0",
         "typescript": "^5.5.2",
-        "wp-pot": "^1.10.2"
-    },
-    "peerDependencies": {
-        "@elucidario/pkg-mdorim": "workspace:^"
-    },
-    "wp_plugin": {
-        "name": "Elucidário.art",
-        "wp_at_least": "6.0.0",
-        "min_php": "7.4",
-        "text_domain": "lcdr",
-        "domain_path": "/languages",
-        "dependencies": [
-            "react",
-            "react-dom",
-            "wp-i18n"
-        ]
     }
 }
