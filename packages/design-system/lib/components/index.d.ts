@@ -1,8 +1,6 @@
 export * from "./box";
 export * from "./generic";
-
 export * from "./typography";
-
 export * from "./layout";
 export * from "./header";
 export * from "./footer";
@@ -13,9 +11,8 @@ export * from "./radial-bg";
 export * from "./hero";
 export * from "./image";
 export * from "./visible";
-
+export * from "./newsletter";
 export * from "./form";
-
 export * from "./button";
 export * from "./popover";
 export * from "./nav";

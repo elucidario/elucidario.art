@@ -1,9 +1,0 @@
-{
-    "extends": "@elucidario/tool-tsconfig",
-    "compilerOptions": {
-        "baseUrl": ".",
-        "rootDir": "src",
-        "outDir": "dist"
-    },
-    "include": ["src/index.ts"]
-}

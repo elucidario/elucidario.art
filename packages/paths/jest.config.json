@@ -1,4 +1,0 @@
-{
-    "roots": ["."],
-    "modulePathIgnorePatterns": ["<rootDir>/dist/", "<rootDir>/node_modules/"]
-}

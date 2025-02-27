@@ -1,7 +1,0 @@
-cache
-docs/*
-static/*
-searchIndex.js
-.gh-token
-~$*.*
-.env

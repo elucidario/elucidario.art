@@ -1,9 +1,0 @@
-{
-    "extends": "@elucidario/tool-tsconfig",
-    "compilerOptions": {
-        "resolveJsonModule": true,
-        "outDir": "dist",
-        "types": ["chalk", "node"]
-    },
-    "include": ["src/index.ts"]
-}
