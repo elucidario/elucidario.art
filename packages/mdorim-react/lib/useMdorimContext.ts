@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { MdorimContext } from "./MdorimProvider";
-import { MdorimContext as MdorimContextType } from "@elucidario/pkg-types";
+import { MdorimContext as MdorimContextType } from "@elucidario/types-mdorim";
 
 export const useMdorimContext = () => {
     const context = useContext<MdorimContextType | null>(MdorimContext);

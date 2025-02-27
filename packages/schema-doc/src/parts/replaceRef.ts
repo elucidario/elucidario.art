@@ -1,4 +1,4 @@
-import { Schema, DataTypes } from "@elucidario/pkg-types";
+import { Schema, DataTypes } from "@elucidario/types-mdorim";
 
 /**
  * Replace references in a schema.

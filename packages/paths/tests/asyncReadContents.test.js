@@ -1,4 +1,5 @@
 import { asyncReadContents } from "../dist/mjs";
+import path from "path";
 
 describe("asyncReadContents", () => {
     it("should return an Array of File object from index (default)", async () => {
@@ -10,7 +11,7 @@ describe("asyncReadContents", () => {
 
         expect(contents[0]).toMatchObject({
             name: "hello-world",
-            path: "C:\\Users\\55119\\Elucidário.art\\elucidario\\packages\\paths\\tests\\data\\hello-world.md",
+            path: path.resolve("tests/data/hello-world.md"),
             ext: "md",
             value: "hello world\r\n",
         });

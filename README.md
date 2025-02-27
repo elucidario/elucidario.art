@@ -16,10 +16,12 @@ O repositório está estruturado em uma arquitetura de mono-repositório, em que
 
 ```bash
 elucidario
-├── packages
 ├── apps
+├── packages
 ├── publications
 ├── references
+├── tools
+├── types
 ├── ...
 ```
 
@@ -27,9 +29,13 @@ O diretório `packages` contém os pacotes que podem ser reutilizados, tanto por
 
 No diretório `apps`, se encontram as aplicações, como um ambiente de desenvolvimento completo utilizando Docker para testes locais e o site do Elucidário.art disponível em <http://elucidario.art/>. Os pacotes nesta pasta seguem o padrão de nome `@elucidario/app-<nome-pacote>`.
 
-O diretório `publications` contém as publicações referentes ao Elucidário.art, como esta dissertação de mestrado e outros artigos desenvolvidos ao longo da pesquisa. Os pacotes nesta pasta seguem o padrão de nome `@elucidario/pub-<nome-pacote>`.
+O diretório `publications` contém as publicações referentes ao Elucidário.art, como a dissertação de mestrado e outros artigos desenvolvidos ao longo da pesquisa. Os pacotes nesta pasta seguem o padrão de nome `@elucidario/pub-<nome-pacote>`.
 
 No diretório `references` contém referências utilizadas no desenvolvimento de todo o ecossistema do Elucidário.art e estão organizadas em um arquivo JSON para cada referência seguindo o formato [_Citation Style Language_ (CSL)](https://github.com/citation-style-language) (D’Arcus, 2010).
+
+Em `tools` estão os scripts e ferramentas auxiliares para o desenvolvimento do Elucidário.art. Os pacotes nesta pasta seguem o padrão de nome `@elucidario/tool-<nome-pacote>`.
+
+O diretório `types` contém os tipos Typescript utilizados em todo o ecossistema do Elucidário.art. Os pacotes nesta pasta seguem o padrão de nome `@elucidario/types-<nome-pacote>`.
 
 Todos os pacotes nos diretórios `apps` e `packages` foram construídos levando em conta os seguintes princípios de design, ou técnicas de programação:
 

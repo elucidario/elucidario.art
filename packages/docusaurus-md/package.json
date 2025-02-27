@@ -13,13 +13,14 @@
         "dev": "pnpm build -w"
     },
     "devDependencies": {
-        "@elucidario/pkg-types": "workspace:^",
         "@elucidario/tool-rollup": "workspace:^",
         "@elucidario/tool-tsconfig": "workspace:^",
-        "@types/node": "^18.19.3",
+        "@elucidario/types-docusaurus-md": "workspace:^",
+        "@types/jest": "^29.5.12",
+        "@types/node": "^20.14.9",
         "jest": "^29.7.0",
-        "rollup": "^3.29.4",
-        "ts-jest": "^29.1.1",
-        "typescript": "^5.3.3"
+        "rollup": "^4.18.0",
+        "ts-jest": "^29.1.5",
+        "typescript": "^5.5.2"
     }
 }

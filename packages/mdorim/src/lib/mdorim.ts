@@ -10,7 +10,7 @@ import {
     DataTypes,
     SchemaType,
     ParsedId,
-} from "@elucidario/pkg-types";
+} from "@elucidario/types-mdorim";
 
 import { mdorim, translation, translations, linkedArt } from "./json-imports";
 

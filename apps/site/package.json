@@ -1,0 +1,37 @@
+{
+    "name": "@elucidario/app-site",
+    "version": "0.1.0",
+    "description": "elucidario.art",
+    "keywords": [],
+    "private": true,
+    "author": "Henrique Godinho <ola@hgod.in>",
+    "type": "module",
+    "scripts": {
+        "build": "vite build",
+        "dev": "vite",
+        "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@vitejs/plugin-react": "^4.3.1",
+        "cross-fetch": "^4.0.0",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1",
+        "vike": "^0.4.177",
+        "vike-react": "^0.4.15"
+    },
+    "devDependencies": {
+        "@types/react": "^18.3.3",
+        "@types/react-dom": "^18.3.0",
+        "@typescript-eslint/eslint-plugin": "^7.14.1",
+        "@typescript-eslint/parser": "^7.14.1",
+        "autoprefixer": "^10.4.19",
+        "eslint": "^9.5.0",
+        "eslint-plugin-react": "^7.34.3",
+        "postcss": "^8.4.38",
+        "tailwindcss": "^3.4.4",
+        "typescript": "^5.5.2",
+        "vite": "^5.3.2",
+        "vite-tsconfig-paths": "^4.3.2"
+    }
+}

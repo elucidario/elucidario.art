@@ -19,18 +19,17 @@
     },
     "dependencies": {
         "@elucidario/pkg-mdorim": "workspace:^",
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0"
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1"
     },
     "devDependencies": {
-        "@elucidario/pkg-types": "workspace:^",
         "@elucidario/tool-rollup": "workspace:^",
         "@elucidario/tool-tsconfig": "workspace:^",
-        "@types/node": "^18.19.17",
-        "@types/react": "^18.2.55",
-        "@types/react-dom": "^18.2.19",
-        "rollup": "^4.12.0",
-        "typescript": "^5.3.3",
+        "@types/node": "^20.14.9",
+        "@types/react": "^18.3.3",
+        "@types/react-dom": "^18.3.0",
+        "rollup": "^4.18.0",
+        "typescript": "^5.5.2",
         "wp-pot": "^1.10.2"
     },
     "peerDependencies": {

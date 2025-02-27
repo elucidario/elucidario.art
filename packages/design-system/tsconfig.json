@@ -1,36 +1,25 @@
 {
+    "extends": "@elucidario/tool-tsconfig",
     "compilerOptions": {
         "baseUrl": ".",
-
-        "target": "ES2020",
         "useDefineForClassFields": true,
         "lib": ["ES2020", "DOM", "DOM.Iterable"],
-        "module": "ESNext",
-        "skipLibCheck": true,
-
-        /* Bundler mode */
-        "moduleResolution": "bundler",
-        "allowImportingTsExtensions": true,
+        // "moduleResolution": "bundler",
         "resolveJsonModule": true,
-        "isolatedModules": true,
-        "noEmit": true,
         "jsx": "react-jsx",
+        "typeRoots": ["./dist/types"],
 
         /* Linting */
         "strict": true,
-        // "noUnusedLocals": true,
-        // "noUnusedParameters": true,
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
         "noFallthroughCasesInSwitch": true,
 
         /* Design system */
-        "types": ["@elucidario/pkg-types"],
         "paths": {
             "@/*": ["./lib/*"],
-            "@elucidario/pkg-types": [
-                "./node_modules/@elucidario/pkg-types/dist"
-            ]
+            "@/assets/*": ["./assets/*"]
         }
     },
-    "include": ["src", "lib"],
-    "references": [{ "path": "./tsconfig.node.json" }]
+    "include": ["src", "lib"]
 }

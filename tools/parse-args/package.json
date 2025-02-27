@@ -13,8 +13,8 @@
     "devDependencies": {
         "@elucidario/tool-rollup": "workspace:^",
         "@elucidario/tool-tsconfig": "workspace:^",
-        "@types/node": "^18.19.3",
-        "rollup": "^3.29.4",
-        "typescript": "^5.3.3"
+        "@types/node": "^20.14.9",
+        "rollup": "^4.18.0",
+        "typescript": "^5.5.2"
     }
 }

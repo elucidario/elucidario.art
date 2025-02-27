@@ -4,9 +4,9 @@ import type { Schema as JsonSchema, ValidationError } from "jsonschema";
 import {
     ValidateProps,
     SchemaValidatorInterface,
-    Schema,
-    DataTypes,
-} from "@elucidario/pkg-types";
+} from "@elucidario/types-schema-validator";
+
+import { Schema, DataTypes } from "@elucidario/types-mdorim";
 
 /**
  * SchemaValidator
@@ -39,7 +39,7 @@ export class SchemaValidator implements SchemaValidatorInterface {
     validate({ schema, data, returnType = "boolean", schemas }: ValidateProps) {
         this.addSchemas(schemas);
 
-        const validate = this.validator.validate(data, schema);
+        const validate = this.validator.validate(data, schema as JsonSchema);
         this.errors = validate.errors;
 
         if (returnType === "boolean") {

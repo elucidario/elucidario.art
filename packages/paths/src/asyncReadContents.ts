@@ -1,12 +1,10 @@
-import fs from "fs/promises";
-import { statSync } from "fs";
 import path from "path";
 
 import type {
     PackageProps,
     ReadContentsProps,
     ReadContentsReturn,
-} from "@elucidario/pkg-types";
+} from "@elucidario/types-paths";
 
 import { getPaths } from "./getPaths";
 import { readFile, hasIndex, supportedExtensions } from "./file";

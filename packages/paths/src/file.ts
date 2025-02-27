@@ -6,7 +6,7 @@ import type {
     ReadFileProps,
     ParseFileProps,
     CreateFileProps,
-} from "@elucidario/pkg-types";
+} from "@elucidario/types-paths";
 
 /**
  * Supported file extensions
@@ -179,8 +179,8 @@ export function createFile(
     const extension = ext
         ? ext.replace(".", "")
         : typeof file === "string"
-          ? "md"
-          : file.ext;
+            ? "md"
+            : file.ext;
 
     try {
         createDir(dir);
@@ -226,8 +226,8 @@ export function writeFile(file: File, options?: WriteFileOptions): File {
     const extension = ext
         ? ext.replace(".", "")
         : typeof file === "string"
-          ? "md"
-          : file.ext;
+            ? "md"
+            : file.ext;
 
     try {
         createDir(dir);

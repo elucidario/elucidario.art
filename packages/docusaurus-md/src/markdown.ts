@@ -1,4 +1,4 @@
-import type { Status, Table } from "@elucidario/pkg-types";
+import type { Table } from "@elucidario/types-docusaurus-md";
 
 /**
  *  Convert array of strings to markdown string
@@ -54,13 +54,13 @@ export const headerTemplate = (title: string, description: string) => {
  * //
  * // :::;
  */
-export const status = (status: Status) => {
-    return toMD([
-        `:::${status.type} ${status.title}`,
-        status.description,
-        `:::`,
-    ]);
-};
+// export const status = (status: Status) => {
+//     return toMD([
+//         `:::${status.type} ${status.title}`,
+//         status.description,
+//         `:::`,
+//     ]);
+// };
 
 /**
  *  Cria bloco de cabeçalho markdown

@@ -19,7 +19,7 @@ import {
     list,
     backToTop,
 } from "./markdown";
-import type { Status, Table } from "@elucidario/pkg-types";
+import type { Status, Table } from "@elucidario/types-docusaurus-md";
 
 describe("toMD function", () => {
     it("should join array of strings with two new lines by default", () => {

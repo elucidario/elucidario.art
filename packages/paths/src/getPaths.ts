@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import type { GetPathsReturn } from "@elucidario/pkg-types";
+import type { GetPathsReturn } from "@elucidario/types-paths"
 
 export const getPaths = (): GetPathsReturn => {
     try {
@@ -18,6 +18,8 @@ export const getPaths = (): GetPathsReturn => {
             root = Path.dir.split("references")[0];
         } else if (Path.dir.includes("tools")) {
             root = Path.dir.split("tools")[0];
+        } else if (Path.dir.includes("types")) {
+            root = Path.dir.split("types")[0];
         } else if (Path.base === "elucidario") {
             root = path.resolve(Path.dir, Path.base);
         } else {
@@ -27,24 +29,28 @@ export const getPaths = (): GetPathsReturn => {
         const paths = {
             root,
             current: process.cwd(),
-            packages: path.join(root, "packages"),
             apps: path.join(root, "apps"),
+            packages: path.join(root, "packages"),
             publications: path.join(root, "publications"),
             references: path.join(root, "references"),
             tools: path.join(root, "tools"),
+            types: path.join(root, "types"),
             monorepo: {
-                packages: fs
-                    .readdirSync(path.join(root, "packages"))
-                    .map((dir) => [dir, path.join(root, "packages", dir)]),
                 apps: fs
                     .readdirSync(path.join(root, "apps"))
                     .map((dir) => [dir, path.join(root, "apps", dir)]),
+                packages: fs
+                    .readdirSync(path.join(root, "packages"))
+                    .map((dir) => [dir, path.join(root, "packages", dir)]),
                 publications: fs
                     .readdirSync(path.join(root, "publications"))
                     .map((dir) => [dir, path.join(root, "publications", dir)]),
                 tools: fs
                     .readdirSync(path.join(root, "tools"))
                     .map((dir) => [dir, path.join(root, "tools", dir)]),
+                types: fs
+                    .readdirSync(path.join(root, "types"))
+                    .map((dir) => [dir, path.join(root, "types", dir)]),
             },
         };
         return paths as GetPathsReturn;
@@ -53,16 +59,18 @@ export const getPaths = (): GetPathsReturn => {
         return {
             root: "",
             current: "",
-            packages: "",
             apps: "",
+            packages: "",
             publications: "",
             references: "",
             tools: "",
+            types: "",
             monorepo: {
                 packages: [],
                 apps: [],
                 publications: [],
                 tools: [],
+                types: [],
             },
         };
     }

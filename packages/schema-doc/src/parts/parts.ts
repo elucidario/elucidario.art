@@ -8,7 +8,7 @@ import {
     ObjectSchema,
     OneOfSchema,
     Schema,
-} from "@elucidario/pkg-types";
+} from "@elucidario/types-mdorim";
 
 import {
     backToTop,
@@ -80,15 +80,12 @@ export const resolveRef = (
                     ),
                 );
             }
-            link = `[${
-                code ? codeInline(pathObject.name) : pathObject.name
-            }](${pathObject.dir.replace("<local>", base)}/${
-                pathObject.name ? pathObject.name.toLocaleLowerCase() : ""
-            })`;
+            link = `[${code ? codeInline(pathObject.name) : pathObject.name
+                }](${pathObject.dir.replace("<local>", base)}/${pathObject.name ? pathObject.name.toLocaleLowerCase() : ""
+                })`;
         } else {
-            link = `[${
-                code ? codeInline(pathObject.name) : pathObject.name
-            }](#${pathObject.name.toLocaleLowerCase()})`;
+            link = `[${code ? codeInline(pathObject.name) : pathObject.name
+                }](#${pathObject.name.toLocaleLowerCase()})`;
         }
 
         return link;
@@ -161,20 +158,18 @@ export const metaType = (
             if ("title" in (metadata as ArraySchema).items) {
                 const type = i18n.__(
                     "type array<%s>",
-                    `[\`${(metadata as ArraySchema).items.title}\`](#${
-                        (metadata as ArraySchema).items.title
-                            ? (
-                                  (metadata as ArraySchema).items
-                                      .title as string
-                              ).toLocaleLowerCase()
-                            : (metadata as ArraySchema).items.type
+                    `[\`${(metadata as ArraySchema).items.title}\`](#${(metadata as ArraySchema).items.title
+                        ? (
+                            (metadata as ArraySchema).items
+                                .title as string
+                        ).toLocaleLowerCase()
+                        : (metadata as ArraySchema).items.type
                     })`,
                 );
                 return `> ${type}`;
             } else {
-                return `> ${i18n.__("type")} array<\`${
-                    (metadata as ArraySchema).items.type
-                }\`>`;
+                return `> ${i18n.__("type")} array<\`${(metadata as ArraySchema).items.type
+                    }\`>`;
             }
         case "object":
             return `> ${i18n.__("type")} \`${metadata.type}\` ${i18n.__(
@@ -205,7 +200,7 @@ export const description = (
 };
 
 /**
- * Cria linha que descreve a descrição do metadado
+ * Cria linha que representa a descrição do metadado
  * @param metadata | Schema
  * @param headingLevel | number
  * @param lang | SupportedLanguages
@@ -229,7 +224,7 @@ export const baseMetadata = (
 };
 
 /**
- * Cria linha que descreve a descrição do metadado do tipo array
+ * Cria linha que representa a descrição do metadado do tipo array
  * @param metadata | ArraySchema
  * @param headingLevel | number
  * @param lang | SupportedLanguages
@@ -268,7 +263,7 @@ export const examples = (
 };
 
 /**
- * Cria linha que descreve um metadado do tipo object
+ * Cria linha que representa um metadado do tipo object
  * @param schema | ObjectSchema
  * @returns | string
  */
@@ -301,13 +296,11 @@ export const objectMetadata = (
                 ),
                 metaType(schema, lang, (metadata) => {
                     if ("anyOf" in metadata) {
-                        return `> ${i18n.__("type")} \`${
-                            metadata.type
-                        }\` ${i18n.__("with `anyOf` properties")}`;
+                        return `> ${i18n.__("type")} \`${metadata.type
+                            }\` ${i18n.__("with `anyOf` properties")}`;
                     } else {
-                        return `> ${i18n.__("type")} \`${
-                            metadata.type
-                        }\` ${i18n.__("with `oneOf` properties")}`;
+                        return `> ${i18n.__("type")} \`${metadata.type
+                            }\` ${i18n.__("with `oneOf` properties")}`;
                     }
                 }),
                 description(schema),
@@ -388,8 +381,8 @@ export const objectMetadata = (
                             ? i18n.__("Yes")
                             : i18n.__("No")
                         : schema.required === true
-                        ? i18n.__("Yes")
-                        : i18n.__("No"));
+                            ? i18n.__("Yes")
+                            : i18n.__("No"));
 
                 if ("$ref" in value) {
                     const link = resolveRef(value.$ref as string, true, base);
@@ -418,14 +411,12 @@ export const objectMetadata = (
                                     pushExtraData(nestedOneOf);
                                     pushExtraData(nestedDescription);
 
-                                    return `array<[\`${
-                                        oneOf.items.title
-                                    }\`](#${oneOf.items.title.toLocaleLowerCase()})>`;
+                                    return `array<[\`${oneOf.items.title
+                                        }\`](#${oneOf.items.title.toLocaleLowerCase()})>`;
 
                                 default:
-                                    return `[\`${
-                                        oneOf.title
-                                    }\`](#${oneOf.title.toLocaleLowerCase()})`;
+                                    return `[\`${oneOf.title
+                                        }\`](#${oneOf.title.toLocaleLowerCase()})`;
                             }
                         })
                         .join(" \\| ");
@@ -452,8 +443,7 @@ export const objectMetadata = (
                             // }
                             return [
                                 key,
-                                `array<[\`${
-                                    arrayMeta.items.title
+                                `array<[\`${arrayMeta.items.title
                                 }\`](#${kebabCase(
                                     (
                                         arrayMeta.items.title as string
@@ -467,24 +457,23 @@ export const objectMetadata = (
                         if ("anyOf" in arrayMeta.items) {
                             return [
                                 key,
-                                `anyOf<${
-                                    arrayMeta.items.anyOf
-                                        ? arrayMeta.items.anyOf
-                                              .map((anyOf: any) => {
-                                                  if ("$ref" in anyOf) {
-                                                      return `${resolveRef(
-                                                          anyOf.$ref,
-                                                          true,
-                                                          base,
-                                                      )}`;
-                                                  } else {
-                                                      return `\`${JSON.stringify(
-                                                          anyOf,
-                                                      )}\``;
-                                                  }
-                                              })
-                                              .join(" - ")
-                                        : ""
+                                `anyOf<${arrayMeta.items.anyOf
+                                    ? arrayMeta.items.anyOf
+                                        .map((anyOf: any) => {
+                                            if ("$ref" in anyOf) {
+                                                return `${resolveRef(
+                                                    anyOf.$ref,
+                                                    true,
+                                                    base,
+                                                )}`;
+                                            } else {
+                                                return `\`${JSON.stringify(
+                                                    anyOf,
+                                                )}\``;
+                                            }
+                                        })
+                                        .join(" - ")
+                                    : ""
                                 }>`,
                                 arrayMeta.description,
                                 required,
@@ -493,20 +482,19 @@ export const objectMetadata = (
                         if ("oneOf" in arrayMeta.items) {
                             return [
                                 key,
-                                `oneOf<${
-                                    arrayMeta.items.oneOf
-                                        ? arrayMeta.items.oneOf
-                                              .map((oneOf: any) => {
-                                                  if ("$ref" in oneOf) {
-                                                      return `${resolveRef(
-                                                          oneOf.$ref,
-                                                          true,
-                                                          base,
-                                                      )}`;
-                                                  }
-                                              })
-                                              .join(" | ")
-                                        : ""
+                                `oneOf<${arrayMeta.items.oneOf
+                                    ? arrayMeta.items.oneOf
+                                        .map((oneOf: any) => {
+                                            if ("$ref" in oneOf) {
+                                                return `${resolveRef(
+                                                    oneOf.$ref,
+                                                    true,
+                                                    base,
+                                                )}`;
+                                            }
+                                        })
+                                        .join(" | ")
+                                    : ""
                                 }>`,
                                 arrayMeta.description,
                                 required,
@@ -556,8 +544,7 @@ export const objectMetadata = (
 
                         return [
                             key,
-                            `[\`${
-                                arrayMeta.title
+                            `[\`${arrayMeta.title
                             }\`](#${arrayMeta.title?.toLocaleLowerCase()})`,
                             arrayMeta.description,
                             required,
@@ -574,8 +561,7 @@ export const objectMetadata = (
 
                         return [
                             key,
-                            `[\`${
-                                objectMeta.title
+                            `[\`${objectMeta.title
                             }\`](#${objectMeta.title?.toLocaleLowerCase()})`,
                             objectMeta.description,
                             required,
@@ -634,7 +620,9 @@ export const metadata = (
 
 /**
  * Cria tabela de entidades
- * @param entity | Entity
+ * @param entity | Entity & { definitions?: Record<string, BaseSchema<DataTypes>> }
+ * @param lang | SupportedLanguages
+ * @param base | string
  * @returns | string
  */
 export const entityTable = (
@@ -644,9 +632,11 @@ export const entityTable = (
 ): string => {
     return toMD([
         heading(2, i18n.__("Definitions")),
-        ...Object.entries(entity.definitions || []).map(([key, value]) => {
-            return metadata(value, 3, lang, base);
-        }),
+        ...(entity.definitions
+            ? Object.entries(entity.definitions || []).map(([key, value]) => {
+                return metadata(value, 3, lang, base);
+            })
+            : ""),
     ]);
 };
 
@@ -667,12 +657,12 @@ export const entityPage = (
             : "",
         entity.definitions
             ? entityTable(
-                  entity as Entity & {
-                      definitions: Record<string, BaseSchema<DataTypes>>;
-                  },
-                  lang,
-                  base,
-              )
+                entity as Entity & {
+                    definitions: Record<string, BaseSchema<DataTypes>>;
+                },
+                lang,
+                base,
+            )
             : "",
     ]);
 };

@@ -1,36 +1,109 @@
-import React from "react";
-import type { Input as InputType } from "@elucidario/pkg-types";
-import { useFormContext } from "react-hook-form";
-import { useFieldContext } from "../field";
+import * as React from "react";
 
-export const Input: InputType = ({ children, ...props }) => {
+import type { InputProps } from "@elucidario/types-design-system";
+import { cva } from "class-variance-authority";
 
-    const { componentProps, name, } = useFieldContext();
-    // const { register } = useFormContext();
+export const inputVariants = cva(
+    ["flex", "h-10", "w-full", "px-3", "py-2", "border", "rounded"],
+    {
+        variants: {
+            variant: {
+                default: [
+                    // pallete
+                    "border-zinc-400",
+                    "bg-zinc-300",
+                    "ring-offset-zinc-100",
+                    "placeholder:text-zinc-500",
+                    "focus-visible:ring-zinc-950",
+                    "text-black",
 
-    const className = [
-        "input",
-        "p-2",
-        "text-md",
+                    "dark:border-zinc-700",
+                    "dark:bg-zinc-800",
+                    "dark:ring-offset-zinc-950",
+                    "dark:placeholder:text-zinc-400",
+                    "dark:focus-visible:ring-zinc-300",
+                    "dark:text-white",
 
-        "text-black",
-        "dark:text-white",
+                    // box
+                    "border-2",
 
-        "border",
-        "border-blue",
-        "bg-transparent",
+                    "file:border-0",
+                    "file:bg-transparent",
+                    "file:text-sm",
+                    "file:font-medium",
 
-        "focus:ring",
-        "focus:ring-blue",
-        "focus:outline-none",
-        "focus:border-blue",
-    ];
+                    // states
+                    "focus-visible:outline-none",
+                    "focus-visible:ring-2",
+                    "focus-visible:ring-offset-2",
+                    "disabled:cursor-not-allowed",
+                    "disabled:opacity-50",
+                    "read-only:opacity-70",
+                ],
+                outline: [
+                    "border-zinc-400",
+                    "ring-zinc-400",
+                    "bg-transparent",
 
-    // const options = register(props.name);
+                    "dark:border-zinc-700",
+                    "dark:ring-zinc-700",
 
-    // console.warn({ options, componentProps, name });
+                    "border-2",
 
+                    "file:border-0",
+                    "file:bg-transparent",
+                    "file:text-sm",
+                    "file:font-medium",
+
+                    // states
+                    "focus-visible:outline-none",
+                    "focus-visible:ring-2",
+                    "focus-visible:ring-offset-2",
+                    "disabled:cursor-not-allowed",
+                    "disabled:opacity-50",
+                    "read-only:opacity-70",
+                ],
+                ghost: [
+                    "border-transparent",
+                    "bg-zinc-300/30",
+                    "ring-offset-zinc-100",
+                    "placeholder:text-zinc-700",
+
+                    "file:border-0",
+                    "file:bg-transparent",
+                    "file:text-sm",
+                    "file:font-medium",
+
+                    "dark:bg-zinc-900/40",
+                    "dark:placeholder:text-zinc-400",
+
+                    // states
+                    "focus-visible:outline-none",
+                    "focus-visible:ring-2",
+                    "focus-visible:ring-offset-2",
+                    "disabled:cursor-not-allowed",
+                    "disabled:opacity-50",
+                    "read-only:opacity-70",
+                ],
+            },
+        },
+        defaultVariants: {
+            variant: "default",
+        },
+    },
+);
+
+export const Input = React.forwardRef<
+    HTMLInputElement,
+    InputProps<typeof inputVariants>
+>(({ className, type, variant, ...props }, ref) => {
     return (
-        <input className={className.join(' ')} {...props} />
+        <input
+            type={type}
+            className={inputVariants({ className, variant })}
+            ref={ref}
+            {...props}
+        />
     );
-};
+});
+Input.displayName = "Input";

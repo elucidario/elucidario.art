@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs/promises";
 import { statSync } from "fs";
-import type { File, ReadFileProps } from "@elucidario/pkg-types";
+import type { File, ReadFileProps } from "@elucidario/types-paths";
 
 import { supportedExtensions } from "./file";
 

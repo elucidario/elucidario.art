@@ -1,0 +1,17 @@
+const tsConfigTemplate = () => {
+    return {
+        extends: "@elucidario/tool-tsconfig",
+        compilerOptions: {
+            emitDeclarationOnly: true,
+            rootDir: "src",
+            outDir: "dist",
+            paths: {
+                "@/*": ["./src/*"],
+            },
+        },
+        include: ["src/**/*"],
+        exclude: ["node_modules"],
+    };
+};
+
+export default tsConfigTemplate;
