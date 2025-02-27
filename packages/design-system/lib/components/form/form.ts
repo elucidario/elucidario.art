@@ -1,20 +1,14 @@
-import type { FieldValues, UseFormReturn, UseFormProps } from "react-hook-form";
-import type { Fields } from "./field";
-import { HTMLAttributes } from "react";
+import { FieldValues, UseFormReturn } from "react-hook-form";
+import { FieldProps } from "./field";
 
 export type FormProps = {
-    fields: Fields;
+    fields?: Record<string, FieldProps>;
     render?: (render: {
         formProps: FormProps;
-        methods: UseFormReturn<FieldValues, any, undefined>;
-        fields: Fields;
-        values?: FieldValues;
+        methods: UseFormReturn;
+        fields?: FieldValues;
     }) => React.ReactNode;
-} & UseFormProps;
-
-export type FormProviderProps = React.PropsWithChildren<
-    HTMLAttributes<HTMLFormElement> & FormProps
->;
+} & React.FormHTMLAttributes<HTMLFormElement>;
 
 export type LegendProps = React.PropsWithChildren<
     React.HTMLAttributes<HTMLLegendElement>

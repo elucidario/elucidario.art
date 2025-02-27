@@ -1,7 +1,7 @@
-export type Breakpoints = "desktop" | "tablet" | "mobile" | "unknown";
+export type Breakpoints = "desktop" | "tablet" | "mobile";
 
-export type VisibleProps = React.PropsWithChildren<
-    React.HTMLAttributes<HTMLDivElement> & {
+export type VisibleProps<T> = React.PropsWithChildren<
+    React.HTMLAttributes<T> & {
         only?: Breakpoints | Breakpoints[];
     }
 >;
