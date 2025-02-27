@@ -1,1 +1,0 @@
-# `@elucidario/types-schema-validator`

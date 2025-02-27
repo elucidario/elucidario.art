@@ -1,3 +1,0 @@
-# AGRADECIMENTOS
-
-a fazer

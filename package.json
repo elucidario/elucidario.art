@@ -23,7 +23,6 @@
         "link": "lerna link",
         "lint": "lerna run lint",
         "prepare": "husky install",
-        "pub-gen": "pub-gen",
         "serve": "lerna run serve",
         "start": "lerna run start",
         "swizzle": "lerna run swizzle",
@@ -46,9 +45,7 @@
         "nx": "^19.3.2"
     },
     "devDependencies": {
-        "@elucidario/pkg-pub-gen": "workspace:^",
         "@elucidario/tool-eslint-config": "workspace:^",
-        "@elucidario/tool-gen": "workspace:^",
         "@nx/storybook": "^19.3.2",
         "commitizen": "^4.3.0",
         "conventional-changelog": "^6.0.0",
