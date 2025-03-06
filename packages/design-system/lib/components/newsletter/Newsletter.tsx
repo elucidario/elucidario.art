@@ -1,7 +1,8 @@
 import * as Form from "@/components/form";
 import { cn } from "@/utils";
 
-import type { Fields, NewsletterProps } from "@elucidario/types-design-system";
+import type { Field } from "../form";
+import type { NewsletterProps } from "./types";
 
 export function Newsletter({
     fields,
@@ -9,7 +10,7 @@ export function Newsletter({
     onSubmit,
     onError,
 }: NewsletterProps) {
-    const defaultFields: Fields = {
+    const defaultFields: Field.Fields = {
         nome: {
             name: "nome",
             schema: {
@@ -33,7 +34,7 @@ export function Newsletter({
         <Form.default
             className={cn("flex", "flex-col", "gap-4", "mt-4")}
             fields={fields || defaultFields}
-            render={({ formProps, fields, methods }) => {
+            render={({ fields, methods }) => {
                 return (
                     <>
                         {Object.values(fields || {}).map((field) => {

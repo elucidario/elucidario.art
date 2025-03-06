@@ -1,5 +1,5 @@
 import { cn } from "@/utils";
-import type { ArticleProps } from "@elucidario/types-design-system";
+import type { ArticleProps } from "./types";
 
 export function Article({ children, className, ...props }: ArticleProps) {
     return (

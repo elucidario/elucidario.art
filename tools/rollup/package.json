@@ -8,10 +8,10 @@
         "@elucidario/tool-tsconfig": "workspace:^",
         "@rollup/plugin-json": "^6.1.0",
         "@rollup/plugin-terser": "^0.4.4",
-        "@rollup/plugin-typescript": "^11.1.6",
+        "@rollup/plugin-typescript": "^12.1.2",
         "lodash": "^4.17.21",
-        "rollup": "^4.18.0",
+        "rollup": "^4.34.8",
         "rollup-plugin-wp-resolve": "^1.0.9",
-        "typescript": "^5.5.2"
+        "typescript": "^5.7.3"
     }
 }

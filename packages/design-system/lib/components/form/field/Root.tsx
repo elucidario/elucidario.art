@@ -1,5 +1,5 @@
 import * as Form from "@/components/form";
-import { FieldProviderProps } from "@elucidario/types-design-system";
+import { FieldProviderProps } from "./types";
 import { Provider } from "./Provider";
 import { cn } from "@/utils";
 import { useState } from "react";

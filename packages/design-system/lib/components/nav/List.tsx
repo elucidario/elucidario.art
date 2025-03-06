@@ -1,5 +1,5 @@
 import { cn } from "@/utils";
-import { NavListProps } from "@elucidario/types-design-system";
+import { NavListProps } from "./types";
 import { Context } from "./Context";
 import { useContext } from "react";
 
@@ -18,9 +18,7 @@ export function List({
             {...props}
             className={cn(
                 "nav-list",
-                ...(name
-                    ? ["peer-aria-expanded/toggle:ml-6"]
-                    : [""]),
+                ...(name ? ["peer-aria-expanded/toggle:ml-6"] : [""]),
                 name ? !expanded.includes(name) && "hidden" : "",
                 className,
             )}

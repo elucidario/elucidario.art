@@ -5,13 +5,15 @@ import React, {
     useRef,
     useState,
 } from "react";
-import { Input, inputVariants } from "./Input";
+import { Input, inputVariants } from ".";
 
-import { NumberInputProps } from "@elucidario/types-design-system";
+import { NumberInputProps } from "./types";
+
+import { VariantProps } from "class-variance-authority";
 
 export const InputNumber = React.forwardRef<
     HTMLInputElement,
-    NumberInputProps<typeof inputVariants>
+    NumberInputProps<VariantProps<typeof inputVariants>>
 >(({ className, ...props }, ref) => {
     const [last, setLast] = useState<number>(
         Number(props.defaultValue) || Number(props.value) || 0,
@@ -77,7 +79,7 @@ export const InputNumber = React.forwardRef<
         } else {
             isMounted.current = true;
         }
-    }, []);
+    });
 
     return (
         <Input

@@ -15,9 +15,7 @@ export type FieldDescriptionProps = React.HTMLAttributes<HTMLDivElement> & {
     name?: string;
 };
 
-export type RenderField = (props: FieldProps) => JSX.Element;
-
-export type FieldVariants = "default" | "outline" | "ghost";
+export type RenderField = (props: FieldProps) => React.JSX.Element;
 
 export type FieldProps = {
     name: string;
