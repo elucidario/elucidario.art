@@ -4,7 +4,7 @@ import type {
     SubmitErrorHandler,
 } from "react-hook-form";
 
-import { Field } from "../form";
+import { Field } from "./form";
 
 export type NewsletterProps = {
     onSubmit: SubmitHandler<FieldValues>;

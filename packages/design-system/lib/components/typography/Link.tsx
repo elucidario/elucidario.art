@@ -1,5 +1,5 @@
 import { cn } from "@/utils";
-import { LinkProps } from "@elucidario/types-design-system";
+import { LinkProps } from "./types";
 import { SquareArrowOutUpRight } from "lucide-react";
 
 export function Link({

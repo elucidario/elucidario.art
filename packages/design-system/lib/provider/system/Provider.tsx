@@ -1,10 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useReducer } from "react";
 
-import type {
-    SystemContextProps,
-    SystemState,
-    SystemAction,
-} from "@elucidario/types-design-system";
+import type { SystemContextProps, SystemState, SystemAction } from "./types";
 
 import { merge } from "lodash-es";
 
@@ -16,7 +12,7 @@ export const Provider = ({
     children,
     variant,
     theme,
-}: React.PropsWithChildren<{}> & SystemContextProps) => {
+}: React.PropsWithChildren & SystemContextProps) => {
     /**
      *   _______  _______  _______  _______  _______
      *  |       ||       ||   _   ||       ||       |
@@ -26,9 +22,7 @@ export const Provider = ({
      *   _____| |  |   |  |   _   |  |   |  |   |___
      *  |_______|  |___|  |__| |__|  |___|  |_______|
      */
-    const [state, dispatch] = useReducer<
-        React.Reducer<SystemState, SystemAction>
-    >(
+    const [state, dispatch] = useReducer(
         (state: SystemState, action: SystemAction): SystemState => {
             switch (action.type) {
                 case SystemActionTypes.SET_VARIANT:
@@ -126,19 +120,6 @@ export const Provider = ({
             }
         });
     }, [setTheme]);
-
-    // TODO remove before PR  [START]
-    const debug = {
-        viewPort,
-        middleHeight,
-        state,
-        theme,
-        variant,
-    };
-    useEffect(() => {
-        console.log(debug);
-    }, Object.values(debug));
-    // TODO remove before PR [END]
 
     return <Context.Provider value={props}>{children}</Context.Provider>;
 };

@@ -1,6 +1,11 @@
 import { cn } from "@/utils";
-import type { FormProps } from "@elucidario/types-design-system";
-import { useForm, FormProvider } from "react-hook-form";
+import type { FormProviderProps } from "./types";
+import type { Schema } from "./field";
+import { useCallback } from "react";
+import { useForm, FormProvider, FieldValues } from "react-hook-form";
+import { ajvResolver } from "@hookform/resolvers/ajv";
+
+import { JSONSchemaType } from "ajv";
 
 export const Root = ({
     children,
@@ -13,10 +18,7 @@ export const Root = ({
 
     return (
         <FormProvider {...methods}>
-            <form
-                className={cn(className)}
-                {...props}
-            >
+            <form className={cn(className)} {...props}>
                 {render?.({ formProps: props, fields, methods })}
                 {children}
             </form>

@@ -1,5 +1,5 @@
 import { cn } from "@/utils";
-import { LeadProps } from "@elucidario/types-design-system";
+import { LeadProps } from "./types";
 
 export function Lead({ children, className, ...props }: LeadProps) {
     return (

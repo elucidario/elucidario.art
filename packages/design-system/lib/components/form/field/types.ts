@@ -15,6 +15,7 @@ export type FieldDescriptionProps = React.HTMLAttributes<HTMLDivElement> & {
     name?: string;
 };
 
+export type RenderField = (props: FieldProps) => React.JSX.Element;
 
 export type RenderField<T extends HTMLElement> = (
     props: FieldProps<T>,

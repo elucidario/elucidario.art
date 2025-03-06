@@ -1,3 +1,3 @@
-export type HeaderProps<T> = React.PropsWithChildren<
+export type LayoutProps<T> = React.PropsWithChildren<
     React.HTMLAttributes<HTMLDivElement> & React.AriaAttributes & T
 >;

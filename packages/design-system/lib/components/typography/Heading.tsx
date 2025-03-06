@@ -1,6 +1,5 @@
-import { HeadingProps } from "@elucidario/types-design-system";
+import { HeadingProps } from "./types";
 import { cva } from "class-variance-authority";
-import React from "react";
 
 export const headingVariants = cva(["heading", "font-bold"], {
     variants: {

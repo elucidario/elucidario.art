@@ -1,2 +1,3 @@
-import type { VariantProps } from "class-variance-authority";
-export type MainProps<T extends (...args: any) => any> = React.PropsWithChildren<React.HTMLAttributes<HTMLDivElement> & React.AriaAttributes & VariantProps<T>>;
+export type MainProps<T> = React.PropsWithChildren<
+    React.HTMLAttributes<HTMLDivElement> & React.AriaAttributes & T
+>;

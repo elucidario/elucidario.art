@@ -1,3 +1,5 @@
-export type SidebarProps = React.PropsWithChildren<React.HTMLAttributes<HTMLDivElement> & {
-    variant?: "left" | "right";
-}>;
+export type SidebarProps = React.PropsWithChildren<
+    React.HTMLAttributes<HTMLDivElement> & {
+        variant?: "left" | "right";
+    }
+>;
