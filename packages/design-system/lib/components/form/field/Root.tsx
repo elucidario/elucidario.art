@@ -11,7 +11,7 @@ export function Root({
     className,
     children,
     ...rest
-}: FieldProps<HTMLFieldSetElement>) {
+}: FieldProviderProps) {
     const [hidden, setHidden] = useState<boolean>(false);
     return (
         <Provider {...{ name, schema, hidden, setHidden, ...rest }}>

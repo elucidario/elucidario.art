@@ -7,7 +7,7 @@
 @layer base {
     @font-face {
         font-family: "JetBrains Mono";
-        src: url("./assets/fonts/JetBrainsMono-Medium.woff2");
+        src: url("/fonts/JetBrainsMono-Medium.woff2");
     }
 }
 

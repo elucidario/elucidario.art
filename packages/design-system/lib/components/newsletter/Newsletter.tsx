@@ -49,11 +49,9 @@ export function Newsletter({
                         })}
                         <Form.Submit
                             variant={"ghost"}
-                            onClick={methods.handleSubmit((values) => {
-                                console.log({ values });
-                            })}
+                            onClick={methods.handleSubmit(onSubmit, onError)}
                         >
-                            enviar
+                            {submitLabel || "enviar"}
                         </Form.Submit>
                     </>
                 );

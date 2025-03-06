@@ -1,9 +1,9 @@
 import { createContext } from "react";
-import type { FieldProps } from "@elucidario/types-design-system";
+import type { FieldProviderProps } from "@elucidario/types-design-system";
 
-export const defaultContext: FieldProps<HTMLElement> = {
+export const defaultContext: FieldProviderProps = {
     name: "",
     schema: {},
 };
 
-export const Context = createContext<FieldProps<HTMLElement>>(defaultContext);
+export const Context = createContext<FieldProviderProps>(defaultContext);

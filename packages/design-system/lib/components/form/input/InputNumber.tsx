@@ -23,7 +23,7 @@ export const InputNumber = React.forwardRef<
     const [type, setType] = useState<string>("number");
     const isMounted = useRef<boolean | null>(null);
 
-    const localeOptions = useMemo(() => {
+    const localeOptions: Intl.NumberFormatOptions = useMemo(() => {
         return {
             style: "decimal",
             maximumFractionDigits: 2,

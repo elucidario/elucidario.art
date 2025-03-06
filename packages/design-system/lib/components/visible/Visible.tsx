@@ -1,7 +1,8 @@
+import { useMemo } from "react";
 import { useViewPortSize } from "@/hooks";
 import { Breakpoints, VisibleProps } from "./types";
 
-export function Visible<T>({ only, children }: VisibleProps<T>) {
+export function Visible({ only, children }: VisibleProps) {
     const { type } = useViewPortSize();
 
     const hidden = useMemo(() => {

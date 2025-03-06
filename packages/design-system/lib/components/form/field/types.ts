@@ -17,25 +17,28 @@ export type FieldDescriptionProps = React.HTMLAttributes<HTMLDivElement> & {
 
 export type RenderField = (props: FieldProps) => React.JSX.Element;
 
-export type RenderField<T extends HTMLElement> = (
-    props: FieldProps<T>,
-) => JSX.Element;
-
-export type FieldProps<T extends HTMLElement = HTMLElement> = Omit<
-    HTMLAttributes<T>,
-    "onChange" | "dir"
-> & {
+export type FieldProps = {
     name: string;
     schema: Schema;
     value?: FieldValue;
     hidden?: boolean;
     onChange?: ChangeHandler;
-    render?: RenderField<T>;
+    render?: RenderField;
     setHidden?: (hidden: boolean) => void;
 };
+
+export type FieldProviderProps = Omit<
+    React.HTMLAttributes<HTMLElement>,
+    "dir"
+> &
+    FieldProps & {
+        variant?: FieldVariants;
+    };
 
 export type FieldLabelProps = HTMLAttributes<
     HTMLLabelElement | HTMLLegendElement
 >;
 
 export type FieldBodyProps = HTMLAttributes<HTMLDivElement>;
+
+export type Fields = Record<string, FieldProps>;
