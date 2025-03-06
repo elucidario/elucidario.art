@@ -1,6 +1,6 @@
 import { cn } from "@/utils";
 
-import type { SidebarProps } from "@elucidario/types-design-system";
+import type { SidebarProps } from "./types";
 import { useMemo } from "react";
 
 export function Sidebar({
@@ -17,13 +17,13 @@ export function Sidebar({
             variant === "right"
                 ? ["sidebar-right", "col-start-2", "col-span-1"]
                 : [
-                    "sidebar-left",
-                    "row-start-2",
-                    "col-start-1",
-                    "col-span-1",
-                    "px-8",
-                    "py-4",
-                ],
+                      "sidebar-left",
+                      "row-start-2",
+                      "col-start-1",
+                      "col-span-1",
+                      "px-8",
+                      "py-4",
+                  ],
         [variant],
     );
 

@@ -4,11 +4,11 @@ import type {
     SubmitErrorHandler,
 } from "react-hook-form";
 
-import { Fields } from "./form";
+import { Field } from "./form";
 
 export type NewsletterProps = {
     onSubmit: SubmitHandler<FieldValues>;
     onError?: SubmitErrorHandler<FieldValues>;
     submitLabel?: string;
-    fields?: Fields;
+    fields?: Field.Fields;
 };

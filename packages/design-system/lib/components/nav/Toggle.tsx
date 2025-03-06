@@ -1,5 +1,5 @@
 import { cn } from "@/utils";
-import type { NavToggleProps } from "@elucidario/types-design-system";
+import type { NavToggleProps } from "./types";
 
 import { Button } from "@/components";
 import { ChevronDown } from "lucide-react";
@@ -13,7 +13,7 @@ export function Toggle({
     children,
     ...props
 }: NavToggleProps) {
-    const { expanded, setExpanded } = useContext(Context)
+    const { expanded, setExpanded } = useContext(Context);
     return (
         <Button
             variant={"link"}
@@ -23,16 +23,14 @@ export function Toggle({
             aria-expanded={expanded.includes(name)}
             onClick={() => setExpanded?.(name)}
             {...props}
-            className={cn(
-                "nav-toggle",
-                "peer/toggle",
-                "text-white",
-                className,
-            )}
+            className={cn("nav-toggle", "peer/toggle", "text-white", className)}
         >
             {icon ? (
                 <>
-                    <ChevronDown size={16} className={cn(!expanded.includes(name) && "-rotate-90")} />
+                    <ChevronDown
+                        size={16}
+                        className={cn(!expanded.includes(name) && "-rotate-90")}
+                    />
                     {children}
                 </>
             ) : (

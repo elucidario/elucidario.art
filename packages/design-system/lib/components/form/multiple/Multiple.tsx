@@ -1,4 +1,4 @@
-import { MultipleProps } from "@elucidario/types-design-system";
+import { MultipleProps } from "./types";
 import { Button } from "@/components";
 
 export function Multiple({ schema, fields }: MultipleProps) {
@@ -14,12 +14,12 @@ export function Multiple({ schema, fields }: MultipleProps) {
             {!fields
                 ? null
                 : fields.map((field: any, index: number) => {
-                    return (
-                        <div key={index} className="multiple__item">
-                            {field}
-                        </div>
-                    );
-                })}
+                      return (
+                          <div key={index} className="multiple__item">
+                              {field}
+                          </div>
+                      );
+                  })}
             <Button>{"Adicionar"}</Button>
         </div>
     );

@@ -1,5 +1,5 @@
 import { cn } from "@/utils";
-import { NavProps } from "@elucidario/types-design-system";
+import { NavProps } from "./types";
 import { Provider } from "./Provider";
 
 export function Root({ children, className, ...props }: NavProps) {

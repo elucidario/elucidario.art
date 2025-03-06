@@ -1,13 +1,9 @@
 import { useMemo } from "react";
 import { useViewPortSize } from "@/hooks";
-import { Breakpoints, VisibleProps } from "@elucidario/types-design-system";
+import { Breakpoints, VisibleProps } from "./types";
 
 export function Visible({ only, children }: VisibleProps) {
     const { type } = useViewPortSize();
-
-    if (type === "unknown") {
-        return null;
-    }
 
     const hidden = useMemo(() => {
         if (typeof only === "string") {
@@ -17,6 +13,10 @@ export function Visible({ only, children }: VisibleProps) {
             ? !only.includes(type as Breakpoints)
             : true;
     }, [only, type]);
+
+    if (type === "unknown") {
+        return null;
+    }
 
     return !hidden ? <>{children}</> : null;
 }

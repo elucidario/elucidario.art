@@ -1,10 +1,9 @@
-import { NavProviderProps } from "@elucidario/types-design-system";
+import { NavProviderProps } from "./types";
 import { Context, defaultContext } from "./Context";
 import { useCallback, useEffect, useState } from "react";
 
 export function Provider({
     children,
-    className,
     expanded: expandedProp,
     setExpanded: setExpandedProp,
     ...props

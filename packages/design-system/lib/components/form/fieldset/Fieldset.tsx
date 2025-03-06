@@ -1,6 +1,6 @@
 import { cn } from "@/utils";
 
-import type { FieldsetProps } from "@elucidario/types-design-system";
+import type { FieldsetProps } from "./types";
 
 export function Fieldset({ className, children, ...rest }: FieldsetProps) {
     return (

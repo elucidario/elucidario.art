@@ -13,3 +13,7 @@ export type FormProps = {
 export type LegendProps = React.PropsWithChildren<
     React.HTMLAttributes<HTMLLegendElement>
 >;
+
+export type FormProviderProps = React.PropsWithChildren<
+    React.HTMLAttributes<HTMLFormElement> & FormProps
+>;

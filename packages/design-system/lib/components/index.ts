@@ -1,8 +1,8 @@
 export * from "./box";
-export * from "./generic";
 
 export * from "./typography";
 
+export * from "./calendar";
 export * from "./layout";
 export * from "./header";
 export * from "./footer";

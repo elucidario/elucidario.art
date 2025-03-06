@@ -4,7 +4,7 @@ import path from "path";
 import pkg from "./package.json";
 import tsconfigPaths from "vite-tsconfig-paths";
 import dts from "vite-plugin-dts";
-import tailwindcss from "tailwindcss";
+import tailwindcss from "@tailwindcss/vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -29,7 +29,6 @@ export default defineConfig({
                 globals: {
                     react: "React",
                     "react-dom": "ReactDOM",
-                    tailwindcss: "tailwindcss",
                 },
             },
         },
@@ -41,18 +40,12 @@ export default defineConfig({
             include: ["lib"],
             outDir: "dist/types",
         }),
+        tailwindcss(),
     ],
-    css: {
-        postcss: {
-            plugins: [
-                tailwindcss,
-            ],
-        },
-    },
     resolve: {
         alias: {
             "@": path.resolve(__dirname, "lib"),
             "@/assets": path.resolve(__dirname, "assets"),
-        }
-    }
+        },
+    },
 });

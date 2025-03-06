@@ -2,7 +2,6 @@
     "name": "@elucidario/app-lcdr-docs",
     "version": "0.1.0",
     "scripts": {
-        "build": "docusaurus build",
         "build:codespace": "export ENV=codespace && docusaurus build",
         "clear": "docusaurus clear",
         "deploy": "docusaurus deploy",
@@ -26,38 +25,25 @@
         ]
     },
     "dependencies": {
-        "@docusaurus/core": "^3.4.0",
-        "@docusaurus/module-type-aliases": "^3.4.0",
-        "@docusaurus/plugin-content-docs": "^3.4.0",
-        "@docusaurus/preset-classic": "^3.4.0",
-        "@docusaurus/theme-classic": "^3.4.0",
-        "@mdx-js/react": "^3.0.1",
+        "@docusaurus/core": "^3.7.0",
+        "@docusaurus/module-type-aliases": "^3.7.0",
+        "@docusaurus/plugin-content-docs": "^3.7.0",
+        "@docusaurus/preset-classic": "^3.7.0",
+        "@docusaurus/theme-classic": "^3.7.0",
+        "@mdx-js/react": "^3.1.0",
         "clsx": "^2.1.1",
-        "prism-react-renderer": "^2.3.1",
-        "react": "^18.3.1",
-        "react-dom": "^18.3.1"
+        "prism-react-renderer": "^2.4.1",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0"
     },
     "devDependencies": {
-        "@docusaurus/tsconfig": "3.4.0",
+        "@docusaurus/tsconfig": "3.7.0",
         "@tsconfig/docusaurus": "^2.0.3",
-        "@types/node": "^20.14.9",
-        "@types/react": "^18.3.3",
-        "typescript": "^5.5.2"
+        "@types/node": "^22.13.5",
+        "@types/react": "^19.0.10",
+        "typescript": "^5.7.3"
     },
     "engines": {
         "node": ">=18.0"
-    },
-    "nx": {
-        "targets": {
-            "build": {
-                "dependsOn": [
-                    "^build"
-                ]
-            }
-        },
-        "implicitDependencies": [
-            "@elucidario/pkg-mdorim",
-            "@elucidario/pkg-pub-gen"
-        ]
     }
 }
