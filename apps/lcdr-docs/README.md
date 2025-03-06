@@ -1,1 +1,0 @@
-# Elucidário.art - Portal

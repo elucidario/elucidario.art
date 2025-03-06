@@ -25,6 +25,7 @@
         "lint": "eslint . --fix",
         "preview": "vite preview",
         "run": "vite",
+        "typecheck": "tsc --noEmit",
         "watch:styles": "pnpm build:styles --watch"
     },
     "dependencies": {

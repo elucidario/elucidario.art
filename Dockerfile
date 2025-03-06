@@ -12,5 +12,4 @@ FROM base AS build
 RUN pnpm build
 
 FROM base AS dev
-RUN pnpm build:tool
 CMD ["sh", "-c", "pnpm dev"]

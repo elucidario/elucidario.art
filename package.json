@@ -8,28 +8,19 @@
     "type": "module",
     "main": "index.js",
     "scripts": {
-        "build": "lerna run build --stream",
-        "build:app": "lerna run build --scope '@elucidario/app-*'",
-        "build:pkg": "lerna run build --scope '@elucidario/pkg-*'",
-        "build:tool": "lerna run build --scope '@elucidario/tool-*'",
-        "build:workspace": "lerna run build",
+        "build": "pnpm --recursive run build",
+        "build:app": "pnpm --filter '@elucidario/app-*' run build",
+        "build:pkg": "pnpm --filter '@elucidario/pkg-*' run  build",
         "clean": "lerna clean",
         "commit": "cz",
         "commit:no-verify": "pnpm commit --no-verify",
-        "deploy": "lerna run deploy",
-        "dev": "lerna run dev --stream --ignore @elucidario/tool-*",
-        "dev:app": "lerna run dev --scope '@elucidario/app-*'",
-        "dev:pkg": "lerna run dev --scope '@elucidario/pkg-*'",
-        "dev:tool": "lerna run dev --scope '@elucidario/tool-*'",
-        "graph": "pnpm nx graph",
-        "lint": "lerna run lint",
+        "dev": "pnpm --recursive run dev --filter '!@elucidario/tool-*'",
+        "dev:app": "pnpm --filter '@elucidario/app-*' run dev",
+        "dev:pkg": "pnpm --filter '@elucidario/pkg-*' run dev",
+        "lint": "pnpm --recursive run lint",
         "prepare": "husky install",
-        "serve": "lerna run serve",
-        "start": "lerna run start",
-        "swizzle": "lerna run swizzle",
-        "test": "lerna run test --stream",
-        "typecheck": "tsc",
-        "versionUp": "lerna version --no-private --conventional-commits"
+        "test": "pnpm --recursive run test",
+        "typecheck": "pnpm --recursive run typecheck"
     },
     "husky": {
         "hooks": {
@@ -41,17 +32,11 @@
             "path": "cz-conventional-changelog"
         }
     },
-    "dependencies": {
-        "import-local": "^3.2.0",
-        "nx": "^20.4.6"
-    },
     "devDependencies": {
-        "@elucidario/tool-eslint-config": "workspace:^",
         "commitizen": "^4.3.1",
         "conventional-changelog": "^6.0.0",
         "eslint": "^9.21.0",
         "husky": "^9.1.7",
-        "lerna": "^8.2.0",
         "lint-staged": "^15.4.3",
         "prettier": "^3.5.2",
         "typescript": "^5.7.3"
