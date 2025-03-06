@@ -13,3 +13,4 @@ token.json
 
 .nx/**/*
 dist
+.pnpm-store
