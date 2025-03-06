@@ -11,8 +11,8 @@
         "build": "rollup -c",
         "jest": "jest --coverage",
         "lint": "pnpm eslint",
-        "test": "pnpm vitest",
-        "watch": "pnpm build -w"
+        "watch": "pnpm build -w",
+        "typecheck": "tsc --noEmit"
     },
     "dependencies": {
         "react": "^19.0.0",
