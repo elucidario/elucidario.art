@@ -1,19 +1,21 @@
 import React from "react";
 
-import type { LegendProps } from "@elucidario/types-design-system";
+import type { LegendProps } from "./types";
+import { cn } from "@/utils";
 
 export const Legend = ({ children, ...legendProps }: LegendProps) => {
-    const className = [
-        "label",
-        "font-bold",
-        "mb-3",
-
-        "text-black",
-        "dark:text-white",
-    ];
-
     return (
-        <legend {...legendProps} className={className.join(" ")}>
+        <legend
+            {...legendProps}
+            className={cn(
+                "label",
+                "font-bold",
+                "mb-3",
+
+                "text-black",
+                "dark:text-white",
+            )}
+        >
             <>{children}</>
         </legend>
     );

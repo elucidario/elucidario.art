@@ -1,13 +1,14 @@
 import { Button, buttonVariants } from "@/components";
 import { cn } from "@/utils";
-import type { ButtonProps } from "@elucidario/types-design-system";
+import type { ButtonProps } from "../../button";
+import { VariantProps } from "class-variance-authority";
 
 export function Submit({
     children,
     variant = "outline",
     className,
     ...props
-}: ButtonProps<typeof buttonVariants>) {
+}: ButtonProps<VariantProps<typeof buttonVariants>>) {
     return (
         <Button
             type="submit"

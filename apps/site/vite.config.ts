@@ -8,5 +8,17 @@ export default defineConfig({
         host: "0.0.0.0",
         port: 4000,
     },
+    preview: {
+        host: "0.0.0.0",
+        port: 4001,
+    },
     plugins: [react({}), ssr({}), tailwindcss()],
+    resolve: {
+        alias: {
+            "@": "/src",
+        },
+    },
+    build: {
+        emptyOutDir: true,
+    },
 });

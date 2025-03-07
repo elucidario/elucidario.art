@@ -40,11 +40,10 @@ export const PopoverContent = React.forwardRef<
                 "dark:border-zinc-800",
                 "dark:bg-zinc-950",
                 "dark:text-zinc-50",
-                className
+                className,
             )}
             {...props}
         />
     </PopoverPrimitive.Portal>
 ));
 PopoverContent.displayName = PopoverPrimitive.Content.displayName;
-

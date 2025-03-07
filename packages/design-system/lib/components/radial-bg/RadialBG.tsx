@@ -1,10 +1,10 @@
 import { useMousePosition } from "@/hooks";
 import { cn } from "@/utils";
-import { RadialBGProps } from "@elucidario/types-design-system";
+import { RadialBGProps } from "./types";
 import { useRef } from "react";
 
 export function RadialBG({ className, ...props }: RadialBGProps) {
-    const ref = useRef(null)
+    const ref = useRef<HTMLDivElement>(null);
     const { mouseX, mouseY } = useMousePosition(ref);
     return (
         <div

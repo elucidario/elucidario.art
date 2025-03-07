@@ -1,4 +1,4 @@
-import { HeroProps } from "@elucidario/types-design-system";
+import { HeroProps } from "./types";
 
 import { cn } from "@/utils";
 import { RadialBG } from "@/components";

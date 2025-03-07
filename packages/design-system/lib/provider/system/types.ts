@@ -1,4 +1,4 @@
-export type Variants = 'default' | 'landing' | 'app';
+export type Variants = "default" | "landing" | "app";
 
 export type Theme = "light" | "dark";
 
@@ -18,4 +18,3 @@ export type SystemAction = {
     type: string;
     payload: Partial<SystemState>;
 };
-

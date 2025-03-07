@@ -1,7 +1,7 @@
-import { Schema } from "../field";
+// import { Schema } from "../field";
 
 export type MultipleProps = React.HTMLAttributes<HTMLDivElement> & {
-    schema?: Schema;
+    // schema?: Schema;
     fields?: {
         id: string;
         [key: string]: unknown;

@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 
-import { theme } from "@/style";
-
 function getWindowDimensions() {
     const defaultBreakpoints = {
         sm: 640,
@@ -22,15 +20,11 @@ function getWindowDimensions() {
 
     const breakpoints = (() => {
         try {
-            const {
-                screens: { sm, md, lg, xl },
-            } = theme as {
-                screens: {
-                    sm: string | number;
-                    md: string | number;
-                    lg: string | number;
-                    xl: string | number;
-                };
+            const { sm, md, lg, xl } = {
+                sm: "390px",
+                md: "752px",
+                lg: "976px",
+                xl: "1440px",
             };
             return {
                 sm: parseInt(sm as string),
@@ -61,10 +55,10 @@ function getWindowDimensions() {
                 type: viewport.isMobile
                     ? "mobile"
                     : viewport.isTablet
-                        ? "tablet"
-                        : viewport.isDesktop
-                            ? "desktop"
-                            : "unknown",
+                      ? "tablet"
+                      : viewport.isDesktop
+                        ? "desktop"
+                        : "unknown",
             };
         } else {
             return defaultViewport;

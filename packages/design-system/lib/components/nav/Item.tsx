@@ -1,5 +1,5 @@
 import { cn } from "@/utils";
-import { NavItemProps } from "@elucidario/types-design-system";
+import { NavItemProps } from "./types";
 import { Link } from "@/components";
 
 export function Item({

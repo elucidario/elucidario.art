@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export function useMousePosition(ref?: React.RefObject<HTMLElement>) {
+export function useMousePosition(ref?: React.RefObject<HTMLElement | null>) {
     const [position, setPosition] = useState({
         mouseX: 0,
         mouseY: 0,

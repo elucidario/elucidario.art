@@ -1,18 +1,16 @@
-import type { FieldDescriptionProps } from "@elucidario/types-design-system";
+import type { DescriptionProps } from "./types";
 
 import { cn } from "@/utils";
 
 export function Description({
-    name,
     className,
     children,
     ...props
-}: FieldDescriptionProps) {
+}: DescriptionProps) {
     return (
         <div
             {...props}
             className={cn(
-                name,
                 "description",
                 "text-sm",
                 "text-zinc-400",

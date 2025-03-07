@@ -1,7 +1,4 @@
-import {
-    SystemContextProvider,
-    SystemState,
-} from "@elucidario/types-design-system";
+import { SystemContextProvider, SystemState } from "./types";
 import { createContext } from "react";
 
 export enum SystemActionTypes {

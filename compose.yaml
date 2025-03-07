@@ -1,23 +1,26 @@
 services:
-  root:
+  dev_ds:
     build:
       context: .
       dockerfile: Dockerfile
-      target: build
+      target: base
     volumes:
       - ./:/lcdr
       - ./node_modules:/lcdr/node_modules
+    working_dir: /lcdr/packages/design-system
+    command: pnpm dev
 
   dev_site:
     build:
       context: .
       dockerfile: Dockerfile
-      target: dev
+      target: base
     volumes:
       - ./:/lcdr
       - ./node_modules:/lcdr/node_modules
     ports:
       - "4000:4000"
+    working_dir: /lcdr/apps/site
     command: pnpm dev
 
 volumes:

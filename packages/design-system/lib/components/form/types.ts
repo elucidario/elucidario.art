@@ -1,8 +1,8 @@
 import { FieldValues, UseFormReturn } from "react-hook-form";
-import { FieldProps } from "./field";
+// import { FieldProps } from "./field";
 
 export type FormProps = {
-    fields?: Record<string, FieldProps>;
+    // fields?: Record<string, FieldProps>;
     render?: (render: {
         formProps: FormProps;
         methods: UseFormReturn;

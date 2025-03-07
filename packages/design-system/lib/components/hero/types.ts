@@ -1,1 +1,3 @@
-export type HeroProps = React.PropsWithChildren<React.HTMLAttributes<HTMLDivElement> & React.AriaAttributes>;
+export type HeroProps = React.PropsWithChildren<
+    React.HTMLAttributes<HTMLDivElement> & React.AriaAttributes
+>;

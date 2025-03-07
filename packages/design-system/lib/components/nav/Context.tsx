@@ -1,9 +1,9 @@
 import { createContext } from "react";
-import type { NavContextType } from "@elucidario/types-design-system";
+import type { NavContextType } from "./types";
 
 export const defaultContext: NavContextType = {
     expanded: [],
-    setExpanded: () => { },
+    setExpanded: () => {},
 };
 
 export const Context = createContext<NavContextType>(defaultContext);

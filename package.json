@@ -14,7 +14,7 @@
         "clean": "lerna clean",
         "commit": "cz",
         "commit:no-verify": "pnpm commit --no-verify",
-        "dev": "pnpm --recursive run dev --filter '!@elucidario/tool-*'",
+        "dev": "pnpm --recursive --stream run dev",
         "dev:app": "pnpm --filter '@elucidario/app-*' run dev",
         "dev:pkg": "pnpm --filter '@elucidario/pkg-*' run dev",
         "lint": "pnpm --recursive run lint",

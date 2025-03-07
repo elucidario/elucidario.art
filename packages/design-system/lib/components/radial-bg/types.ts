@@ -1,1 +1,3 @@
-export type RadialBGProps = React.PropsWithChildren<React.HTMLAttributes<HTMLDivElement> & React.AriaAttributes>;
+export type RadialBGProps = React.PropsWithChildren<
+    React.HTMLAttributes<HTMLDivElement> & React.AriaAttributes
+>;
