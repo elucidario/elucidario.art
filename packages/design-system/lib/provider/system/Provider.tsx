@@ -1,18 +1,19 @@
-import React, { useCallback, useEffect, useMemo, useReducer } from "react";
+import "./tailwind.css";
 
-import type { SystemContextProps, SystemState, SystemAction } from "./types";
+import React, { useCallback, useEffect, useMemo, useReducer } from "react";
 
 import { merge } from "lodash-es";
 
-import "./tailwind.css";
-import { useViewPortSize } from "@/hooks";
-import { SystemActionTypes, Context, defaultContext } from "./defaultContext";
+import type { SystemContextProps, SystemState, SystemAction } from "./types";
 
-export const Provider = ({
+import { useViewPortSize } from "@/hooks";
+
+import { SystemActionTypes, Context, defaultContext } from "./Context";
+
+export function SystemProvider({
     children,
-    variant,
     theme,
-}: React.PropsWithChildren & SystemContextProps) => {
+}: React.PropsWithChildren & SystemContextProps) {
     /**
      *   _______  _______  _______  _______  _______
      *  |       ||       ||   _   ||       ||       |
@@ -25,11 +26,6 @@ export const Provider = ({
     const [state, dispatch] = useReducer(
         (state: SystemState, action: SystemAction): SystemState => {
             switch (action.type) {
-                case SystemActionTypes.SET_VARIANT:
-                    return {
-                        ...state,
-                        variant: action.payload.variant || state.variant,
-                    };
                 case SystemActionTypes.SET_THEME:
                     return {
                         ...state,
@@ -40,7 +36,6 @@ export const Provider = ({
             }
         },
         {
-            variant: variant || defaultContext.variant,
             theme: theme || defaultContext.theme,
         },
     );
@@ -67,13 +62,6 @@ export const Provider = ({
      *  | ||_|| ||   |___ | ||_|| ||       |
      *  |_|   |_||_______||_|   |_||_______|
      */
-    const { middleHeight } = useMemo(() => {
-        return {
-            middleHeight:
-                viewPort.height -
-                ((state.variant === "default" ? 80 : 128) + 32 - 12), // Header + Footer
-        };
-    }, [viewPort.height, state.variant]);
 
     const props: SystemState = useMemo(
         () =>
@@ -92,16 +80,6 @@ export const Provider = ({
      *  |   |___ |   |    |   |    |   |___ |     |_   |   |   _____| |
      *  |_______||___|    |___|    |_______||_______|  |___|  |_______|
      */
-    /**
-     * Set middle height to CSS variable --middle-height
-     * @link ../../style/theme.ts
-     */
-    useEffect(() => {
-        document.documentElement.style.setProperty(
-            "--middle-height",
-            `${middleHeight}px`,
-        );
-    }, [middleHeight]);
 
     useEffect(() => {
         const mode = window.matchMedia("(prefers-color-scheme: dark)");
@@ -121,5 +99,7 @@ export const Provider = ({
         });
     }, [setTheme]);
 
+    console.log({ props });
+
     return <Context.Provider value={props}>{children}</Context.Provider>;
-};
+}

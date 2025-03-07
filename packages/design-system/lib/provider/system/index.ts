@@ -1,10 +1,6 @@
-export * from "./SystemProvider";
+export * from "./types";
+export * from "./Context";
+export * from "./Provider";
 export * from "./useSystemProvider";
 
-import { Provider } from "./Provider";
-import { Context } from "./defaultContext";
-
-export const System = {
-    Provider,
-    Context,
-};
+export * from "./theme.css";

@@ -1,14 +1,10 @@
-export type Variants = "default" | "landing" | "app";
-
 export type Theme = "light" | "dark";
 
 export type SystemState = {
-    variant: Variants;
     theme: Theme;
 };
 
 export type SystemContextProps = {
-    variant?: Variants;
     theme?: Theme;
 };
 
