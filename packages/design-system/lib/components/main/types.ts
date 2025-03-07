@@ -1,3 +1,3 @@
-export type MainProps<T> = React.PropsWithChildren<
-    React.HTMLAttributes<HTMLDivElement> & React.AriaAttributes & T
+export type MainProps = React.PropsWithChildren<
+    React.HTMLAttributes<HTMLDivElement> & React.AriaAttributes
 >;
