@@ -1,23 +1,44 @@
 import { cn } from "@/utils";
-import dark from "../../../assets/svg/type=vertical, color=pink, theme=dark.svg";
-import light from "../../../assets/svg/type=vertical, color=pink, theme=light.svg";
-import { LogoProps } from "./types";
-import { VariantProps } from "class-variance-authority";
 import { useSystemProvider } from "@/index";
-import { logoVariants } from "./variants";
+import { useState, useEffect } from "react";
+import { LogoProps } from "./types";
 
 export function Logo({
-    variant = "default",
+    type,
+    color,
+    theme: propTheme,
     className,
-}: LogoProps<VariantProps<typeof logoVariants>>) {
-    const { theme, variant: _variant } = useSystemProvider();
+    ...props
+}: LogoProps) {
+    const { theme: systemTheme } = useSystemProvider();
+    const theme = propTheme || systemTheme;
+    const [svg, setSvg] = useState<string | null>(null);
+
+    useEffect(() => {
+        async function importSvg() {
+            try {
+                const module = await import(
+                    `../../../assets/svg/type=${type}, color=${color}, theme=${theme}.svg`
+                );
+                setSvg(module.default);
+            } catch (error) {
+                console.error("Erro ao importar SVG:", error);
+                setSvg(null);
+            }
+        }
+
+        importSvg();
+    }, [type, color, theme]);
+
     return (
-        <div
-            className={cn(
-                logoVariants({ variant: _variant || variant, className }),
+        <div {...props}>
+            {svg && (
+                <img
+                    src={svg}
+                    alt="logo elucidario.art"
+                    className={cn(className)}
+                />
             )}
-        >
-            <img src={theme === "light" ? light : dark} alt="logo" />
         </div>
     );
 }
