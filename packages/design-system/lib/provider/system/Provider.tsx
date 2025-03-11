@@ -99,7 +99,5 @@ export function SystemProvider({
         });
     }, [setTheme]);
 
-    console.log({ props });
-
     return <Context.Provider value={props}>{children}</Context.Provider>;
 }
