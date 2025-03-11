@@ -7,13 +7,13 @@
     "type": "module",
     "exports": {
         ".": {
-            "import": "./dist/es/design-system.js",
+            "import": "./dist/pkg-design-system.js",
             "types": "./dist/types/index.d.ts"
         },
-        "./style.css": "./dist/style.css"
+        "./style.css": "./dist/pkg-design-system.css"
     },
-    "main": "./dist/es/design-system.js",
-    "module": "./dist/es/design-system.js",
+    "main": "./dist/pkg-design-system.js",
+    "module": "./dist/pkg-design-system.js",
     "types": "./dist/types/index.d.ts",
     "files": [
         "dist"
@@ -25,8 +25,7 @@
         "lint": "eslint 'lib/**' --fix",
         "preview": "vite preview",
         "run": "vite",
-        "typecheck": "tsc --noEmit",
-        "watch:styles": "pnpm build:styles --watch"
+        "typecheck": "tsc --noEmit"
     },
     "dependencies": {
         "@hookform/resolvers": "^4.1.3",

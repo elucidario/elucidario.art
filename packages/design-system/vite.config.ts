@@ -9,14 +9,11 @@ import tailwindcss from "@tailwindcss/vite";
 // https://vitejs.dev/config/
 export default defineConfig({
     build: {
-        copyPublicDir: false,
         sourcemap: true,
         emptyOutDir: false,
         lib: {
             entry: path.resolve(__dirname, "lib", "index.ts"),
-            formats: ["es"],
             name: "designSystem",
-            fileName: (format) => `${format}/design-system.js`,
         },
         rollupOptions: {
             external: [
