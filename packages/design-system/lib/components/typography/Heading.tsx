@@ -4,12 +4,12 @@ import { cva } from "class-variance-authority";
 export const headingVariants = cva(["heading", "font-bold"], {
     variants: {
         level: {
-            1: ["text-4xl"],
-            2: ["text-3xl"],
-            3: ["text-2xl"],
-            4: ["text-xl"],
-            5: ["text-lg"],
-            6: ["text-base"],
+            1: ["text-3xl", "lg:text-5xl"],
+            2: ["text-2xl", "lg:text-4xl"],
+            3: ["text-xl", "lg:text-3xl"],
+            4: ["text-lg", "lg:text-2xl"],
+            5: ["text-lg", "lg:text-xl"],
+            6: ["text-base", "lg:text-lg"],
         },
     },
     defaultVariants: {
