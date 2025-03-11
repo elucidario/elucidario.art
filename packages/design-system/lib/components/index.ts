@@ -18,3 +18,4 @@ export * from "./button";
 export * from "./popover";
 export * from "./nav";
 export * from "./logo";
+export * from "./feature";
