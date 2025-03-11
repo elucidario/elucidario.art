@@ -9,13 +9,13 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
+        "lint": "eslint 'src/**' --fix",
         "preview": "vite preview",
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
-        "@vitejs/plugin-react": "^4.3.4",
         "@elucidario/pkg-design-system": "workspace:^",
+        "@vitejs/plugin-react": "^4.3.4",
         "cross-fetch": "^4.1.0",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
@@ -23,6 +23,7 @@
         "vike-react": "^0.5.13"
     },
     "devDependencies": {
+        "@eslint/js": "^9.22.0",
         "@tailwindcss/vite": "^4.0.11",
         "@types/react": "^19.0.10",
         "@types/react-dom": "^19.0.4",
@@ -31,9 +32,12 @@
         "autoprefixer": "^10.4.20",
         "eslint": "^9.21.0",
         "eslint-plugin-react": "^7.37.4",
+        "eslint-plugin-react-hooks": "^5.2.0",
+        "globals": "^16.0.0",
         "postcss": "^8.5.3",
         "tailwindcss": "^4.0.11",
         "typescript": "^5.8.2",
+        "typescript-eslint": "^8.26.1",
         "vite": "^6.2.0"
     }
 }
