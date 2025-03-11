@@ -1,6 +1,6 @@
 import { HTMLAttributes } from "react";
-import { Footer, Header, Link, Main } from "@/components";
-import { System } from "@/provider";
+import { Footer, Link, Main } from "@/components";
+import { SystemProvider } from "@/provider";
 import { cn } from "@/utils";
 import { Layout } from "./Layout";
 
@@ -8,9 +8,8 @@ export function LandingPageLayout({
     children,
 }: React.PropsWithChildren<HTMLAttributes<HTMLDivElement>>) {
     return (
-        <System.Provider variant="landing">
+        <SystemProvider>
             <Layout>
-                <Header />
                 <Main>{children}</Main>
                 <Footer>
                     <Link
@@ -37,6 +36,6 @@ export function LandingPageLayout({
                     </Link>
                 </Footer>
             </Layout>
-        </System.Provider>
+        </SystemProvider>
     );
 }

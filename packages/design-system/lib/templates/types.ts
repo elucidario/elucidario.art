@@ -1,3 +1,3 @@
-export type LayoutProps<T> = React.PropsWithChildren<
-    React.HTMLAttributes<HTMLDivElement> & T
+export type LayoutProps = React.PropsWithChildren<
+    React.HTMLAttributes<HTMLDivElement>
 >;
