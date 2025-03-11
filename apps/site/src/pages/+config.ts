@@ -1,7 +1,7 @@
 import vikeReact from "vike-react/config";
 import type { Config } from "vike/types";
-import Head from "../layouts/HeadDefault.js";
-import Layout from "../layouts/LayoutDefault.js";
+import Layout from "@/layouts/Layout";
+import Head from "@/layouts/Head";
 
 // Default config (can be overridden by pages)
 export default {
