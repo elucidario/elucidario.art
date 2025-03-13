@@ -18,7 +18,7 @@ export function Logo({
         async function importSvg() {
             try {
                 const module = await import(
-                    `../../../assets/svg/type=${type}, color=${color}, theme=${theme}.svg`
+                    `../../assets/svg/type=${type}, color=${color}, theme=${theme}.svg`
                 );
                 setSvg(module.default);
             } catch (error) {
