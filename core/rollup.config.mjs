@@ -1,4 +1,4 @@
-import lcdrRollupConfig from "@elucidario/tool-rollup";
+import lcdrRollup from "@elucidario/tool-rollup";
 
 import pkg from "./package.json" assert { type: "json" };
 
@@ -23,7 +23,7 @@ const unMinified = minified.map(({ file, ...rest }) => ({
     file: file.replace(".min.", "."),
 }));
 
-const config = lcdrRollupConfig({
+const config = lcdrRollup({
     external: [...external, "react-dom/client"],
     input: "src/ts/index.tsx",
     output: [...unMinified, ...minified],
