@@ -29,7 +29,10 @@ export function Feature({
     };
 
     return (
-        <div className={featureVariants({ inverted, className })} {...props}>
+        <section
+            className={featureVariants({ inverted, className })}
+            {...props}
+        >
             <div
                 className={cn(
                     "w-1/2",
@@ -51,7 +54,7 @@ export function Feature({
                     {title}
                 </Heading>
                 {cta && (
-                    <Button variant={"pb"} size={"lg"} onClick={onClick}>
+                    <Button variant={"pb"} onClick={onClick} className={cn()}>
                         {cta}
                     </Button>
                 )}
@@ -119,6 +122,6 @@ export function Feature({
             >
                 <p className={cn("font-sans", "text-lg")}>{description}</p>
             </div>
-        </div>
+        </section>
     );
 }

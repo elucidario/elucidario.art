@@ -4,7 +4,7 @@ import { Feature } from "./Feature";
 
 export function Features({ features, ctaRef }: FeaturesProps) {
     return (
-        <div
+        <section
             className={cn(
                 "features",
                 "relative",
@@ -43,6 +43,6 @@ export function Features({ features, ctaRef }: FeaturesProps) {
             {features.map((feature, i) => {
                 return <Feature key={i} {...feature} ctaRef={ctaRef} />;
             })}
-        </div>
+        </section>
     );
 }
