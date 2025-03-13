@@ -1,7 +1,7 @@
 import type { HTMLMotionProps } from "motion/react";
 
 export type LogoProps = {
-    type: "vertical" | "horizontal";
+    type: "vertical" | "horizontal" | null;
     color: "primary" | "secondary";
     theme?: "light" | "dark";
 } & React.HTMLAttributes<HTMLDivElement> &
