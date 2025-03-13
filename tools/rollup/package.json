@@ -9,9 +9,8 @@
         "@rollup/plugin-json": "^6.1.0",
         "@rollup/plugin-terser": "^0.4.4",
         "@rollup/plugin-typescript": "^12.1.2",
-        "lodash": "^4.17.21",
-        "rollup": "^4.34.9",
-        "rollup-plugin-wp-resolve": "^1.0.9",
+        "lodash-es": "^4.17.21",
+        "rollup": "^4.35.0",
         "typescript": "^5.8.2"
     }
 }
