@@ -1,3 +1,5 @@
+import { motion } from "motion/react";
+
 import { cn } from "@/utils";
 import { useSystemProvider } from "@/provider";
 import { useState, useEffect } from "react";
@@ -31,7 +33,7 @@ export function Logo({
     }, [type, color, theme]);
 
     return (
-        <div {...props}>
+        <motion.div {...props}>
             {svg && (
                 <img
                     src={svg}
@@ -39,6 +41,6 @@ export function Logo({
                     className={cn(className)}
                 />
             )}
-        </div>
+        </motion.div>
     );
 }
