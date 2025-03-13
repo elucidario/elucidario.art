@@ -7,10 +7,8 @@ import { SubmitHandler } from "react-hook-form";
 import { Form } from "@/components/form";
 import { cn } from "@/utils";
 
-import type { NewsletterProps } from "./types";
+import type { NewsletterProps, NewsletterState } from "./types";
 import { Heading } from "../typography";
-
-export type State = "idle" | "loading" | "success" | "error";
 
 export function Newsletter<T extends Record<string, unknown>>({
     ctaRef,
@@ -19,11 +17,19 @@ export function Newsletter<T extends Record<string, unknown>>({
     includeListIds,
     templateId,
     redirectionUrl,
+    addValuesToParams,
+    additionalParams,
 }: NewsletterProps<T>) {
-    const [state, setState] = useState<State>("idle");
+    const [state, setState] = useState<NewsletterState>("idle");
 
     const handleSubmit: SubmitHandler<T> = (data) => {
         setState("loading");
+
+        const redirUrl = `${redirectionUrl}${
+            addValuesToParams
+                ? `?${new URLSearchParams({ ...(data as Record<string, string>), ...(additionalParams as Record<string, string>) })}`
+                : ""
+        }`;
 
         const options = {
             method: "POST",
@@ -43,7 +49,7 @@ export function Newsletter<T extends Record<string, unknown>>({
 
                 includeListIds,
                 templateId,
-                redirectionUrl,
+                redirectionUrl: redirUrl,
             },
         };
 
