@@ -1,8 +1,3 @@
-import React from "react";
-// import logoUrl from "../assets/logo.svg";
-
-// Default <head> (can be overridden by pages)
-
 export default function Head() {
     return (
         <>
@@ -10,8 +5,11 @@ export default function Head() {
                 name="viewport"
                 content="width=device-width, initial-scale=1"
             />
-            <meta name="description" content="Demo showcasing Vike" />
-            <link rel="icon" href={"/logo.svg"} />
+            <meta
+                name="description"
+                content="O elucidario.art é um Sistema de Gestão de Coleções em ativo desenvolvimento. Cadastre-se para receber novidades em primeira mão!"
+            />
+            <link rel="icon" href={"/png/format=round, variant=compact.png"} />
         </>
     );
 }

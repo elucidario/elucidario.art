@@ -19,12 +19,12 @@ export function Logo({
     useEffect(() => {
         async function importSvg() {
             try {
-                const module = await import(
-                    `../../assets/svg/type=${type}, color=${color}, theme=${theme}.svg`
-                );
-                setSvg(module.default);
+                setSvg(`/svg/type=${type}, color=${color}, theme=${theme}.svg`);
             } catch (error) {
-                console.error("Erro ao importar SVG:", error);
+                console.error(
+                    "Failed to import SVG for logo elucidario.art",
+                    error,
+                );
                 setSvg(null);
             }
         }
