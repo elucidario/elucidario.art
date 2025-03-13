@@ -14,3 +14,4 @@ export * from "./logo";
 export * from "./feature";
 export * from "./header";
 export * from "./newsletter";
+export * from "./json-ld";
