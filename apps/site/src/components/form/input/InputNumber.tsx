@@ -14,10 +14,11 @@ import { NumberInputProps } from "./types";
 
 import { VariantProps } from "class-variance-authority";
 
-export const InputNumber = React.forwardRef<
-    HTMLInputElement,
-    NumberInputProps<VariantProps<typeof inputVariants>>
->(({ className, ...props }, ref) => {
+export function InputNumber({
+    ref,
+    className,
+    ...props
+}: NumberInputProps<VariantProps<typeof inputVariants>>) {
     const [last, setLast] = useState<number>(
         Number(props.defaultValue) || Number(props.value) || 0,
     );
@@ -96,6 +97,4 @@ export const InputNumber = React.forwardRef<
             onChange={onLocalChange}
         />
     );
-});
-
-InputNumber.displayName = "InputNumber";
+}

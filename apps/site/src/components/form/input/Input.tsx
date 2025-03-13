@@ -1,20 +1,20 @@
-import * as React from "react";
-
 import type { InputProps } from "./types";
 import { VariantProps } from "class-variance-authority";
 import { inputVariants } from "./variants";
 
-export const Input = React.forwardRef<
-    HTMLInputElement,
-    InputProps<VariantProps<typeof inputVariants>>
->(({ className, type, variant, ...props }, ref) => {
+export function Input({
+    ref,
+    className,
+    type,
+    variant,
+    ...props
+}: InputProps<VariantProps<typeof inputVariants>>) {
     return (
         <input
+            ref={ref}
             type={type}
             className={inputVariants({ className, variant })}
-            ref={ref}
             {...props}
         />
     );
-});
-Input.displayName = "Input";
+}

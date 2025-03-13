@@ -1,19 +1,18 @@
-import { FieldValues, UseFormReturn } from "react-hook-form";
-// import { FieldProps } from "./field";
+import {
+    SubmitErrorHandler,
+    SubmitHandler,
+    UseFormProps,
+} from "react-hook-form";
 
-export type FormProps = {
-    // fields?: Record<string, FieldProps>;
-    render?: (render: {
-        formProps: FormProps;
-        methods: UseFormReturn;
-        fields?: FieldValues;
-    }) => React.ReactNode;
+export type FormProps<T extends Record<string, unknown>> = {
+    schema: T;
+    hookProps?: UseFormProps;
+    submitLabel?: string;
+    onValid: SubmitHandler<T>;
+    onInvalid?: SubmitErrorHandler<T>;
 } & React.FormHTMLAttributes<HTMLFormElement>;
 
-export type LegendProps = React.PropsWithChildren<
-    React.HTMLAttributes<HTMLLegendElement>
->;
-
-export type FormProviderProps = React.PropsWithChildren<
-    React.HTMLAttributes<HTMLFormElement> & FormProps
->;
+export type FormProviderProps<T extends Record<string, unknown>> =
+    React.PropsWithChildren<
+        React.HTMLAttributes<HTMLFormElement> & FormProps<T>
+    >;

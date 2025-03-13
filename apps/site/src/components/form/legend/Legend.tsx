@@ -14,7 +14,7 @@ export const Legend = ({ children, ...legendProps }: LegendProps) => {
                 "dark:text-white",
             )}
         >
-            <>{children}</>
+            {children}
         </legend>
     );
 };

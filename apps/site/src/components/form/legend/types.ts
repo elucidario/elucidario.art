@@ -1,3 +1,1 @@
-export type LegendProps = React.PropsWithChildren<
-    React.HTMLAttributes<HTMLLegendElement>
->;
+export type LegendProps = React.HTMLAttributes<HTMLLegendElement>;

@@ -1,3 +1,1 @@
-export type FieldsetProps = React.PropsWithChildren<
-    React.FieldsetHTMLAttributes<HTMLFieldSetElement>
->;
+export type FieldsetProps = React.FieldsetHTMLAttributes<HTMLFieldSetElement>;

@@ -1,10 +1,4 @@
-import {
-    HTMLAttributes,
-    forwardRef,
-    useCallback,
-    useEffect,
-    useState,
-} from "react";
+import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import { ChangeHandler } from "react-hook-form";
 
 import * as PrimitiveSelect from "@radix-ui/react-select";
@@ -16,7 +10,7 @@ import { Item } from "./Item";
 import { useFormContext } from "@/hooks";
 
 export type SelectProps = {
-    ref?: React.Ref<React.ElementRef<typeof PrimitiveSelect.Trigger>>;
+    ref?: React.Ref<HTMLButtonElement>;
     name: string;
     options: string[];
     onChange?: ChangeHandler;
@@ -24,53 +18,47 @@ export type SelectProps = {
 } & PrimitiveSelect.SelectProps &
     HTMLAttributes<HTMLInputElement>;
 
-export const Controlled = forwardRef<HTMLButtonElement, SelectProps>(
-    ({ options, ...props }, ref) => {
-        const [selected, setSelected] = useState<string>(
-            props.defaultValue || "",
-        );
+export function Controlled({ ref, options, ...props }: SelectProps) {
+    const [selected, setSelected] = useState<string>(props.defaultValue || "");
 
-        const { watch } = useFormContext();
+    const { watch } = useFormContext();
 
-        const value = watch(props.name);
+    const value = watch(props.name);
 
-        const onValueChange = useCallback(
-            (value: string) => {
-                setSelected(value);
-                props.onChange?.({ target: { name: props.name, value } });
-            },
-            [props],
-        );
+    const onValueChange = useCallback(
+        (value: string) => {
+            setSelected(value);
+            props.onChange?.({ target: { name: props.name, value } });
+        },
+        [props],
+    );
 
-        useEffect(() => {
-            if (typeof selected !== "undefined" && value !== selected) {
-                if (value === "") {
-                    onValueChange(value);
-                }
+    useEffect(() => {
+        if (typeof selected !== "undefined" && value !== selected) {
+            if (value === "") {
+                onValueChange(value);
             }
-        }, [onValueChange, selected, value]);
+        }
+    }, [onValueChange, selected, value]);
 
-        return (
-            <PrimitiveSelect.Root
-                {...props}
-                disabled={options.length === 0}
-                value={selected}
-                onValueChange={onValueChange}
-            >
-                <Trigger ref={ref}>
-                    <PrimitiveSelect.SelectValue placeholder="Selecione" />
-                </Trigger>
+    return (
+        <PrimitiveSelect.Root
+            {...props}
+            disabled={options.length === 0}
+            value={selected}
+            onValueChange={onValueChange}
+        >
+            <Trigger ref={ref}>
+                <PrimitiveSelect.SelectValue placeholder="Selecione" />
+            </Trigger>
 
-                <Content>
-                    {options.map((option) => (
-                        <Item key={option} value={option}>
-                            {option}
-                        </Item>
-                    ))}
-                </Content>
-            </PrimitiveSelect.Root>
-        );
-    },
-);
-
-Controlled.displayName = "Select";
+            <Content>
+                {options.map((option) => (
+                    <Item key={option} value={option}>
+                        {option}
+                    </Item>
+                ))}
+            </Content>
+        </PrimitiveSelect.Root>
+    );
+}
