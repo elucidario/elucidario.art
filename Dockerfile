@@ -4,12 +4,6 @@ ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable pnpm
 RUN corepack prepare pnpm@10.0.0 --activate
 WORKDIR /lcdr
-
-COPY ./package.json ./pnpm-lock.yaml ./pnpm-workspace.yaml ./
+COPY ./package.json ./pnpm-lock.yaml ./
 COPY . /lcdr
-
 RUN pnpm install -r
-
-EXPOSE 4000
-
-CMD ["pnpm", "dev"]
