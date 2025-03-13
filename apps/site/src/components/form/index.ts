@@ -6,4 +6,6 @@ export * from "./legend";
 export * from "./fieldset";
 export * from "./description";
 export * from "./select";
+export * from "./multiple";
+export * from "./object";
 export * from "./submit";

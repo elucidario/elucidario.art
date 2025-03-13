@@ -1,12 +1,16 @@
-import { useContext } from "react";
-import { Context } from "./Context";
-import { Input, InputNumber } from "@/components/form";
+import { useFieldContext } from "./Context";
+import {
+    Input,
+    InputNumber,
+    Multiple,
+    ObjectComponent,
+} from "@/components/form";
 
 export function Body() {
     const {
         field: { schema },
-        ...rest
-    } = useContext(Context);
+        ...props
+    } = useFieldContext();
 
     let type = schema?.type;
     // If type is an array, default to the first element as the type
@@ -15,34 +19,32 @@ export function Body() {
     }
 
     switch (type) {
-        case "number":
-            return <InputNumber {...rest} type="number" />;
+        case "number": {
+            return <InputNumber {...props} type="number" />;
+        }
 
-        case "string":
+        case "string": {
             // if (typeof schema?.enum !== "undefined") {
             //     return (
             //         <Select
-            //             {...rest}
+            //             {...props}
             //             {...schema?.html}
-            //             value={rest.value as string}
+            //             value={props.value as string}
             //             defaultValue={schema?.default?.toString()} // Convert defaultValue to string
             //             options={schema?.enum as string[]}
             //         />
             //     );
             // }
 
-            return <Input {...rest} type="text" />;
+            return <Input {...props} type="text" />;
+        }
 
-        case "object":
-        // if (schema?.properties) {
-        //     return (
-        //         <ObjectComponent
-        //             {...rest}
-        //             properties={schema?.properties}
-        //             schema={schema}
-        //         />
-        //     );
-        // }
-        // break;
+        case "array": {
+            return <Multiple {...props} />;
+        }
+
+        case "object": {
+            return <ObjectComponent {...props} />;
+        }
     }
 }

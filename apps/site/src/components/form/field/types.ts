@@ -27,9 +27,7 @@ export type FieldProviderProps = Omit<
     React.HTMLAttributes<HTMLElement>,
     "dir"
 > &
-    FieldProviderType & {
-        name: string;
-    };
+    FieldProviderType;
 
 export type FieldLabelProps = HTMLAttributes<
     HTMLLabelElement | HTMLLegendElement
