@@ -1,5 +1,6 @@
 import { HeadingProps } from "./types";
 import { cva } from "class-variance-authority";
+import { motion } from "motion/react";
 
 export const headingVariants = cva(["heading", "font-bold"], {
     variants: {
@@ -24,9 +25,13 @@ export function Heading({
     ...props
 }: HeadingProps) {
     const Tag: React.ElementType = `h${level}`;
+    const MotionComponent = motion.create(Tag);
     return (
-        <Tag className={headingVariants({ level, className })} {...props}>
+        <MotionComponent
+            className={headingVariants({ level, className })}
+            {...props}
+        >
             {children}
-        </Tag>
+        </MotionComponent>
     );
 }
