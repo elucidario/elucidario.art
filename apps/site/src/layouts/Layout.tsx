@@ -11,14 +11,21 @@ export default function Layout({ children }: React.PropsWithChildren) {
                     "text-dark",
                     "dark:text-light",
 
-                    "h-full",
-                    "w-screen",
+                    "w-full",
+                    "relative",
                 )}
             >
-                <main className={cn("bg-light", "dark:bg-dark")}>
+                <main
+                    className={cn(
+                        "relative",
+                        "z-10",
+                        "bg-light",
+                        "dark:bg-dark",
+                    )}
+                >
                     {children}
                 </main>
-                <Footer>Footer</Footer>
+                <Footer />
             </div>
         </SystemProvider>
     );
