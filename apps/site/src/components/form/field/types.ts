@@ -20,6 +20,7 @@ export type FieldProviderType = {
     field: FieldProps;
     variant?: FieldVariants;
     required?: boolean;
+    disabled?: boolean;
 };
 
 export type FieldProviderProps = Omit<

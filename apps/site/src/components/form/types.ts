@@ -8,6 +8,7 @@ export type FormProps<T extends Record<string, unknown>> = {
     schema: T;
     hookProps?: UseFormProps;
     submitLabel?: string;
+    disabled?: boolean;
     onValid: SubmitHandler<T>;
     onInvalid?: SubmitErrorHandler<T>;
 } & React.FormHTMLAttributes<HTMLFormElement>;

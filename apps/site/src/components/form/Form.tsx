@@ -22,6 +22,7 @@ export function Form<T extends Record<string, unknown>>({
     // form props HTMLAttributes<HTMLFormElement>
     className,
     submitLabel,
+    disabled,
     children,
     onValid,
     onInvalid,
@@ -67,6 +68,7 @@ export function Form<T extends Record<string, unknown>>({
                         <Field
                             key={name}
                             name={name}
+                            disabled={disabled}
                             field={{ schema: field }}
                             required={(schema.required as Array<string>)!.includes(
                                 name,
