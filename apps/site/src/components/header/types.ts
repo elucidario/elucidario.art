@@ -1,3 +1,5 @@
-export type HeaderProps<T> = React.PropsWithChildren<
-    React.HTMLAttributes<HTMLDivElement> & React.AriaAttributes & T
+import { HTMLMotionProps } from "motion/react";
+
+export type HeaderProps = React.PropsWithChildren<
+    React.HTMLAttributes<HTMLDivElement> & HTMLMotionProps<"div">
 >;
