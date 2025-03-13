@@ -1,14 +1,9 @@
-// import type {
-//     FieldValues,
-//     SubmitHandler,
-//     SubmitErrorHandler,
-// } from "react-hook-form";
+export type NewsletterProps<T extends Record<string, unknown>> = {
+    ctaRef?: React.RefObject<HTMLDivElement | null>;
+    submitLabel?: string;
+    schema: T;
 
-// import { Field } from "../form";
-
-// export type NewsletterProps = {
-//     onSubmit: SubmitHandler<FieldValues>;
-//     onError?: SubmitErrorHandler<FieldValues>;
-//     submitLabel?: string;
-//     fields?: Field.Fields;
-// };
+    includeListIds: number[];
+    templateId: number;
+    redirectionUrl: string;
+};

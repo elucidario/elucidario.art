@@ -1,61 +1,206 @@
-// import * as Form from "@/components/form";
-// import { cn } from "@/utils";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { AnimatePresence, motion } from "motion/react";
 
-// import type { Field } from "../form";
-// import type { NewsletterProps } from "./types";
+import { SubmitHandler } from "react-hook-form";
 
-// export function Newsletter({
-//     fields,
-//     submitLabel,
-//     onSubmit,
-//     onError,
-// }: NewsletterProps) {
-//     const defaultFields: Field.Fields = {
-//         nome: {
-//             name: "nome",
-//             schema: {
-//                 type: "string",
-//                 title: "Nome",
-//             },
-//         },
-//         email: {
-//             name: "email",
-//             schema: {
-//                 type: "string",
-//                 title: "Email",
-//                 html: {
-//                     placeholder: "nome@dominio.com",
-//                 },
-//             },
-//         },
-//     };
+import { Form } from "@/components/form";
+import { cn } from "@/utils";
 
-//     return (
-//         <Form.default
-//             className={cn("flex", "flex-col", "gap-4", "mt-4")}
-//             fields={fields || defaultFields}
-//             render={({ fields, methods }) => {
-//                 return (
-//                     <>
-//                         {Object.values(fields || {}).map((field) => {
-//                             return (
-//                                 <Form.Field.default
-//                                     key={field.name}
-//                                     className={cn("w-full")}
-//                                     {...field}
-//                                     variant="ghost"
-//                                 />
-//                             );
-//                         })}
-//                         <Form.Submit
-//                             variant={"ghost"}
-//                             onClick={methods.handleSubmit(onSubmit, onError)}
-//                         >
-//                             {submitLabel || "enviar"}
-//                         </Form.Submit>
-//                     </>
-//                 );
-//             }}
-//         />
-//     );
-// }
+import type { NewsletterProps } from "./types";
+import { Heading } from "../typography";
+
+export type State = "idle" | "loading" | "success" | "error";
+
+export function Newsletter<T extends Record<string, unknown>>({
+    ctaRef,
+    schema,
+    submitLabel,
+    includeListIds,
+    templateId,
+    redirectionUrl,
+}: NewsletterProps<T>) {
+    const [state, setState] = useState<State>("idle");
+
+    const handleSubmit: SubmitHandler<T> = (data) => {
+        setState("loading");
+
+        const options = {
+            method: "POST",
+            url: "https://api.brevo.com/v3/contacts/doubleOptinConfirmation",
+            headers: {
+                accept: "application/json",
+                "Content-Type": "application/json",
+                "api-key": import.meta.env.VITE_BREVO_TOKEN,
+            },
+            data: {
+                attributes: {
+                    NOME: data.name,
+                    JOB_TITLE: data.role,
+                    ORGANIZATION: data.organization,
+                },
+                email: data.email,
+
+                includeListIds,
+                templateId,
+                redirectionUrl,
+            },
+        };
+
+        axios
+            .request(options)
+            .then(() => {
+                setState("success");
+            })
+            .catch((error) => {
+                console.error("Newsletter Error", { error });
+                setState("error");
+            });
+    };
+
+    useEffect(() => {
+        if (["success", "error"].includes(state)) {
+            const timeout = setTimeout(() => {
+                setState("idle");
+            }, 5000);
+
+            return () => {
+                clearTimeout(timeout);
+            };
+        }
+    }, [state]);
+
+    return (
+        <section
+            ref={ctaRef}
+            id="cta-newsletter"
+            className={cn(
+                "bg-primary-light",
+                "dark:bg-primary-dark",
+                "lg:py-64",
+                "px-4",
+                "flex",
+                "flex-col",
+                "items-center",
+                "justify-center",
+                "border-b-4",
+                "border-light",
+                "dark:border-dark",
+                "h-screen",
+                "z-10",
+            )}
+        >
+            <div
+                className={cn(
+                    "border-4",
+                    "border-dark",
+                    "dark:border-light",
+                    "bg-light",
+                    "dark:bg-dark",
+                    "text-dark",
+                    "dark:text-light",
+                    "rounded-xl",
+                    "max-w-4/5",
+                    "lg:max-w-3/5",
+                    "p-8",
+                    "w-full",
+                    "min-h-96",
+                    "flex",
+                    "flex-col",
+                    "lg:flex-row",
+                    "gap-10",
+                    "shadow-2xl",
+                    "shadow-secondary-light",
+                    "dark:shadow-secondary-dark",
+                )}
+            >
+                <div
+                    className={cn(
+                        "w-full",
+                        "lg:w-2/5",
+                        "flex",
+                        "flex-col",
+                        "gap-4",
+                        "justify-center",
+                    )}
+                >
+                    <AnimatePresence>
+                        {(() => {
+                            switch (state) {
+                                case "idle":
+                                    return (
+                                        <motion.div exit={{ opacity: 0 }}>
+                                            <Heading
+                                                level={3}
+                                                className={cn("font-mono")}
+                                            >
+                                                Cadastre-se e receba novidades
+                                                em primeira mão!
+                                            </Heading>
+                                            <p className={cn("text-lg")}>
+                                                Ao cadastrar-se você concorda em
+                                                entrar para a lista de acesso
+                                                antecipado e, em receber
+                                                benefícios exclusivos.
+                                            </p>
+                                        </motion.div>
+                                    );
+
+                                case "loading":
+                                    return (
+                                        <Heading
+                                            level={3}
+                                            className={cn("font-mono")}
+                                            exit={{ opacity: 0 }}
+                                        >
+                                            Enviando...
+                                        </Heading>
+                                    );
+
+                                case "success":
+                                    return (
+                                        <Heading
+                                            level={3}
+                                            className={cn("font-mono")}
+                                            exit={{ opacity: 0 }}
+                                        >
+                                            Confira seu e-mail para confirmar o
+                                            cadastro.
+                                        </Heading>
+                                    );
+
+                                case "error":
+                                    return (
+                                        <Heading
+                                            level={3}
+                                            className={cn("font-mono")}
+                                            exit={{ opacity: 0 }}
+                                        >
+                                            Houve um erro ao enviar o
+                                            formulário.
+                                        </Heading>
+                                    );
+                            }
+                        })()}
+                    </AnimatePresence>
+                </div>
+                <div
+                    className={cn(
+                        "w-full",
+                        "lg:w-3/5",
+                        "flex",
+                        "flex-col",
+                        "gap-4",
+                    )}
+                >
+                    <Form
+                        schema={schema}
+                        submitLabel={submitLabel}
+                        onValid={handleSubmit}
+                        disabled={["loading", "error"].includes(state)}
+                    />
+                </div>
+            </div>
+        </section>
+    );
+}
