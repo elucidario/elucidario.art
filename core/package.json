@@ -1,6 +1,7 @@
 {
     "name": "@elucidario/pkg-core",
     "version": "0.3.0",
+    "private": true,
     "description": "Sistema para Gestão de Coleções para Museus",
     "keywords": [],
     "license": "MIT",
@@ -11,8 +12,7 @@
         "build": "rollup -c",
         "jest": "jest --coverage",
         "lint": "pnpm eslint 'src/**' --fix",
-        "watch": "pnpm build -w",
-        "typecheck": "tsc --noEmit"
+        "watch": "pnpm build -w"
     },
     "dependencies": {
         "react": "^19.0.0",

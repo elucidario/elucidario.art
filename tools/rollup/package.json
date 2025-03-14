@@ -1,9 +1,10 @@
 {
     "name": "@elucidario/tool-rollup",
     "version": "1.0.2",
-    "main": "rollup.config.js",
+    "private": true,
     "license": "MIT",
     "type": "module",
+    "main": "rollup.config.js",
     "devDependencies": {
         "@elucidario/tool-tsconfig": "workspace:^",
         "@rollup/plugin-json": "^6.1.0",
