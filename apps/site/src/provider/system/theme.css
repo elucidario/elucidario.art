@@ -1,0 +1,18 @@
+@theme {
+    /**
+     * Colors
+     */
+    --color-dark: #030823;
+    --color-light: #fefefb;
+
+    --color-primary-light: #1fa3f4;
+    --color-secondary-light: #c648ef;
+    --color-primary-dark: #0e6baf;
+    --color-secondary-dark: #b914eb;
+
+    /**
+     * Fonts
+     */
+    --font-sans: "Inter", sans-serif;
+    --font-mono: "JetBrains Mono", monospace;
+}

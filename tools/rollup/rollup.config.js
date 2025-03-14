@@ -1,26 +1,10 @@
 import typescript from "@rollup/plugin-typescript";
 import terser from "@rollup/plugin-terser";
-import pkg from "lodash";
 import json from "@rollup/plugin-json";
-import wpResolve from "rollup-plugin-wp-resolve";
 
-const { mergeWith } = pkg;
+import { mergeWith } from "lodash-es";
 
-const external = [
-    "@elucidario",
-    "chalk",
-    "child_process",
-    "commander",
-    "fs",
-    "fs/promises",
-    "i18n",
-    "inquirer",
-    "json-schema-to-typescript",
-    "lodash-es",
-    "lodash",
-    "path",
-    "url",
-];
+const external = ["@elucidario", "lodash-es", "lodash", "tslib"];
 
 const spreadConfig = (spread = "", config) => {
     const toSpread = spread.split(".");
@@ -33,10 +17,17 @@ const spreadConfig = (spread = "", config) => {
     }, config);
 };
 
-const lcdrRollupConfig = (config = null) => {
-    const typescriptConfig = spreadConfig("plugins.typescript", config);
-    const terserConfig = spreadConfig("plugins.terser", config);
-    const terserConfigOutput = spreadConfig("plugins.terser.output", config);
+const lcdrRollup = (config = null) => {
+    const typescriptConfig = spreadConfig("pluginsConfig.typescript", config);
+    const terserConfig = spreadConfig("pluginsConfig.terser", config);
+    const terserConfigOutput = spreadConfig(
+        "pluginsConfig.terser.output",
+        config,
+    );
+
+    if (config.pluginsConfig) {
+        delete config.pluginsConfig;
+    }
 
     const defaultConfig = {
         input: "src/index.ts",
@@ -46,7 +37,6 @@ const lcdrRollupConfig = (config = null) => {
             sourcemap: true,
         },
         plugins: [
-            wpResolve(),
             typescript({
                 tsconfig: "tsconfig.json",
                 ...typescriptConfig,
@@ -87,4 +77,4 @@ const lcdrRollupConfig = (config = null) => {
     return rollup;
 };
 
-export default lcdrRollupConfig;
+export default lcdrRollup;

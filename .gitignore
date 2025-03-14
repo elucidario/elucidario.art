@@ -5,10 +5,7 @@ apps/*/dist
 apps/*/build
 coverage
 
-publications/teste
-
-lerna-debug.log
-.bin/set_gh_token.sh
+*.log
 
 # ensure no secrets are committed
 credentials.json
@@ -16,3 +13,6 @@ token.json
 
 .nx/**/*
 dist
+.pnpm-store
+
+*.local
