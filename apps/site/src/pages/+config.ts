@@ -9,7 +9,7 @@ export default {
     Head,
 
     // <title>
-    title: "lcdr.",
+    title: "elucidario.art | Sistema de Gestão de Coleções",
     stream: true,
     extends: vikeReact,
 } satisfies Config;
