@@ -8,6 +8,7 @@
     "type": "module",
     "main": "index.js",
     "scripts": {
+        "build:site": "pnpm --filter '@elucidario/app-site' run build",
         "changeset:add": "changeset add",
         "changeset:check": "changeset status",
         "changeset:version": "changeset version",
@@ -15,8 +16,9 @@
         "commit:no-verify": "pnpm commit --no-verify",
         "lint": "pnpm --recursive run lint",
         "prepare": "husky install",
+        "preview:site": "pnpm --filter '@elucidario/app-site' run preview",
         "test": "pnpm --recursive run test",
-        "typecheck": "pnpm --filter '!@elucidario/pkg-*' run typecheck"
+        "typecheck": "pnpm --recursive run typecheck"
     },
     "husky": {
         "hooks": {
