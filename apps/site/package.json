@@ -7,10 +7,10 @@
     "author": "Henrique Godinho <ola@hgod.in>",
     "type": "module",
     "scripts": {
-        "build": "vite build",
+        "build": "vike build",
         "dev": "vite",
         "lint": "eslint 'src/**' --fix",
-        "preview": "vite preview",
+        "preview": "vike preview",
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
