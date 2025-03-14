@@ -1,13 +1,11 @@
-name: Changeset check
+name: Version bump
 
 on:
-  pull_request:
-    types: [opened, synchronize]
-  workflow_dispatch:
-
+  push:
+    branches:
+      - main
 jobs:
-  changeset-check:
-    if: github.base_ref == 'main' || github.base_ref == 'dev'
+  release:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,8 +24,7 @@ jobs:
         with:
           node-version: 21
 
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Check changeset
-        run: pnpm changeset:check
+      - name: Create Release Pull Request or Publish to npm
+        uses: changesets/action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
