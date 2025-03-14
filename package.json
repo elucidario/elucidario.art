@@ -14,7 +14,7 @@
         "prepare": "husky install",
         "test": "pnpm --recursive run test",
         "typecheck": "pnpm --filter '!@elucidario/pkg-*' run typecheck",
-        "changeset:check": "changeset status --since=main"
+        "changeset:check": "changeset status"
     },
     "husky": {
         "hooks": {
