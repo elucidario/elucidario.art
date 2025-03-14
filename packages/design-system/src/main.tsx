@@ -3,7 +3,6 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import Page from "./Page";
-import Soon from "./Soon";
 
 const router = createBrowserRouter([
     {
@@ -12,10 +11,10 @@ const router = createBrowserRouter([
                 path: "/",
                 element: <Page />,
             },
-            {
-                path: "/soon",
-                element: <Soon />,
-            },
+            // {
+            //     path: "/soon",
+            //     element: <Soon />,
+            // },
         ],
     },
 ]);

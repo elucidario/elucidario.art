@@ -1,10 +1,7 @@
-
-import { PageLayout } from '@/templates'
+import { PageLayout } from "@/templates";
 
 function Page() {
-    return (
-        <PageLayout />
-    )
+    return <PageLayout />;
 }
 
-export default Page
+export default Page;

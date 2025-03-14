@@ -1,45 +1,19 @@
-import reactPlugin from "eslint-plugin-react";
-import reactHooksPlugin from "eslint-plugin-react-hooks";
-import typescriptPlugin from "@typescript-eslint/eslint-plugin";
-import typescriptParser from "@typescript-eslint/parser";
+import globals from "globals";
+import pluginJs from "@eslint/js";
+import tseslint from "typescript-eslint";
+import pluginReact from "eslint-plugin-react";
 
+/** @type {import('eslint').Linter.Config[]} */
 export default [
+    { files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"] },
+    { languageOptions: { globals: globals.browser } },
+    pluginJs.configs.recommended,
+    ...tseslint.configs.recommended,
+    pluginReact.configs.flat.recommended,
     {
-        files: ["**/*.{js,jsx,ts,tsx}"],
-        ignores: ["**/node_modules/**", "**/dist/**"],
-        plugins: {
-            react: reactPlugin,
-            "react-hooks": reactHooksPlugin,
-            "@typescript-eslint": typescriptPlugin,
-        },
-        languageOptions: {
-            parser: typescriptParser,
-            parserOptions: {
-                ecmaFeatures: {
-                    jsx: true,
-                },
-            },
-        },
-        settings: {
-            react: {
-                version: "detect",
-            },
-        },
         rules: {
-            ...reactPlugin.configs.recommended.rules,
-            ...reactHooksPlugin.configs.recommended.rules,
-            ...typescriptPlugin.configs["recommended"].rules,
-            "react/prop-types": "off",
             "react/react-in-jsx-scope": "off",
         },
-    },
-    {
-        languageOptions: {
-            globals: {
-                browser: true,
-                node: true,
-                es6: true,
-            },
-        },
+        ignores: ["node_modules/", "dist/"],
     },
 ];
