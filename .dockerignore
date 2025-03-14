@@ -1,8 +1,0 @@
-node_modules
-.pnpm-store
-.nx
-.github
-.git
-.gitignore
-.markdownlint.json
-.vscode
