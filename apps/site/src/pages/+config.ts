@@ -12,4 +12,5 @@ export default {
     title: "elucidario.art | Sistema de Gestão de Coleções",
     stream: true,
     extends: vikeReact,
+    prerender: true,
 } satisfies Config;
