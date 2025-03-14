@@ -8,19 +8,13 @@
     "type": "module",
     "main": "index.js",
     "scripts": {
-        "build": "pnpm --recursive run build",
-        "build:app": "pnpm --filter '@elucidario/app-*' run build",
-        "build:pkg": "pnpm --filter '@elucidario/pkg-*' run  build",
-        "clean": "lerna clean",
         "commit": "cz",
         "commit:no-verify": "pnpm commit --no-verify",
-        "dev": "pnpm --recursive --stream run dev",
-        "dev:app": "pnpm --filter '@elucidario/app-*' run dev",
-        "dev:pkg": "pnpm --filter '@elucidario/pkg-*' run dev",
         "lint": "pnpm --recursive run lint",
         "prepare": "husky install",
         "test": "pnpm --recursive run test",
-        "typecheck": "pnpm --filter '!@elucidario/pkg-*' run typecheck "
+        "typecheck": "pnpm --filter '!@elucidario/pkg-*' run typecheck",
+        "changeset:check": "changeset status"
     },
     "husky": {
         "hooks": {
@@ -33,6 +27,7 @@
         }
     },
     "devDependencies": {
+        "@changesets/cli": "^2.28.1",
         "commitizen": "^4.3.1",
         "conventional-changelog": "^6.0.0",
         "eslint": "^9.21.0",
