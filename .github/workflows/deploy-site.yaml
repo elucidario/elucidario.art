@@ -4,13 +4,15 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "apps/site/**"
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  release:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,14 +22,9 @@ jobs:
           fetch-depth: 0
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
           version: 10.0.0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 21
 
       - name: Install dependencies
         run: pnpm install
@@ -38,5 +35,5 @@ jobs:
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: apps/site/dist/client # The folder the action should deploy.
           branch: gh-pages # The branch the action should deploy to.
+          folder: apps/site/dist/client # The folder the action should deploy.
