@@ -1,41 +1,85 @@
-import { Logo, Features, Heading } from "@/components";
-import { useSystemProvider } from "@/provider";
+import { Features, Header, Heading, JsonLD, Newsletter } from "@/components";
 import { cn } from "@/utils";
-import { useRef } from "react";
+import { JSONSchemaType } from "ajv";
+import { useMotionValueEvent, useScroll } from "motion/react";
+import { useMemo, useRef, useState } from "react";
+
+type NewsletterFields = {
+    name: string;
+    organization: string;
+    role: string;
+    email: string;
+};
 
 export default function Page() {
-    const { theme } = useSystemProvider();
-
     const ctaRef = useRef<HTMLDivElement>(null);
+
+    const schema = useMemo(() => {
+        const schema: JSONSchemaType<NewsletterFields> = {
+            type: "object",
+            properties: {
+                name: {
+                    type: "string",
+                    title: "Nome",
+                },
+                organization: {
+                    type: "string",
+                    title: "Organização",
+                },
+                role: {
+                    type: "string",
+                    title: "Cargo",
+                },
+                email: {
+                    type: "string",
+                    title: "Email",
+                    format: "email",
+                },
+            },
+            required: ["name", "email"],
+            additionalProperties: false,
+        };
+
+        return schema;
+    }, []);
+
+    const [y, setY] = useState(0);
+
+    const { scrollYProgress } = useScroll({
+        target: ctaRef,
+        offset: ["end end", "start start"],
+    });
+
+    useMotionValueEvent(scrollYProgress, "change", (latest) => {
+        setY(latest);
+    });
 
     return (
         <>
-            <header
-                className={cn(
-                    "pb-10",
-                    "px-4",
-                    "lg:sticky",
-                    "top-0",
-                    "flex",
-                    "flex-col",
-                    "gap-8",
-                    "items-center",
-                    "justify-between",
-                    "z-20",
-                    "bg-lcdr-light/70",
-                    "dark:bg-lcdr-dark/90",
-                )}
+            <JsonLD
+                data={{
+                    "@context": "https://schema.org",
+                    type: "OnlineBusiness",
+                    email: "ola@elucidario.art",
+                    name: "elucidario.art",
+                    keywords: "Gestão de Coleções, Museus, Arte, Cultura",
+                    description:
+                        "O elucidario.art é um Sistema de Gestão de Coleções em ativo desenvolvimento. Cadastre-se para receber novidades em primeira mão!",
+                    url: "https://elucidario.art",
+                    logo: "https://elucidario.art/png/type=vertical, color=blue, theme=light.png",
+                    sameAs: [
+                        "https://www.instagram.com/elucidario.art/",
+                        "https://github.com/elucidario",
+                    ],
+                }}
+            />
+            <Header color={"secondary"} theme={y > 0 ? "dark" : undefined} />
+            <Heading
+                level={1}
+                className={cn("font-mono", "text-center", "mx-4", "relative")}
             >
-                <Logo
-                    type="horizontal"
-                    theme={theme}
-                    color="primary"
-                    className={cn("pt-10", "max-w-[250px]", "lg:max-w-[500px]")}
-                />
-                <Heading level={1} className={cn("font-mono", "text-center")}>
-                    Revolucione a Gestão de sua Coleção
-                </Heading>
-            </header>
+                Revolucione a Gestão de sua Coleção
+            </Heading>
             <Features
                 ctaRef={ctaRef}
                 features={[
@@ -73,65 +117,15 @@ export default function Page() {
                     },
                 ]}
             />
-            <div
-                ref={ctaRef}
-                className={cn(
-                    "py-24",
-                    "bg-primary-light",
-                    "dark:bg-primary-dark",
-                    "lg:py-64",
-                    "px-4",
-                    "flex",
-                    "flex-col",
-                    "items-center",
-                    "border-b-4",
-                    "border-light",
-                    "dark:border-dark",
-                )}
-            >
-                <div
-                    className={cn(
-                        "border-4",
-                        "border-dark",
-                        "dark:border-light",
-                        "bg-light",
-                        "dark:bg-dark",
-                        "text-dark",
-                        "dark:text-light",
-                        "rounded-xl",
-                        "max-w-4/5",
-                        "lg:max-w-3/5",
-                        "p-8",
-                        "w-full",
-                        "min-h-96",
-                        "flex",
-                        "flex-col",
-                        "lg:flex-row",
-                        "gap-4",
-                    )}
-                >
-                    <div
-                        className={cn(
-                            "w-full",
-                            "lg:w-2/5",
-                            "flex",
-                            "flex-col",
-                            "gap-4",
-                            "justify-center",
-                        )}
-                    >
-                        <Heading level={3} className={cn("font-mono")}>
-                            Cadastre-se e receba novidades em primeira mão!
-                        </Heading>
-                        <p className={cn("text-lg")}>
-                            Ao cadastrar-se você concorda em entrar para a lista
-                            de acesso antecipado e, em receber benefícios
-                            exclusivos.
-                        </p>
-                    </div>
-                    <div className={cn("w-full", "lg:w-3/5")}>ola mundo</div>
-                </div>
-            </div>
+            <Newsletter
+                ctaRef={ctaRef}
+                schema={schema}
+                submitLabel="Enviar"
+                includeListIds={[7]}
+                templateId={3}
+                redirectionUrl="https://elucidario.art/"
+                addValuesToParams={true}
+            />
         </>
     );
 }
