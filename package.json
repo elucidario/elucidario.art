@@ -8,13 +8,15 @@
     "type": "module",
     "main": "index.js",
     "scripts": {
+        "changeset:add": "changeset add",
+        "changeset:check": "changeset status",
+        "changeset:version": "changeset version",
         "commit": "cz",
         "commit:no-verify": "pnpm commit --no-verify",
         "lint": "pnpm --recursive run lint",
         "prepare": "husky install",
         "test": "pnpm --recursive run test",
-        "typecheck": "pnpm --filter '!@elucidario/pkg-*' run typecheck",
-        "changeset:check": "changeset status"
+        "typecheck": "pnpm --filter '!@elucidario/pkg-*' run typecheck"
     },
     "husky": {
         "hooks": {
