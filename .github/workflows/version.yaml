@@ -24,6 +24,9 @@ jobs:
         with:
           node-version: 21
 
+      - name: Install dependencies
+        run: pnpm install
+
       - name: Create Release Pull Request or Publish to npm
         uses: changesets/action@v1
         env:
