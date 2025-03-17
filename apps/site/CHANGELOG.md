@@ -1,5 +1,11 @@
 # @elucidario/app-site
 
+## 0.4.1
+
+### Patch Changes
+
+- e3c28f7: add base path to vite.config to try to avoid 404 page deployed assets
+
 ## 0.4.0
 
 ### Minor Changes
