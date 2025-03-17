@@ -15,23 +15,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: checkout
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
 
-      - name: Setup pnpm
+      - name: pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Setup Node.js
+      - name: node
         uses: actions/setup-node@v2
         with:
           node-version: 21
 
-      - name: Install dependencies
+      - name: install
         run: pnpm install
 
-      - name: Create Release Pull Request or Publish to npm
+      - name: release
         uses: changesets/action@v1
+        id: changeset
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: save
+        run: |
+          echo "pr_number=${{ steps.changeset.outputs.pullRequestNumber }}" > release.txt
+          echo "has_changeset=${{ steps.changeset.outputs.hasChangesets }}" >> release.txt
+          echo "published=${{ steps.changeset.outputs.published }}" >> release.txt
+          echo "published_packages=${{ steps.changeset.outputs.publishedPackages }}" >> release.txt
+
+      - name: artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: changeset
+          path: release.txt
