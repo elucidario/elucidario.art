@@ -26,11 +26,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Setup environment
-        run: echo "VITE_BREVO_TOKEN=${{ secrets.VITE_BREVO_TOKEN }}" > ./apps/site/.env
-
       - name: Build
         run: pnpm build:site
+        env:
+          NODE_ENV: production
+          VITE_BREVO_TOKEN: ${{ secrets.VITE_BREVO_TOKEN }}
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
