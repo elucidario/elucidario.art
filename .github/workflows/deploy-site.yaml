@@ -27,7 +27,7 @@ jobs:
         run: pnpm install
 
       - name: Env
-        run: echo "VITE_BREVO_TOKEN=${{ secrets.VITE_BREVO_TOKEN }}" >> $VITE_BREVO_TOKEN
+        run: echo "VITE_BREVO_TOKEN=${{ secrets.VITE_BREVO_TOKEN }}" >> $GITHUB_ENV
 
       - name: Build
         run: pnpm build:site
