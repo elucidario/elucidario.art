@@ -1,11 +1,10 @@
 name: Deploy site
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "apps/site/**"
+  workflow_run:
+    workflows: ["version"]
+    types:
+      - completed
   workflow_dispatch:
 
 permissions:
