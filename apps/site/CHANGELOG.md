@@ -1,5 +1,11 @@
 # @elucidario/app-site
 
+## 0.4.2
+
+### Patch Changes
+
+- e81c00a: change assets name
+
 ## 0.4.1
 
 ### Patch Changes
