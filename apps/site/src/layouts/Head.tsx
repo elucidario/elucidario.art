@@ -9,7 +9,7 @@ export default function Head() {
                 name="description"
                 content="O elucidario.art é um Sistema de Gestão de Coleções em ativo desenvolvimento. Cadastre-se para receber novidades em primeira mão!"
             />
-            <link rel="icon" href={"/png/format=round, variant=compact.png"} />
+            <link rel="icon" href={"/png/format=round-variant=compact.png"} />
         </>
     );
 }
