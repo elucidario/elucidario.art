@@ -36,6 +36,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: check
+        run: echo "hasChangesets ${{ steps.changeset.outputs.hasChangesets }}"
+
   deploy:
     needs: version
     uses: elucidario/elucidario.art/.github/workflows/deploy-site.yaml@main
