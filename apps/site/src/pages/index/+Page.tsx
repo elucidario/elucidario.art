@@ -1,4 +1,4 @@
-import { Features, Header, Heading, JsonLD, Newsletter } from "@/components";
+import { Features, Header, Heading, Newsletter, Main } from "@/components";
 import { cn } from "@/utils";
 import { JSONSchemaType } from "ajv";
 import { useMotionValueEvent, useScroll } from "motion/react";
@@ -55,30 +55,31 @@ export default function Page() {
     });
 
     return (
-        <>
-            <JsonLD
-                data={{
-                    "@context": "https://schema.org",
-                    type: "OnlineBusiness",
-                    email: "ola@elucidario.art",
-                    name: "elucidario.art",
-                    keywords: "Gestão de Coleções, Museus, Arte, Cultura",
-                    description:
-                        "O elucidario.art é um Sistema de Gestão de Coleções em ativo desenvolvimento. Cadastre-se para receber novidades em primeira mão!",
-                    url: "https://elucidario.art",
-                    logo: "https://elucidario.art/png/type=vertical, color=blue, theme=light.png",
-                    sameAs: [
-                        "https://www.instagram.com/elucidario.art/",
-                        "https://github.com/elucidario",
-                    ],
-                }}
-            />
+        <Main
+            metadata={{
+                "@context": "https://schema.org",
+                "@type": "WebPage",
+                name: "elucidario.art - Sistema de Gestão de Coleções",
+                description:
+                    "O elucidario.art é um Sistema de Gestão de Coleções em ativo desenvolvimento. Cadastre-se para receber novidades em primeira mão!",
+                url: "https://elucidario.art",
+                inLanguage: "pt-BR",
+                potentialAction: {
+                    "@type": "RegisterAction",
+                    name: "Cadastre-se",
+                    target: {
+                        "@type": "EntryPoint",
+                        urlTemplate: "https://elucidario.art/",
+                    },
+                },
+            }}
+        >
             <Header color={"secondary"} theme={y > 0 ? "dark" : undefined} />
             <Heading
                 level={1}
                 className={cn("font-mono", "text-center", "mx-4", "relative")}
             >
-                Revolucione a Gestão de sua Coleção
+                Revolucione a Gestão de sua Coleção!
             </Heading>
             <Features
                 ctaRef={ctaRef}
@@ -126,6 +127,6 @@ export default function Page() {
                 redirectionUrl="https://elucidario.art/"
                 addValuesToParams={true}
             />
-        </>
+        </Main>
     );
 }

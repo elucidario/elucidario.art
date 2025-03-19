@@ -1,3 +1,5 @@
-export type MainProps = React.PropsWithChildren<
-    React.HTMLAttributes<HTMLDivElement> & React.AriaAttributes
->;
+import { WebPage, WithContext } from "schema-dts";
+
+export type MainProps = React.HTMLAttributes<HTMLDivElement> & {
+    metadata?: WithContext<WebPage>;
+};

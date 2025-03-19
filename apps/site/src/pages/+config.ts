@@ -8,8 +8,11 @@ export default {
     Layout,
     Head,
 
-    // <title>
+    lang: "pt-BR",
     title: "elucidario.art | Sistema de Gestão de Coleções",
+    image: "/png/lcdr-banner.png",
+    description:
+        "O elucidario.art é um Sistema de Gestão de Coleções em ativo desenvolvimento. Cadastre-se para receber novidades em primeira mão!",
     stream: true,
     extends: vikeReact,
     prerender: true,
