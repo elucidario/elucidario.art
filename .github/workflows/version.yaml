@@ -37,10 +37,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: check
-        run: echo "hasChangesets ${{ steps.changeset.outputs.hasChangesets }}"
+        run: |
+          echo "hasChangesets ${{ steps.changeset.outputs.hasChangesets }}"
+          echo "shouldDeploy type string ${{ steps.changeset.outputs.hasChangesets == 'false' }}"
+          echo "shouldDeploy type boolean ${{ steps.changeset.outputs.hasChangesets == false }}"
 
   deploy:
     needs: version
     uses: elucidario/elucidario.art/.github/workflows/deploy-site.yaml@main
     with:
-      should_deploy: ${{ needs.version.outputs.has_changeset == false }}
+      should_deploy: ${{ needs.version.outputs.has_changeset == 'false' }}
