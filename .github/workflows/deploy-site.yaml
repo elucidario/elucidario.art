@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
       should_deploy:
-        description: "Should deploy?"
+        description: "Should deploy the site?"
         required: true
         type: boolean
 
