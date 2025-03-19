@@ -13,6 +13,10 @@ permissions:
 jobs:
   version:
     runs-on: ubuntu-latest
+    outputs:
+      should_deploy: ${{ steps.changeset.outputs.hasChangesets }}
+      type: boolean
+      required: true
 
     steps:
       - name: checkout
@@ -32,6 +36,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: deploy
-        if: steps.changeset.outputs.hasChangesets == 'false'
-        uses: elucidario/elucidario.art/.github/workflows/deploy-site.yaml@main
+  deploy:
+    uses: elucidario/elucidario.art/.github/workflows/deploy-site.yaml@main
+    with:
+      should_deploy: ${{ needs.version.outputs.should_deploy }}
