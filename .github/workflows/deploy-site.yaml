@@ -2,13 +2,24 @@ name: Deploy site
 
 on:
   workflow_call:
+    inputs:
+      should_deploy:
+        description: "Should deploy?"
+        required: true
+        type: boolean
   workflow_dispatch:
+    inputs:
+      should_deploy:
+        description: "Should deploy?"
+        required: true
+        type: boolean
 
 permissions:
   contents: write
 
 jobs:
   build-and-deploy:
+    if: ${{ github.event.inputs.should_deploy == true }}
     runs-on: ubuntu-latest
 
     steps:
@@ -33,3 +44,11 @@ jobs:
         with:
           branch: gh-pages # The branch the action should deploy to.
           folder: apps/site/dist/client # The folder the action should deploy.
+
+  exit:
+    if: ${{ github.event.inputs.should_deploy == false }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Exit
+        run: echo "Nothing to deploy."
