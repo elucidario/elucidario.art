@@ -16,17 +16,12 @@ jobs:
 
     steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: pnpm
         uses: pnpm/action-setup@v4
-
-      - name: node
-        uses: actions/setup-node@v2
-        with:
-          node-version: 21
 
       - name: install
         run: pnpm install
@@ -39,4 +34,4 @@ jobs:
 
       - name: deploy
         if: steps.changeset.outputs.hasChangesets == 'false'
-        uses: ./.github/workflows/deploy-site.yaml
+        uses: elucidario/elucidario.art/.github/workflows/deploy-site.yaml@main
