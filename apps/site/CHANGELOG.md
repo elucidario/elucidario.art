@@ -1,5 +1,11 @@
 # @elucidario/app-site
 
+## 0.4.3
+
+### Patch Changes
+
+- 35baa99: change the newsletter add lead call to firebase cloud function @elucidario/lead
+
 ## 0.4.2
 
 ### Patch Changes
