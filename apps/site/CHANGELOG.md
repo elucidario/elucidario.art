@@ -1,5 +1,11 @@
 # @elucidario/app-site
 
+## 0.5.2
+
+### Patch Changes
+
+- 040d365: bump patch site to trigger workflow
+
 ## 0.5.1
 
 ### Patch Changes
