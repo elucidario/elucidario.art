@@ -4,9 +4,10 @@ on:
   workflow_call:
     inputs:
       should_deploy:
-        description: "Should deploy?"
+        description: "Should deploy the site?"
         required: true
         type: boolean
+
   workflow_dispatch:
     inputs:
       should_deploy:

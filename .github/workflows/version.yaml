@@ -14,7 +14,7 @@ jobs:
   version:
     runs-on: ubuntu-latest
     outputs:
-      should_deploy: ${{ steps.changeset.outputs.hasChangesets }}
+      has_changeset: ${{ steps.changeset.outputs.hasChangesets }}
       type: boolean
       required: true
 
@@ -40,4 +40,4 @@ jobs:
     needs: version
     uses: elucidario/elucidario.art/.github/workflows/deploy-site.yaml@main
     with:
-      should_deploy: ${{ needs.version.outputs.should_deploy }}
+      should_deploy: ${{ needs.version.outputs.has_changeset == 'false' }}
