@@ -33,23 +33,18 @@ export function Newsletter<T extends Record<string, unknown>>({
 
         const options = {
             method: "POST",
-            url: "https://api.brevo.com/v3/contacts/doubleOptinConfirmation",
+            url: `${import.meta.env.VITE_LEAD_URL}/leads`,
             headers: {
                 accept: "application/json",
                 "Content-Type": "application/json",
-                "api-key": import.meta.env.VITE_BREVO_TOKEN,
             },
             data: {
-                attributes: {
-                    NOME: data.name,
-                    JOB_TITLE: data.role,
-                    ORGANIZATION: data.organization,
+                user: data,
+                options: {
+                    listIds: includeListIds,
+                    templateId,
+                    redirectionUrl: redirUrl,
                 },
-                email: data.email,
-
-                includeListIds,
-                templateId,
-                redirectionUrl: redirUrl,
             },
         };
 
