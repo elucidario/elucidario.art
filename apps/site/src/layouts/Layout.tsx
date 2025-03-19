@@ -15,16 +15,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
                     "relative",
                 )}
             >
-                <main
-                    className={cn(
-                        "relative",
-                        "z-10",
-                        "bg-light",
-                        "dark:bg-dark",
-                    )}
-                >
-                    {children}
-                </main>
+                {children}
                 <Footer />
             </div>
         </SystemProvider>
