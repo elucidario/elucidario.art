@@ -1,10 +1,7 @@
 name: Deploy site
 
 on:
-  workflow_run:
-    workflows: ["version"]
-    types:
-      - completed
+  workflow_call:
   workflow_dispatch:
 
 permissions:
@@ -25,9 +22,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
-
-      - name: Env
-        run: echo "VITE_BREVO_TOKEN=${{ secrets.VITE_BREVO_TOKEN }}" >> $GITHUB_ENV
 
       - name: Build
         run: pnpm build:site

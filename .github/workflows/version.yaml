@@ -37,15 +37,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: save
-        run: |
-          echo "pr_number=${{ steps.changeset.outputs.pullRequestNumber }}" > release.txt
-          echo "has_changeset=${{ steps.changeset.outputs.hasChangesets }}" >> release.txt
-          echo "published=${{ steps.changeset.outputs.published }}" >> release.txt
-          echo "published_packages=${{ steps.changeset.outputs.publishedPackages }}" >> release.txt
-
-      - name: artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: changeset
-          path: release.txt
+      - name: deploy
+        if: steps.changeset.outputs.hasChangesets == 'false'
+        uses: ./.github/workflows/deploy-site.yaml@main
