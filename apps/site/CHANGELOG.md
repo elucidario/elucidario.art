@@ -1,5 +1,11 @@
 # @elucidario/app-site
 
+## 0.4.4
+
+### Patch Changes
+
+- 5f8f21c: add VITE_LEAD_URL to dploy-site.yaml workflow
+
 ## 0.4.3
 
 ### Patch Changes
