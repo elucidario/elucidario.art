@@ -15,8 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       has_changeset: ${{ steps.changeset.outputs.hasChangesets }}
-      type: boolean
-      required: true
 
     steps:
       - name: checkout
