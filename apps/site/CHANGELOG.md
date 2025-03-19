@@ -1,5 +1,11 @@
 # @elucidario/app-site
 
+## 0.5.3
+
+### Patch Changes
+
+- e720ec0: patch site to trigger workflow
+
 ## 0.5.2
 
 ### Patch Changes
