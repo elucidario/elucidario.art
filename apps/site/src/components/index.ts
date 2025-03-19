@@ -2,6 +2,7 @@ export * from "./box";
 
 export * from "./typography";
 
+export * from "./meta";
 export * from "./footer";
 export * from "./main";
 export * from "./article";
