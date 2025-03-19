@@ -39,4 +39,4 @@ jobs:
 
       - name: deploy
         if: steps.changeset.outputs.hasChangesets == 'false'
-        uses: ./.github/workflows/deploy-site.yaml@main
+        uses: ./.github/workflows/deploy-site.yaml
