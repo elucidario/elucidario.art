@@ -9,9 +9,9 @@ import { cn } from "@/utils";
 
 import type { NewsletterProps, NewsletterState } from "./types";
 import { Heading } from "../typography";
+import { useTrackEvent } from "@/hooks/useTrackEvent";
 
 export function Newsletter<T extends Record<string, unknown>>({
-    ctaRef,
     schema,
     submitLabel,
     includeListIds,
@@ -21,6 +21,7 @@ export function Newsletter<T extends Record<string, unknown>>({
     additionalParams,
 }: NewsletterProps<T>) {
     const [state, setState] = useState<NewsletterState>("idle");
+    const trackEvent = useTrackEvent();
 
     const handleSubmit: SubmitHandler<T> = (data) => {
         setState("loading");
@@ -48,6 +49,14 @@ export function Newsletter<T extends Record<string, unknown>>({
             },
         };
 
+        trackEvent("newsletter", {
+            ...data,
+            includeListIds,
+            templateId,
+            redirUrl,
+            ...additionalParams,
+        });
+
         axios
             .request(options)
             .then(() => {
@@ -73,7 +82,6 @@ export function Newsletter<T extends Record<string, unknown>>({
 
     return (
         <section
-            ref={ctaRef}
             id="cta-newsletter"
             className={cn(
                 "bg-primary-light",
