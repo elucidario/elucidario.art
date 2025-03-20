@@ -10,9 +10,9 @@ export type FieldVariants = "default" | "outline" | "ghost";
 
 export type FieldProps = {
     value?: FieldValue;
+    schema: Record<string, unknown>;
     hidden?: boolean;
     setHidden?: (hidden: boolean) => void;
-    schema: Record<string, unknown>;
 };
 
 export type FieldProviderType = {
@@ -21,6 +21,7 @@ export type FieldProviderType = {
     variant?: FieldVariants;
     required?: boolean;
     disabled?: boolean;
+    hidden?: boolean;
 };
 
 export type FieldProviderProps = Omit<
