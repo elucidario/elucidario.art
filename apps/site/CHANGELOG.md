@@ -1,5 +1,16 @@
 # @elucidario/app-site
 
+## 0.7.0
+
+### Minor Changes
+
+- f08fdb7: logo uses image component and has default url
+- e2f62d8: image component lazy load by default and improve type to ensure required props are passed
+
+### Patch Changes
+
+- b1d94cc: cta on footer scrool to cta section with default behaviour
+
 ## 0.6.0
 
 ### Minor Changes
