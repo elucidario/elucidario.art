@@ -16,4 +16,7 @@ export default {
     stream: true,
     extends: vikeReact,
     prerender: true,
+    htmlAttributes: {
+        class: "scroll-smooth",
+    },
 } satisfies Config;

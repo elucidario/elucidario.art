@@ -54,6 +54,8 @@ export default function Page() {
         setY(latest);
     });
 
+    const ctaID = "cta-newsletter";
+
     return (
         <Main
             metadata={{
@@ -82,7 +84,7 @@ export default function Page() {
                 Revolucione a Gestão de sua Coleção!
             </Heading>
             <Features
-                ctaRef={ctaRef}
+                ctaID={ctaID}
                 features={[
                     {
                         title: "Gestão completa de sua Coleção",
@@ -119,7 +121,7 @@ export default function Page() {
                 ]}
             />
             <Newsletter
-                ctaRef={ctaRef}
+                ctaID={ctaID}
                 schema={schema}
                 submitLabel="Enviar"
                 includeListIds={[7]}

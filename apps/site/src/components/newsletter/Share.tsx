@@ -11,7 +11,7 @@ import type { NewsletterProps, NewsletterState } from "./types";
 import { Heading } from "../typography";
 
 export function Share<T extends Record<string, unknown>>({
-    ctaRef,
+    ctaID,
     schema,
     submitLabel,
     includeListIds,
@@ -78,8 +78,7 @@ export function Share<T extends Record<string, unknown>>({
 
     return (
         <section
-            ref={ctaRef}
-            id="cta-newsletter"
+            id={ctaID}
             className={cn(
                 "bg-primary-light",
                 "dark:bg-primary-dark",

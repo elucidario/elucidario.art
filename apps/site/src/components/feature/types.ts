@@ -4,11 +4,11 @@ import { featureVariants } from "./variants";
 export type FeatureProps = React.HTMLAttributes<HTMLDivElement> & {
     title: string;
     description: React.ReactNode;
+    ctaID?: string;
     cta?: React.ReactNode;
-    ctaRef?: React.RefObject<HTMLDivElement | null>;
 } & VariantProps<typeof featureVariants>;
 
 export type FeaturesProps = React.HTMLAttributes<HTMLDivElement> & {
     features: FeatureProps[];
-    ctaRef?: FeatureProps["ctaRef"];
+    ctaID?: FeatureProps["ctaID"];
 };

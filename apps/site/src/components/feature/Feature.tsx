@@ -14,7 +14,7 @@ export function Feature({
     description,
     className,
     cta,
-    ctaRef,
+    ctaID,
     ...props
 }: FeatureProps) {
     const { theme } = useSystemProvider();
@@ -54,8 +54,8 @@ export function Feature({
                     {title}
                 </Heading>
                 {cta && (
-                    <Button variant={"pb"} onClick={onClick} className={cn()}>
-                        {cta}
+                    <Button asChild variant={"pb"}>
+                        <a href={`#${ctaID}`}>{cta}</a>
                     </Button>
                 )}
             </div>
