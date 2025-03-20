@@ -1,8 +1,7 @@
 import { Features, Header, Heading, Newsletter, Main } from "@/components";
 import { cn } from "@/utils";
 import { JSONSchemaType } from "ajv";
-import { useMotionValueEvent, useScroll } from "motion/react";
-import { useMemo, useRef, useState } from "react";
+import { useMemo } from "react";
 
 type NewsletterFields = {
     name: string;
@@ -12,8 +11,6 @@ type NewsletterFields = {
 };
 
 export default function Page() {
-    const ctaRef = useRef<HTMLDivElement>(null);
-
     const schema = useMemo(() => {
         const schema: JSONSchemaType<NewsletterFields> = {
             type: "object",
@@ -43,17 +40,6 @@ export default function Page() {
         return schema;
     }, []);
 
-    const [y, setY] = useState(0);
-
-    const { scrollYProgress } = useScroll({
-        target: ctaRef,
-        offset: ["end end", "start start"],
-    });
-
-    useMotionValueEvent(scrollYProgress, "change", (latest) => {
-        setY(latest);
-    });
-
     const ctaID = "cta-newsletter";
 
     return (
@@ -76,7 +62,7 @@ export default function Page() {
                 },
             }}
         >
-            <Header color={"secondary"} theme={y > 0 ? "dark" : undefined} />
+            <Header color={"secondary"} />
             <Heading
                 level={1}
                 className={cn("font-mono", "text-center", "mx-4", "relative")}
