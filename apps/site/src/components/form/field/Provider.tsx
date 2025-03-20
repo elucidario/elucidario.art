@@ -25,6 +25,7 @@ export function Provider({
                 field,
                 required,
                 hidden,
+                id: `field-${name}`,
                 ...registered,
             }}
         >

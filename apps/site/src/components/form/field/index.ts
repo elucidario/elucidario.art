@@ -5,4 +5,3 @@ export * from "./Body";
 export * from "./Description";
 export * from "./Error";
 export * from "./Label";
-export * from "./Root";
