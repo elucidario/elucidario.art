@@ -18,37 +18,17 @@ function getWindowDimensions() {
         isDesktop: false,
     };
 
-    const breakpoints = (() => {
-        try {
-            const { sm, md, lg, xl } = {
-                sm: "390px",
-                md: "752px",
-                lg: "976px",
-                xl: "1440px",
-            };
-            return {
-                sm: parseInt(sm as string),
-                md: parseInt(md as string),
-                lg: parseInt(lg as string),
-                xl: parseInt(xl as string),
-            };
-        } catch (error) {
-            console.error("Error getting breakpoints from theme", error);
-            return defaultBreakpoints;
-        }
-    })();
-
     const { width, height, type, isDesktop, isMobile, isTablet } = (() => {
         if (typeof window !== "undefined") {
             const { innerWidth, innerHeight } = window;
             const viewport = {
                 width: innerWidth,
                 height: innerHeight,
-                isMobile: innerWidth <= breakpoints.sm && innerWidth >= 0,
+                isMobile: innerWidth <= defaultBreakpoints.sm && innerWidth > 0,
                 isTablet:
-                    innerWidth <= breakpoints.lg &&
-                    innerWidth >= breakpoints.md,
-                isDesktop: innerWidth >= breakpoints.lg,
+                    innerWidth <= defaultBreakpoints.lg &&
+                    innerWidth >= defaultBreakpoints.md,
+                isDesktop: innerWidth >= defaultBreakpoints.lg,
             };
             return {
                 ...viewport,
@@ -72,7 +52,6 @@ function getWindowDimensions() {
         isDesktop,
         isMobile,
         isTablet,
-        breakpoints,
     };
 }
 

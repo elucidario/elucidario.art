@@ -14,18 +14,18 @@ export function Feature({
     description,
     className,
     cta,
-    ctaRef,
+    ctaID,
     ...props
 }: FeatureProps) {
     const { theme } = useSystemProvider();
 
-    const onClick = () => {
-        if (ctaRef?.current) {
-            ctaRef.current.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-            });
-        }
+    const transition = {
+        offScreen: {
+            scale: 1,
+        },
+        onScreen: {
+            scale: 2.5,
+        },
     };
 
     return (
@@ -54,8 +54,8 @@ export function Feature({
                     {title}
                 </Heading>
                 {cta && (
-                    <Button variant={"pb"} onClick={onClick} className={cn()}>
-                        {cta}
+                    <Button asChild variant={"pb"}>
+                        <a href={`#${ctaID}`}>{cta}</a>
                     </Button>
                 )}
             </div>
@@ -77,12 +77,15 @@ export function Feature({
                         "size-32",
                         "lg:size-56",
                     )}
-                    initial={{ scale: 1 }}
-                    whileInView={{ scale: 2.5 }}
+                    variants={transition}
+                    viewport={{
+                        amount: 0.9,
+                    }}
+                    initial={"offScreen"}
+                    whileInView={"onScreen"}
                     transition={{
-                        duration: 0.5,
-                        delay: 0.2,
-                        easings: "easeInOut",
+                        type: "spring",
+                        stiffness: 50,
                     }}
                     style={{
                         background: inverted

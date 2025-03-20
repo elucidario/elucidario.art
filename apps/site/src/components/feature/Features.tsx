@@ -2,7 +2,7 @@ import { cn } from "@/utils";
 import { FeaturesProps } from "./types";
 import { Feature } from "./Feature";
 
-export function Features({ features, ctaRef }: FeaturesProps) {
+export function Features({ features, ctaID }: FeaturesProps) {
     return (
         <section
             className={cn(
@@ -41,7 +41,7 @@ export function Features({ features, ctaRef }: FeaturesProps) {
                 ></div>
             </div>
             {features.map((feature, i) => {
-                return <Feature key={i} {...feature} ctaRef={ctaRef} />;
+                return <Feature key={i} {...feature} ctaID={ctaID} />;
             })}
         </section>
     );

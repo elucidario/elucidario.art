@@ -1,5 +1,5 @@
 export type NewsletterProps<T extends Record<string, unknown>> = {
-    ctaRef?: React.RefObject<HTMLDivElement | null>;
+    ctaID: string;
     submitLabel?: string;
     schema: T;
 

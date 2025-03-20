@@ -65,6 +65,20 @@ export default function Head() {
                     },
                 }}
             />
+            <script
+                async
+                src="https://www.googletagmanager.com/gtag/js?id=G-8KDGCN80JB"
+            ></script>
+            <script
+                dangerouslySetInnerHTML={{
+                    __html: `
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${import.meta.env.VITE_GA_ID}');
+                `,
+                }}
+            />
         </>
     );
 }
