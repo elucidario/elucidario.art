@@ -1,4 +1,4 @@
-import { HTMLAttributes } from "react";
+import { HTMLAttributes, LabelHTMLAttributes } from "react";
 
 export type FieldValue = string | number | undefined | readonly string[];
 
@@ -16,8 +16,10 @@ export type FieldProps = {
 };
 
 export type FieldProviderType = {
+    id: string;
     name: string;
     field: FieldProps;
+
     variant?: FieldVariants;
     required?: boolean;
     disabled?: boolean;
@@ -28,11 +30,9 @@ export type FieldProviderProps = Omit<
     React.HTMLAttributes<HTMLElement>,
     "dir"
 > &
-    FieldProviderType;
+    Omit<FieldProviderType, "id">;
 
-export type FieldLabelProps = HTMLAttributes<
-    HTMLLabelElement | HTMLLegendElement
->;
+export type FieldLabelProps = LabelHTMLAttributes<HTMLLabelElement>;
 
 export type FieldBodyProps = HTMLAttributes<HTMLDivElement>;
 

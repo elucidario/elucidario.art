@@ -41,8 +41,7 @@ export function Logo({
                 <Image
                     src={svg}
                     alt="logo elucidario.art"
-                    width={496}
-                    height={59}
+                    height={64}
                     className={cn(className)}
                 />
             )}

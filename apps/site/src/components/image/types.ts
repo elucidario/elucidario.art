@@ -3,6 +3,4 @@ export type ImageProps = Omit<
     "alt" | "width" | "height"
 > & {
     alt: string;
-    width: number;
-    height: number;
-};
+} & ({ width: number; height?: number } | { height: number; width?: number });

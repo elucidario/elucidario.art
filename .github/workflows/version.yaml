@@ -38,4 +38,4 @@ jobs:
     needs: version
     uses: elucidario/elucidario.art/.github/workflows/deploy-site.yaml@main
     with:
-      should_deploy: ${{ needs.version.outputs.has_changeset == 'false' }}
+      should_deploy: ${{ needs.version.outputs.has_changeset }}

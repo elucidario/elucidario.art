@@ -3,6 +3,7 @@ import type { FieldProviderType } from "./types";
 
 export const defaultContext: FieldProviderType = {
     name: "",
+    id: "",
     field: { schema: {} },
 };
 
