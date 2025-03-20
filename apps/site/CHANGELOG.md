@@ -1,5 +1,11 @@
 # @elucidario/app-site
 
+## 0.7.2
+
+### Patch Changes
+
+- f8c888b: patch version to trigger workflow
+
 ## 0.7.1
 
 ### Patch Changes
