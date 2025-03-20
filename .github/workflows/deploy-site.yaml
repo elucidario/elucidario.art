@@ -19,6 +19,13 @@ permissions:
   contents: write
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check if should deploy
+        run: 'echo "Should deploy: ${{ github.event.inputs.should_deploy }}"'
+
   build-and-deploy:
     if: ${{ github.event.inputs.should_deploy == true || github.event.inputs.should_deploy == 'true' }}
     runs-on: ubuntu-latest
