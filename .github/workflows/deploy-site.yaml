@@ -24,10 +24,10 @@ jobs:
 
     steps:
       - name: Check if should deploy
-        run: 'echo "Should deploy: ${{ github.event.inputs.should_deploy }}"'
+        run: 'echo "Should deploy: ${{ inputs.should_deploy }}"'
 
   build-and-deploy:
-    if: ${{ github.event.inputs.should_deploy == true || github.event.inputs.should_deploy == 'true' }}
+    if: ${{ inputs.should_deploy == true || inputs.should_deploy == 'true' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -55,7 +55,7 @@ jobs:
           folder: apps/site/dist/client # The folder the action should deploy.
 
   exit:
-    if: ${{ github.event.inputs.should_deploy == false || github.event.inputs.should_deploy == 'false' }}
+    if: ${{ inputs.should_deploy == false || inputs.should_deploy == 'false' }}
     runs-on: ubuntu-latest
 
     steps:
