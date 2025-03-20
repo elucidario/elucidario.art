@@ -1,5 +1,19 @@
 # @elucidario/app-site
 
+## 0.6.0
+
+### Minor Changes
+
+- 95802ff: add google analyitcs integration
+
+### Patch Changes
+
+- 9a2b0d9: change ctaRef to ctaID to improve accessibility when user click cta in features, as we scroll to call to action section we maintain the default behaviour setting focus to the cta section and add to history as we trigger a navigation event
+- c88a1ab: refactor field
+- e902bf3: add spring to spheres movement and remove scroll callback
+- 6866b0f: change png extension to webp in +config
+- 06e0c8e: simplify useViewPortSize hook
+
 ## 0.5.4
 
 ### Patch Changes
