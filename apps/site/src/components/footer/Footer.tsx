@@ -4,14 +4,6 @@ import { Logo } from "../logo";
 import { Button } from "../button";
 
 export function Footer({ ref, className, ...props }: FooterProps) {
-    const onClick = () => {
-        const section = document.getElementById("cta-newsletter");
-        console.log({ section });
-        if (section) {
-            section.scrollIntoView({ behavior: "smooth" });
-        }
-    };
-
     return (
         <footer
             ref={ref}
@@ -73,12 +65,8 @@ export function Footer({ ref, className, ...props }: FooterProps) {
                             em ativo desenvolvimento. Cadastre-se para receber
                             novidades em primeira mão!
                         </p>
-                        <Button
-                            variant={"pb"}
-                            className="w-fit"
-                            onClick={onClick}
-                        >
-                            Quero novidades!
+                        <Button variant={"pb"} className="w-fit" asChild>
+                            <a href={"#cta-newsletter"}>Quero novidades!</a>
                         </Button>
                     </div>
                     <div

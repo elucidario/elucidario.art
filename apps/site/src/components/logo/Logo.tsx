@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 
 import { cn } from "@/utils";
 import { useSystemProvider } from "@/provider";
+import { Image } from "@/components";
 import { useState, useEffect } from "react";
 import { LogoProps } from "./types";
 
@@ -14,7 +15,9 @@ export function Logo({
 }: LogoProps) {
     const { theme: systemTheme } = useSystemProvider();
     const theme = propTheme || systemTheme;
-    const [svg, setSvg] = useState<string | null>(null);
+    const [svg, setSvg] = useState<string | null>(
+        `/svg/type=${type || "horizontal"}-color=${color}-theme=${theme || "light"}.svg`,
+    );
 
     useEffect(() => {
         async function importSvg() {
@@ -35,9 +38,11 @@ export function Logo({
     return (
         <motion.div {...props}>
             {svg && (
-                <img
+                <Image
                     src={svg}
                     alt="logo elucidario.art"
+                    width={496}
+                    height={59}
                     className={cn(className)}
                 />
             )}
