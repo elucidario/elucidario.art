@@ -1,7 +1,9 @@
-import { Features, Header, Heading, Newsletter, Main } from "@/components";
-import { cn } from "@/utils";
 import { JSONSchemaType } from "ajv";
 import { useMemo } from "react";
+
+import { Features, Header, Heading, Newsletter, Main } from "@/components";
+import { cn } from "@/utils";
+import { usePageContext } from "vike-react/usePageContext";
 
 type NewsletterFields = {
     name: string;
@@ -40,6 +42,10 @@ export default function Page() {
         return schema;
     }, []);
 
+    const {
+        config: { image },
+    } = usePageContext();
+
     const ctaID = "cta-newsletter";
 
     return (
@@ -60,6 +66,7 @@ export default function Page() {
                         urlTemplate: "https://elucidario.art/",
                     },
                 },
+                image: image ? (image as string) : undefined,
             }}
         >
             <Header color={"secondary"} />

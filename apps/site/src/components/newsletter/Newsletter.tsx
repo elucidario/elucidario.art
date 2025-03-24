@@ -34,7 +34,7 @@ export function Newsletter<T extends Record<string, unknown>>({
 
         const options = {
             method: "POST",
-            url: `${import.meta.env.VITE_LEAD_URL}/leads`,
+            url: `${import.meta.env.VITE_LEAD_URL}/doubleOptin`,
             headers: {
                 accept: "application/json",
                 "Content-Type": "application/json",
