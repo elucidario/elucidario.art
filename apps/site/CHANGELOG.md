@@ -1,5 +1,12 @@
 # @elucidario/app-site
 
+## 0.7.4
+
+### Patch Changes
+
+- da131b7: add image url to main metadata
+- ba132f0: change newsletter route
+
 ## 0.7.3
 
 ### Patch Changes
