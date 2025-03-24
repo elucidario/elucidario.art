@@ -1,5 +1,11 @@
 # @elucidario/app-site
 
+## 0.7.3
+
+### Patch Changes
+
+- 2c78b41: update lcdr-banner path and add henrique-godinho.webp
+
 ## 0.7.2
 
 ### Patch Changes
