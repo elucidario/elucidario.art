@@ -84,19 +84,26 @@ export function Newsletter<T extends Record<string, unknown>>({
         <section
             id="cta-newsletter"
             className={cn(
-                "bg-primary-light",
-                "dark:bg-primary-dark",
+                "z-10",
+
+                "min-h-screen",
+                "h-full",
+
+                "py-10",
                 "lg:py-64",
-                "px-4",
+
+                "bg-primary-dark",
+                "dark:bg-primary-light",
+
                 "flex",
                 "flex-col",
+
                 "items-center",
                 "justify-center",
+
                 "border-b-4",
                 "border-light",
                 "dark:border-dark",
-                "h-screen",
-                "z-10",
             )}
         >
             <div
@@ -104,20 +111,27 @@ export function Newsletter<T extends Record<string, unknown>>({
                     "border-4",
                     "border-dark",
                     "dark:border-light",
+
                     "bg-light",
                     "dark:bg-dark",
+
                     "text-dark",
                     "dark:text-light",
+
                     "rounded-xl",
+
                     "max-w-4/5",
                     "lg:max-w-3/5",
-                    "p-8",
                     "w-full",
                     "min-h-96",
+
+                    "p-8",
+
                     "flex",
                     "flex-col",
                     "lg:flex-row",
                     "gap-10",
+
                     "shadow-2xl",
                     "shadow-secondary-light",
                     "dark:shadow-secondary-dark",
