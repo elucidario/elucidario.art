@@ -15,16 +15,25 @@ export function Link({
             {...props}
             href={href}
             className={cn(
-                "text-lcdr-blue",
-                "underline-offset-2",
+                "text-primary-dark",
+                "dark:text-primary-light",
+
+                "hover:text-secondary-dark",
+                "hover:dark:text-secondary-light",
+
                 "hover:underline",
-                "ring-offset-lcdr-pink",
+                "underline-offset-2",
+
+                "ring-offset-secondary-light",
+                "dark:ring-offset-secondary-dark",
+
                 "focus-visible:outline-none",
                 "focus-visible:ring-2",
                 "focus-visible:ring-ring",
                 "focus-visible:ring-offset-2",
+                "inline-block",
                 ...(active
-                    ? ["font-bold", "underline", "decoration-double"]
+                    ? ["font-bold", "underli    e", "decoration-double"]
                     : []),
                 className,
             )}

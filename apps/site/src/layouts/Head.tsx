@@ -39,9 +39,7 @@ export default function Head() {
                     "@type": "OnlineBusiness",
                     "@id": "https://elucidario.art/#business",
                     founder: {
-                        "@type": "Person",
-                        name: "Henrique Godinho",
-                        email: "henrique@elucidario.art",
+                        "@id": "https://elucidario.art/#henrique-godinho",
                     },
                     slogan: "Revolucione a Gestão de sua Coleção!",
                     foundingDate: "2024-12-21",
