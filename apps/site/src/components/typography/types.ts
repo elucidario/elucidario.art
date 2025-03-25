@@ -23,3 +23,7 @@ export type HeadingProps = React.PropsWithChildren<
 export type LeadProps = React.PropsWithChildren<
     React.HTMLAttributes<HTMLParagraphElement> & React.AriaAttributes
 >;
+
+export type TextProps = React.HTMLAttributes<HTMLParagraphElement> & {
+    ref?: React.Ref<HTMLParagraphElement>;
+};

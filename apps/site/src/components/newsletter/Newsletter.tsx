@@ -8,7 +8,7 @@ import { Form } from "@/components/form";
 import { cn } from "@/utils";
 
 import type { NewsletterProps, NewsletterState } from "./types";
-import { Heading } from "../typography";
+import { Heading, Text } from "@/components/typography";
 import { useTrackEvent } from "@/hooks/useTrackEvent";
 
 export function Newsletter<T extends Record<string, unknown>>({
@@ -146,12 +146,12 @@ export function Newsletter<T extends Record<string, unknown>>({
                                                 Cadastre-se e receba novidades
                                                 em primeira mão!
                                             </Heading>
-                                            <p className={cn("text-lg")}>
+                                            <Text>
                                                 Ao cadastrar-se você concorda em
                                                 entrar para a lista de acesso
                                                 antecipado e, em receber
                                                 benefícios exclusivos.
-                                            </p>
+                                            </Text>
                                         </motion.div>
                                     );
 

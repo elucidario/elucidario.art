@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { cn } from "@/utils";
 
 import { Button } from "@/components/button";
-import { Heading } from "@/components/typography";
+import { Heading, Text } from "@/components/typography";
 import { useSystemProvider } from "@/provider";
 import { featureVariants } from "./variants";
 import { FeatureProps } from "./types";
@@ -123,7 +123,7 @@ export function Feature({
                           ],
                 )}
             >
-                <p className={cn("font-sans", "text-lg")}>{description}</p>
+                <Text>{description}</Text>
             </div>
         </section>
     );

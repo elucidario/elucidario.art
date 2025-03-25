@@ -1,7 +1,6 @@
 import { cn } from "@/utils";
 import { FooterProps } from "./types";
-import { Logo } from "../logo";
-import { Button } from "../button";
+import { Logo, Button, Text } from "@/components";
 
 export function Footer({ ref, className, ...props }: FooterProps) {
     return (
@@ -57,14 +56,14 @@ export function Footer({ ref, className, ...props }: FooterProps) {
                             color="secondary"
                             className={cn("h-32")}
                         />
-                        <p className={cn("text-3xl")}>
+                        <Text className={cn("text-2xl", "md:text-4xl")}>
                             O elucidario.art é um{" "}
                             <strong className="font-mono">
                                 Sistema de Gestão de Coleções
                             </strong>{" "}
                             em ativo desenvolvimento. Cadastre-se para receber
                             novidades em primeira mão!
-                        </p>
+                        </Text>
                         <Button variant={"pb"} className="w-fit" asChild>
                             <a href={"#cta-newsletter"}>Quero novidades!</a>
                         </Button>
