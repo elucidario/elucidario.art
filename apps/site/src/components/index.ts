@@ -8,6 +8,7 @@ export * from "./main";
 export * from "./article";
 export * from "./image";
 export * from "./form";
+export * from "./section";
 
 export * from "./button";
 export * from "./popover";
