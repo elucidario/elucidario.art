@@ -1,5 +1,18 @@
 # @elucidario/app-site
 
+## 0.8.0
+
+### Minor Changes
+
+- e815380: introduces section component
+- 8511070: responsive typography
+- 511e301: add text typography component
+- 36cf11f: add section to developer informations
+
+### Patch Changes
+
+- eaa6929: improve newsletter layout
+
 ## 0.7.4
 
 ### Patch Changes
