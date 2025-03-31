@@ -9,7 +9,7 @@
     "scripts": {
         "env:setup": "bin/setup-environment.sh",
         "build": "vike build",
-        "dev": "vite",
+        "dev": "vike dev",
         "lint": "eslint 'src/**' --fix",
         "preview": "vike preview",
         "typecheck": "tsc --noEmit"
