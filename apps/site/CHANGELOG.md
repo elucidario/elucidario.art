@@ -1,5 +1,12 @@
 # @elucidario/app-site
 
+## 0.8.2
+
+### Patch Changes
+
+- 157297f: update base path to /
+- 615047b: add github og:image
+
 ## 0.8.1
 
 ### Patch Changes
