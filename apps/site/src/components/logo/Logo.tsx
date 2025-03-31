@@ -19,8 +19,6 @@ export function Logo({
         `svg/type=${type || "horizontal"}-color=${color}-theme=${theme || "light"}.svg`,
     );
 
-    console.log({ theme });
-
     useEffect(() => {
         setSvg(`svg/type=${type}-color=${color}-theme=${theme}.svg`);
     }, [type, color, theme]);
