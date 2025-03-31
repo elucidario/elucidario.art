@@ -10,7 +10,10 @@ export default function Head() {
 
     return (
         <>
-            <link rel="icon" href={"/png/format=round-variant=compact.png"} />
+            <link
+                rel="icon"
+                href={`${import.meta.env.BASE_URL}png/format=round-variant=compact.png`}
+            />
             <Meta
                 name="viewport"
                 content="width=device-width, initial-scale=1"

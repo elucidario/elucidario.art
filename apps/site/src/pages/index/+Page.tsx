@@ -217,7 +217,7 @@ export default function Page() {
                         )}
                     >
                         <Image
-                            src={"/webp/henrique-godinho.webp"}
+                            src={"webp/henrique-godinho.webp"}
                             width={300}
                             alt="Henrique Godinho"
                             className={cn(

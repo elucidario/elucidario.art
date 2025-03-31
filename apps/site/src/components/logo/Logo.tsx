@@ -16,11 +16,13 @@ export function Logo({
     const { theme: systemTheme } = useSystemProvider();
     const theme = propTheme || systemTheme;
     const [svg, setSvg] = useState<string | null>(
-        `/svg/type=${type || "horizontal"}-color=${color}-theme=${theme || "light"}.svg`,
+        `svg/type=${type || "horizontal"}-color=${color}-theme=${theme || "light"}.svg`,
     );
 
+    console.log({ theme });
+
     useEffect(() => {
-        setSvg(`/svg/type=${type}-color=${color}-theme=${theme}.svg`);
+        setSvg(`svg/type=${type}-color=${color}-theme=${theme}.svg`);
     }, [type, color, theme]);
 
     return (
