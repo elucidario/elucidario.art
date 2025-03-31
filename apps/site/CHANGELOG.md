@@ -1,5 +1,12 @@
 # @elucidario/app-site
 
+## 0.8.3
+
+### Patch Changes
+
+- f324fa0: update error page
+- d104fa2: update image +config
+
 ## 0.8.2
 
 ### Patch Changes
