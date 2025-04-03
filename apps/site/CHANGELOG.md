@@ -1,5 +1,11 @@
 # @elucidario/app-site
 
+## 0.8.4
+
+### Patch Changes
+
+- 06d1007: fix image size
+
 ## 0.8.3
 
 ### Patch Changes
