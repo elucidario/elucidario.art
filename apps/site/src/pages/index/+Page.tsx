@@ -223,6 +223,7 @@ export default function Page() {
                             className={cn(
                                 "size-fit",
                                 "max-w-60",
+                                "h-fit",
                                 "rounded-full",
                             )}
                         />
