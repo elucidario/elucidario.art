@@ -219,11 +219,12 @@ export default function Page() {
                         <Image
                             src={"webp/henrique-godinho.webp"}
                             width={300}
+                            height={300}
                             alt="Henrique Godinho"
                             className={cn(
                                 "size-fit",
                                 "max-w-60",
-                                "h-fit",
+                                "max-h-60",
                                 "rounded-full",
                             )}
                         />
