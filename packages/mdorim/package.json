@@ -1,0 +1,28 @@
+{
+    "name": "@elucidario/mdorim",
+    "version": "0.1.0",
+    "description": "",
+    "main": "dist/mdorim.js",
+    "type": "module",
+    "scripts": {
+        "build": "rollup -c",
+        "dev": "pnpm build --watch",
+        "test": "vitest",
+        "test:coverage": "vitest run --coverage"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@elucidario/tool-rollup": "workspace:^",
+        "@elucidario/tool-tsconfig": "workspace:^",
+        "rollup": "^4.39.0",
+        "rollup-plugin-external-globals": "^0.13.0",
+        "typescript": "^5.8.2",
+        "vitest": "^3.1.1"
+    },
+    "dependencies": {
+        "jsonschema": "^1.5.0",
+        "vite-tsconfig-paths": "^5.1.4"
+    }
+}

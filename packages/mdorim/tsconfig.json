@@ -1,0 +1,30 @@
+{
+    "extends": "@elucidario/tool-tsconfig",
+    "compilerOptions": {
+        "resolveJsonModule": true,
+        "outDir": "./dist",
+        "baseUrl": ".",
+        "sourceMap": true,
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "module": "ESNext",
+        "target": "ESNext",
+        "allowJs": true,
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true,
+        "paths": {
+            "@/*": [
+                "./src/*"
+            ]
+        }
+    },
+    "include": [
+        "./src/mdorim.ts",
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "./src/**/*.test.ts",
+        "./src/**/*.spec.ts",
+    ]
+}
