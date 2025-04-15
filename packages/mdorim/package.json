@@ -4,6 +4,9 @@
     "description": "",
     "main": "dist/mdorim.js",
     "type": "module",
+    "files": [
+        "./dist"
+    ],
     "scripts": {
         "build": "rollup -c",
         "dev": "pnpm build --watch",

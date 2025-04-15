@@ -16,7 +16,9 @@
             "@/*": [
                 "./src/*"
             ]
-        }
+        },
+        "emitDeclarationOnly": true,
+        "declarationDir": "./dist/types"
     },
     "include": [
         "./src/mdorim.ts",

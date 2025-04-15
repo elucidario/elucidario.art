@@ -20,6 +20,12 @@ const config = lcdrRollup({
     input: "./src/mdorim.ts",
     external: [...external],
     output: [...output],
+    plugins: {
+        typescript: {
+            declaration: false,
+            declarationDir: null,
+        },
+    },
 });
 
 export default config;

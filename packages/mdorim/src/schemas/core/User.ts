@@ -1,5 +1,12 @@
 import { Schema } from "@/types";
 
+export type User = {
+    email: string;
+    userId?: string;
+    name?: string;
+    password?: string;
+};
+
 export const User: Schema = {
     id: "/core/User",
     type: "object",
