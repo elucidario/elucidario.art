@@ -44,6 +44,17 @@ export default class Mdorim {
         return this.validator;
     }
 
+    public validate(
+        schema: Schema,
+        value: unknown,
+    ): boolean | ValidationError[] {
+        const result = this.validator.validate(value, schema);
+        if (result.valid) {
+            return result.valid;
+        }
+        return result.errors;
+    }
+
     public validateEntity(
         schemaId: SchemaID,
         entity: unknown,
