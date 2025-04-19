@@ -1,16 +1,10 @@
 import { defineConfig } from "vitest/config";
-import externalGlobals from "rollup-plugin-external-globals";
 
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-    plugins: [
-        tsconfigPaths(),
-        externalGlobals({
-            jsonschema: "jsonschema",
-        }),
-    ],
     test: {
+        plugins: [tsconfigPaths()],
         globals: true,
         coverage: {
             include: ["src/**/*.ts", "src/**/*.js"],

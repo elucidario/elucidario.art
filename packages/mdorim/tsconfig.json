@@ -1,9 +1,9 @@
 {
     "extends": "@elucidario/tool-tsconfig",
     "compilerOptions": {
+        "baseUrl": "./",
         "resolveJsonModule": true,
         "outDir": "./dist",
-        "baseUrl": ".",
         "sourceMap": true,
         "noImplicitAny": true,
         "noImplicitThis": true,
@@ -21,7 +21,7 @@
         "declarationDir": "./dist/types"
     },
     "include": [
-        "./src/mdorim.ts",
+        "./src/index.ts",
     ],
     "exclude": [
         "node_modules",

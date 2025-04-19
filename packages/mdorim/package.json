@@ -4,9 +4,7 @@
     "description": "",
     "main": "dist/mdorim.js",
     "type": "module",
-    "files": [
-        "./dist"
-    ],
+    "types": "dist/types/index.d.ts",
     "scripts": {
         "build": "rollup -c",
         "dev": "pnpm build --watch",
