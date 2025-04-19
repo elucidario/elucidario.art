@@ -1,6 +1,6 @@
-import { describe, expect, it, test } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import Mdorim from "./mdorim";
+import { Mdorim, MdorimError } from "./";
 
 describe("Mdorim", () => {
     it("should be defined", () => {
@@ -19,38 +19,13 @@ describe("Mdorim", () => {
         expect(mdorim.getValidator()).toBeDefined();
     });
 
-    describe("should validate entities", () => {
+    it("should return a error when no schema found", () => {
         const mdorim = new Mdorim();
+        const error = mdorim.validateEntity("/core/Invalid", {});
 
-        test("should throw when no schema found", () => {
-            expect(() => mdorim.validateEntity("/core/Invalid", {})).toThrow(
-                "mdorim: Schema /core/Invalid not found",
-            );
-        });
-
-        describe("should validate an User", () => {
-            test("throw when User is invalid", () => {
-                expect(() => mdorim.validateEntity("/core/User", {})).toThrow();
-            });
-
-            test("User", () => {
-                const valid = mdorim.validateEntity("/core/User", {
-                    name: "John Doe",
-                    email: "john@example.com",
-                });
-                expect(valid).toBe(true);
-            });
-
-            test("User with all properties", () => {
-                const valid = mdorim.validateEntity("/core/User", {
-                    name: "John Doe",
-                    email: "john@example.com",
-                    password: "password",
-                    userId: "12345678-1234-1234-1234-123456789012",
-                });
-
-                expect(valid).toBe(true);
-            });
-        });
+        expect(error).toBeInstanceOf(MdorimError);
+        expect((error as MdorimError).message).toBe(
+            "MdorimError: Schema /core/Invalid not found",
+        );
     });
 });

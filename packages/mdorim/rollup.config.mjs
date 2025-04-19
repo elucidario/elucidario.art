@@ -17,7 +17,7 @@ const output = [
 ];
 
 const config = lcdrRollup({
-    input: "./src/mdorim.ts",
+    input: "./src/index.ts",
     external: [...external],
     output: [...output],
     plugins: {
