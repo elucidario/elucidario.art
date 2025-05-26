@@ -1,0 +1,17 @@
+{
+    "uuid": "UUID",
+    "name": "Nome",
+    "description": "Descrição",
+    "created_at": "Criado em",
+    "updated_at": "Atualizado em",
+    "role": "Função",
+    "user": "Usuário",
+
+    "workspace": "Área de Trabalho",
+
+    "team": "Equipe",
+    "team/description": "A equipe é um grupo de usuários que podem colaborar em projetos e tarefas. Você pode adicionar ou remover membros da equipe conforme necessário.",
+
+    "team_member": "Membro da Equipe",
+    "team_member/description": "Os membros da equipe são usuários que fazem parte de uma equipe. Eles podem ter diferentes funções e permissões dentro da equipe."
+}
