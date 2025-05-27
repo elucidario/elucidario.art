@@ -91,7 +91,7 @@ describe("Validator", () => {
             // @ts-ignore
             expect(deref.items.anyOf[0].$ref).toBeUndefined();
             // @ts-ignore
-            expect(deref.items.anyOf[0].title).toBe("title-uuid");
+            expect(deref.items.anyOf[0].title).toBe("i18n:uuid");
         });
 
         test("oneOf schema", async () => {
@@ -122,7 +122,7 @@ describe("Validator", () => {
             // @ts-ignore
             expect(deref.items.oneOf[0].$ref).toBeUndefined();
             // @ts-ignore
-            expect(deref.items.oneOf[0].title).toBe("title-uuid");
+            expect(deref.items.oneOf[0].title).toBe("i18n:uuid");
         });
     });
 
@@ -132,5 +132,37 @@ describe("Validator", () => {
 
         expect(schema).toBeDefined();
         expect(schema?.id).toBe("/core/Workspace");
+    });
+
+    describe("should return error", () => {
+        const validator = new Validator("core/Workspace");
+
+        it("simple error", () => {
+            // @ts-expect-error private method
+            const error = validator.error("Message");
+
+            expect(error).toBeInstanceOf(MdorimError);
+            expect((error as MdorimError).message).toBe("MdorimError: Message");
+        });
+
+        describe("error with ValidationError", () => {
+            it("error with ValidationError[]", () => {
+                // @ts-expect-error private method
+                const error = validator.error("Message", [
+                    {
+                        property: "instance.name",
+                        message: "should be string",
+                    },
+                ]);
+
+                expect(error).toBeInstanceOf(MdorimError);
+
+                expect(error.message).toBe("MdorimError: Message");
+
+                expect(error.getErrors()).toEqual({
+                    name: "should be string",
+                });
+            });
+        });
     });
 });

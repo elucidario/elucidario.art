@@ -65,14 +65,71 @@ export class Validator {
         }
 
         try {
-            const schema = await import(`./schema/${path}`);
-            this.cache.set(path, schema.default);
-            return Promise.resolve(schema.default);
+            const mapIdPath = new Map<SchemaID, SchemaPath>([
+                [
+                    "linked-art/entities/Group",
+                    "linked-art/entities/group/Group",
+                ],
+                [
+                    "linked-art/entities/Digital",
+                    "linked-art/entities/digital/Digital",
+                ],
+                [
+                    "linked-art/entities/Event",
+                    "linked-art/entities/event/Event",
+                ],
+                [
+                    "linked-art/entities/Event",
+                    "linked-art/entities/event/Event",
+                ],
+                [
+                    "linked-art/entities/Concept",
+                    "linked-art/entities/concept/Concept",
+                ],
+                [
+                    "linked-art/entities/PhysicalObject",
+                    "linked-art/entities/object/PhysicalObject",
+                ],
+                [
+                    "linked-art/entities/Person",
+                    "linked-art/entities/person/Person",
+                ],
+                [
+                    "linked-art/entities/Place",
+                    "linked-art/entities/place/Place",
+                ],
+                [
+                    "linked-art/entities/Image",
+                    "linked-art/entities/image/Image",
+                ],
+                [
+                    "linked-art/entities/Provenance",
+                    "linked-art/entities/provenance/Provenance",
+                ],
+                ["linked-art/entities/Set", "linked-art/entities/set/Set"],
+                ["linked-art/entities/Text", "linked-art/entities/text/Text"],
+            ]);
+
+            const schema = await import(
+                `./schema/${mapIdPath.get(path) ?? path}`
+            );
+
+            const schemaObject = schema.default ? schema.default : schema;
+
+            await this.initSchemas(schemaObject);
+
+            this.cache.set(schemaObject.id, schemaObject);
+            this.cache.set(path, schemaObject);
+
+            return Promise.resolve(schemaObject);
         } catch (error) {
             if (isMdorimError(error)) {
                 throw error;
             }
-            throw this.error(`Schema ${path} not found`);
+            throw this.error(
+                `Schema ${path} not found`,
+                error as Record<string, unknown>,
+            );
         }
     }
 
@@ -88,30 +145,29 @@ export class Validator {
                 // remove the leading /
                 path = path.substring(1);
             }
-            if (path.includes("#")) {
-                const [schemaPath, rest] = path.split("#");
-                const schema = await this.importSchema(schemaPath);
-                if (rest) {
-                    return (rest.split("/") as Array<keyof Schema>).reduce(
-                        (acc, cur) => {
-                            if (acc[cur]) {
-                                return acc[cur];
-                            }
-                            return acc;
-                        },
-                        schema,
-                    );
-                } else {
-                    return schema;
-                }
-            } else {
-                return await this.importSchema(path);
+
+            const [schemaPath, rest] = path.split("#");
+
+            const schema = await this.importSchema(schemaPath);
+
+            if (rest) {
+                return (rest.split("/") as Array<keyof Schema>).reduce(
+                    (acc, cur) => {
+                        if (acc[cur]) {
+                            return acc[cur];
+                        }
+                        return acc;
+                    },
+                    schema,
+                );
             }
+
+            return schema;
         } catch (error) {
             if (isMdorimError(error)) {
                 throw error;
             }
-            throw this.error(`Schema ${path} not found`);
+            throw this.error(`SchemaPath ${path} not found`);
         }
     }
 
@@ -120,6 +176,11 @@ export class Validator {
      */
     private async initSchemas(schema: Schema) {
         try {
+            if (this.validator.schemas[schema.id]) {
+                // schema already exists, no need to add it again
+                return;
+            }
+
             this.validator.addSchema(schema, schema.id);
 
             if (this.validator.unresolvedRefs.length > 0) {
@@ -127,6 +188,7 @@ export class Validator {
                     const nextSchema = this.validator.unresolvedRefs.shift();
                     if (nextSchema) {
                         const schema = await this.schema(nextSchema);
+
                         if (isMdorimError(schema)) {
                             throw schema;
                         }
@@ -229,7 +291,7 @@ export class Validator {
     ): Promise<T | MdorimError> {
         try {
             const schema = await this.schema(this.schemaPath);
-            await this.initSchemas(schema);
+
             const result = this.validator.validate(value, schema, {
                 rewrite: (instance, schema) => {
                     if (
@@ -264,14 +326,19 @@ export class Validator {
      * @param errors - Validation errors
      * @returns - MdorimError - MdorimError instance
      */
-    private error(message: string, errors?: ValidationError[]): MdorimError {
-        return new MdorimError(
-            message,
-            errors?.reduce(
+    private error(
+        message: string,
+        errors?: Partial<ValidationError>[] | Record<string, unknown>,
+    ): MdorimError {
+        let mdorimError;
+
+        if (Array.isArray(errors) && errors.length > 0) {
+            // If errors is an ValidationError[], we need to parse it
+            mdorimError = errors?.reduce(
                 (acc, cur) => {
                     let path;
 
-                    if (cur.property.includes("instance.")) {
+                    if (cur.property?.includes("instance.")) {
                         path = cur.property.replace("instance.", "");
                     } else if (typeof cur.schema === "string") {
                         path = cur.schema.split("/").pop();
@@ -297,7 +364,12 @@ export class Validator {
                     return acc;
                 },
                 {} as Record<string, unknown>,
-            ),
-        );
+            );
+        } else {
+            // If errors is a Record<string, unknown>, we can use it directly
+            mdorimError = (errors as Record<string, unknown>) || {};
+        }
+
+        return new MdorimError(message, mdorimError);
     }
 }
