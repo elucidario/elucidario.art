@@ -15,18 +15,16 @@
         "paths": {
             "@/*": [
                 "./src/*"
-            ]
+            ],
         },
         "emitDeclarationOnly": true,
-        "declarationDir": "./dist/types"
+        "declarationDir": "./types"
     },
     "include": [
-        "./src/index.ts",
+        "./src/**/*.ts",
     ],
     "exclude": [
         "node_modules",
         "dist",
-        "./src/**/*.test.ts",
-        "./src/**/*.spec.ts",
     ]
 }

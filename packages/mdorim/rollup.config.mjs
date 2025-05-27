@@ -1,3 +1,8 @@
+import { nodeResolve } from "@rollup/plugin-node-resolve";
+import commonjs from "@rollup/plugin-commonjs";
+import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
+import { NodeModulesPolyfillPlugin } from "@esbuild-plugins/node-modules-polyfill";
+
 import lcdrRollup from "@elucidario/tool-rollup";
 
 import pkg from "./package.json" with { type: "json" };
@@ -20,12 +25,15 @@ const config = lcdrRollup({
     input: "./src/index.ts",
     external: [...external],
     output: [...output],
-    plugins: {
-        typescript: {
-            declaration: false,
-            declarationDir: null,
-        },
-    },
+    plugins: [
+        nodeResolve({ browser: true }),
+        commonjs(),
+        NodeGlobalsPolyfillPlugin({
+            buffer: true,
+            process: true,
+        }),
+        NodeModulesPolyfillPlugin(),
+    ],
 });
 
 export default config;
