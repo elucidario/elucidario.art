@@ -1,17 +1,24 @@
 {
     "uuid": "UUID",
     "name": "Nome",
+    "email": "E-mail",
+    "password": "Senha",
     "description": "Descrição",
     "created_at": "Criado em",
     "updated_at": "Atualizado em",
     "role": "Função",
+
     "user": "Usuário",
+    "user/description": "Um usuário é uma pessoa que pode acessar o sistema.",
 
     "workspace": "Área de Trabalho",
+    "workspace/description": "Uma área de trabalho é um espaço onde os usuários podem colaborar em projetos e tarefas.",
 
     "team": "Equipe",
     "team/description": "A equipe é um grupo de usuários que podem colaborar em projetos e tarefas. Você pode adicionar ou remover membros da equipe conforme necessário.",
 
     "team_member": "Membro da Equipe",
-    "team_member/description": "Os membros da equipe são usuários que fazem parte de uma equipe. Eles podem ter diferentes funções e permissões dentro da equipe."
+    "team_member/description": "Os membros da equipe são usuários que fazem parte de uma equipe. Eles podem ter diferentes funções e permissões dentro da equipe.",
+
+    "invited_member": "Membro Convidado"
 }
