@@ -1,6 +1,6 @@
-import { Schema } from "@/validator/schema/types";
+import { SchemaType } from "@/validator/schema/types";
 
-const definitions: Schema = {
+const definitions: SchemaType = {
     id: "/core/definitions",
     type: "object",
     definitions: {

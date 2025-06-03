@@ -1,4 +1,4 @@
-import { PrimitiveSchema, Schema } from "@/validator";
+import { PrimitiveSchema, SchemaType } from "@/validator";
 
 const mapFileId = new Map<string, string>([
     ["core.json", "/linked-art/Core"],
@@ -28,39 +28,42 @@ function parseRef(
                 const jsonLD = value.split("#")[0];
                 const jsonId = mapFileId.get(jsonLD);
                 if (jsonId) {
-                    acc[key as keyof Schema] = value.replace(jsonLD, jsonId);
+                    acc[key as keyof SchemaType] = value.replace(
+                        jsonLD,
+                        jsonId,
+                    );
                 } else {
-                    acc[key as keyof Schema] = value;
+                    acc[key as keyof SchemaType] = value;
                 }
             } else {
-                acc[key as keyof Schema] = value;
+                acc[key as keyof SchemaType] = value;
             }
         } else if (key === "required") {
-            acc[key as keyof Schema] = filterRequired
+            acc[key as keyof SchemaType] = filterRequired
                 ? filterRequired(value as string[])
                 : value;
         } else if (typeof value === "object" && !Array.isArray(value)) {
-            const nestedDeref = parseRef(value as Schema, filterRequired);
-            acc[key as keyof Schema] = nestedDeref;
+            const nestedDeref = parseRef(value as SchemaType, filterRequired);
+            acc[key as keyof SchemaType] = nestedDeref;
         } else if (Array.isArray(value)) {
-            acc[key as keyof Schema] = value.map((item) => {
+            acc[key as keyof SchemaType] = value.map((item) => {
                 if (typeof item === "object") {
-                    return parseRef(item as Schema, filterRequired);
+                    return parseRef(item as SchemaType, filterRequired);
                 }
                 return item;
             });
         } else {
-            acc[key as keyof Schema] = value;
+            acc[key as keyof SchemaType] = value;
         }
 
         return acc;
-    }, {} as Schema);
+    }, {} as SchemaType);
 }
 
 export function parseLinkedArtSchema(
     schema: any,
     id: string,
     filterRequired?: (required: string[]) => string[],
-): Schema {
-    return { id, ...parseRef(schema as Schema, filterRequired) };
+): SchemaType {
+    return { id, ...parseRef(schema as SchemaType, filterRequired) };
 }

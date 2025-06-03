@@ -1,6 +1,6 @@
 import { ValidationError, Validator as JsonSchema } from "jsonschema";
 
-import { Schema, SchemaID, SchemaPath } from "@/validator/schema/types";
+import { SchemaType, SchemaID, SchemaPath } from "@/validator/schema/types";
 import { isMdorimError, mdorimStringToDate, parseObjectPath } from "@/utils";
 import { MdorimError } from "@/errors";
 import { DefaultLocale, Locales } from "@/types";
@@ -26,7 +26,7 @@ export class Validator {
 
     private i18n: I18n;
 
-    private cache: Map<string, Schema>;
+    private cache: Map<string, SchemaType>;
 
     /**
      * ## Validator constructor
@@ -57,9 +57,9 @@ export class Validator {
      * This method imports the schema from the given path and caches it.
      *
      * @param path - Path to the schema
-     * @returns Schema object
+     * @returns SchemaType object
      */
-    private async importSchema(path: SchemaPath): Promise<Schema> {
+    private async importSchema(path: SchemaPath): Promise<SchemaType> {
         if (this.cache.has(path)) {
             return Promise.resolve(this.cache.get(path)!);
         }
@@ -127,7 +127,7 @@ export class Validator {
                 throw error;
             }
             throw this.error(
-                `Schema ${path} not found`,
+                `SchemaType ${path} not found`,
                 error as Record<string, unknown>,
             );
         }
@@ -137,9 +137,9 @@ export class Validator {
      * ## Get schema by path
      *
      * @param path - Path to the schema
-     * @returns Schema object
+     * @returns SchemaType object
      */
-    private async schema(path: SchemaPath): Promise<Schema> {
+    private async schema(path: SchemaPath): Promise<SchemaType> {
         try {
             if (path.startsWith("/")) {
                 // remove the leading /
@@ -151,7 +151,7 @@ export class Validator {
             const schema = await this.importSchema(schemaPath);
 
             if (rest) {
-                return (rest.split("/") as Array<keyof Schema>).reduce(
+                return (rest.split("/") as Array<keyof SchemaType>).reduce(
                     (acc, cur) => {
                         if (acc[cur]) {
                             return acc[cur];
@@ -174,7 +174,7 @@ export class Validator {
     /**
      * ## Initialize schemas
      */
-    private async initSchemas(schema: Schema) {
+    private async initSchemas(schema: SchemaType) {
         try {
             if (this.validator.schemas[schema.id]) {
                 // schema already exists, no need to add it again
@@ -202,23 +202,23 @@ export class Validator {
             if (isMdorimError(error)) {
                 throw error;
             }
-            throw this.error(`Schema ${schema.id} not found`);
+            throw this.error(`SchemaType ${schema.id} not found`);
         }
     }
 
     /**
      * ## Get schema by ID
      *
-     * @param schemaId - Schema ID to get
-     * @returns - Schema object
+     * @param schemaId - SchemaType ID to get
+     * @returns - SchemaType object
      */
     public async getSchema(
         schemaId: SchemaID,
         translate: boolean = true,
-    ): Promise<Schema> {
+    ): Promise<SchemaType> {
         try {
             const schema = await this.schema(schemaId);
-            const deref = (await this.dereference(schema)) as Schema;
+            const deref = (await this.dereference(schema)) as SchemaType;
             if (!translate) {
                 return deref;
             }
@@ -227,7 +227,7 @@ export class Validator {
             if (isMdorimError(error)) {
                 throw error;
             }
-            throw this.error(`Schema ${schemaId} not found`);
+            throw this.error(`SchemaType ${schemaId} not found`);
         }
     }
 
@@ -238,11 +238,11 @@ export class Validator {
      * It recursively traverses the schema and replaces all $ref with the actual schema.
      * It also handles nested schemas and properties.
      *
-     * @param schema - Schema to dereference
+     * @param schema - SchemaType to dereference
      * @param parent - Parent key for the schema
      * @returns - Dereferenced schema
      */
-    public async dereference(schema: Schema, parent?: string) {
+    public async dereference(schema: SchemaType, parent?: string) {
         return await Object.entries(schema).reduce(
             async (asyncAcc, [key, value]) => {
                 const acc = await asyncAcc;
@@ -250,10 +250,13 @@ export class Validator {
                     const derefSchema = await this.schema(value as SchemaPath);
                     acc[parent!] = await this.dereference(derefSchema, parent);
                 } else if (["properties", "items"].includes(key)) {
-                    acc[key] = await this.dereference(value as Schema, parent);
+                    acc[key] = await this.dereference(
+                        value as SchemaType,
+                        parent,
+                    );
                 } else if (typeof value === "object" && !Array.isArray(value)) {
                     const nestedDeref = await this.dereference(
-                        value as Schema,
+                        value as SchemaType,
                         key,
                     );
                     acc[key] = nestedDeref[key];
@@ -262,7 +265,7 @@ export class Validator {
                         value.map(async (item) => {
                             if (typeof item === "object") {
                                 const derefItem = await this.dereference(
-                                    item as Schema,
+                                    item as SchemaType,
                                     key,
                                 );
                                 return derefItem[key];
