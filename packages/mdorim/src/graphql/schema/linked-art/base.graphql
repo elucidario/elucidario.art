@@ -1,0 +1,21 @@
+interface LinkedArtBase {
+    # created_by: [User!]!
+    # updated_by: [User!]!
+
+    id: String!
+    label: String!
+
+    classified_as: [Concept!]!
+    identified_by: [NameOrIdentifier!]!
+    referred_to_by: [Statement!]!
+}
+
+interface LinkedArtEntity {
+    equivalent: [ExternalReference!]!
+    # representation: [Visual!]!
+    # attributed_by: [AttributedBy!]!
+    # member_of: [MemberOf!]!
+    # subject_of: [SubjectOf!]!
+}
+
+union NameOrIdentifier = Name | Identifier
