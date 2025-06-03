@@ -1,6 +1,6 @@
 import { I18n as I18nBase } from "i18n-js";
 
-import { SchemaType } from "@/validator/schema/types";
+import { SchemaType } from "@/schema/types";
 import { Locales } from "@/types";
 import { translations } from ".";
 

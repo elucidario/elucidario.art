@@ -1,4 +1,4 @@
-import { SchemaType } from "@/validator/schema/types";
+import { SchemaType } from "@/schema/types";
 
 const definitions: SchemaType = {
     id: "/core/definitions",

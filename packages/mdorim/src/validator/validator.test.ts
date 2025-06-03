@@ -58,7 +58,7 @@ describe("Validator", () => {
 
         expect(error).toBeInstanceOf(MdorimError);
         expect((error as MdorimError).message).toBe(
-            "MdorimError: Schema core/Invalid not found",
+            "MdorimError: SchemaType core/Invalid not found",
         );
     });
 
