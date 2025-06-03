@@ -1,6 +1,6 @@
-import { Schema } from "@/validator/schema/types";
+import { SchemaType } from "@/schema/types";
 
-const WorkspaceSchema: Schema = {
+const WorkspaceSchema: SchemaType = {
     id: "/core/Workspace",
     title: "i18n:workspace",
     description: "i18n:workspace/description",

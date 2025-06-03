@@ -4,7 +4,7 @@ export { PrimitiveSchema };
 
 export type SchemaID = string;
 
-export type Schema = Omit<PrimitiveSchema, "id"> & {
+export type SchemaType = Omit<PrimitiveSchema, "id"> & {
     id: SchemaID;
 };
 

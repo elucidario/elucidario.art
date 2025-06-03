@@ -1,6 +1,6 @@
 import { I18n as I18nBase } from "i18n-js";
 
-import { Schema } from "@/validator/schema/types";
+import { SchemaType } from "@/schema/types";
 import { Locales } from "@/types";
 import { translations } from ".";
 
@@ -60,7 +60,7 @@ export class I18n {
      * @param schema - The schema to translate.
      * @returns The translated schema.
      */
-    translateSchema(schema: Schema): Schema {
+    translateSchema(schema: SchemaType): SchemaType {
         return Object.entries(schema).reduce(
             (acc, [key, value]) => {
                 if (["title", "description"].includes(key)) {
@@ -72,14 +72,14 @@ export class I18n {
                     ).reduce(
                         (acc, [propKey, propValue]) => {
                             acc[propKey] = this.translateSchema(
-                                propValue as Schema,
+                                propValue as SchemaType,
                             );
                             return acc;
                         },
                         {} as Record<string, unknown>,
                     );
                 } else if (key === "items") {
-                    acc[key] = this.translateSchema(value as Schema);
+                    acc[key] = this.translateSchema(value as SchemaType);
                 } else {
                     acc[key] = value;
                 }
@@ -87,6 +87,6 @@ export class I18n {
                 return acc;
             },
             {} as Record<string, unknown>,
-        ) as Schema;
+        ) as SchemaType;
     }
 }

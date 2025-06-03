@@ -1,6 +1,6 @@
-import { Schema } from "@/validator/schema/types";
+import { SchemaType } from "@/schema/types";
 
-const UserSchema: Schema = {
+const UserSchema: SchemaType = {
     id: "/core/User",
     type: "object",
     title: "i18n:user",
