@@ -1,19 +1,19 @@
-import { PrimitiveSchema, SchemaType } from "@/validator";
+import { PrimitiveSchema, SchemaType } from "@/types";
 
 const mapFileId = new Map<string, string>([
     ["core.json", "/linked-art/Core"],
-    ["set.json", "/linked-art/entities/Set"],
-    ["text.json", "/linked-art/entities/Text"],
-    ["event.json", "/linked-art/entities/Event"],
-    ["group.json", "/linked-art/entities/Group"],
-    ["place.json", "/linked-art/entities/Place"],
-    ["image.json", "/linked-art/entities/Image"],
-    ["object.json", "/linked-art/entities/Object"],
-    ["person.json", "/linked-art/entities/Person"],
-    ["digital.json", "/linked-art/entities/Digital"],
-    ["concept.json", "/linked-art/entities/Concept"],
-    ["abstract.json", "/linked-art/entities/Abstract"],
-    ["provenance.json", "/linked-art/entities/Provenance"],
+    ["set.json", "/linked-art/Set"],
+    ["text.json", "/linked-art/Text"],
+    ["event.json", "/linked-art/Event"],
+    ["group.json", "/linked-art/Group"],
+    ["place.json", "/linked-art/Place"],
+    ["image.json", "/linked-art/Image"],
+    ["object.json", "/linked-art/Object"],
+    ["person.json", "/linked-art/Person"],
+    ["digital.json", "/linked-art/Digital"],
+    ["concept.json", "/linked-art/Concept"],
+    ["abstract.json", "/linked-art/Abstract"],
+    ["provenance.json", "/linked-art/Provenance"],
 ]);
 
 function parseRef(
@@ -60,10 +60,10 @@ function parseRef(
     }, {} as SchemaType);
 }
 
-export function parseLinkedArtSchema(
+export function parseSchema(
     schema: any,
     id: string,
     filterRequired?: (required: string[]) => string[],
 ): SchemaType {
-    return { id, ...parseRef(schema as SchemaType, filterRequired) };
+    return { $id: id, ...parseRef(schema as SchemaType, filterRequired) };
 }

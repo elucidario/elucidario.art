@@ -1,12 +1,9 @@
 import { ValidationError, Validator as JsonSchema } from "jsonschema";
 
-import { SchemaType, SchemaID, SchemaPath } from "@/schema/types";
+import { SchemaType, SchemaID, GetSchemaOptions } from "@/types";
 import { isMdorimError, mdorimStringToDate, parseObjectPath } from "@/utils";
 import { MdorimError } from "@/errors";
-import { DefaultLocale, Locales } from "@/types";
-import { Entities } from "@/types/domain/entities/entities";
-import { I18n } from "@/translations";
-import { mapIdPath } from "./map";
+import { Schema } from "@/schema";
 
 /**
  * # Validator
@@ -23,108 +20,15 @@ import { mapIdPath } from "./map";
  * const isValid = validator.validate(user);
  */
 export class Validator {
+    schema: Schema;
     private validator: JsonSchema;
-
-    private i18n: I18n;
-
-    private cache: Map<string, SchemaType>;
 
     /**
      * ## Validator constructor
      */
-    constructor(
-        private path: SchemaPath,
-        private defaultLocale: Locales = DefaultLocale,
-    ) {
-        this.cache = new Map();
+    constructor(schema: Schema) {
+        this.schema = schema;
         this.validator = new JsonSchema();
-        this.i18n = new I18n(this.defaultLocale);
-    }
-
-    /**
-     * ## Get schema path
-     *
-     * This method returns the schema path.
-     *
-     * @returns SchemaPath - The schema path
-     */
-    get schemaPath(): SchemaPath {
-        return this.path;
-    }
-
-    /**
-     * ## Import schema by path
-     *
-     * This method imports the schema from the given path and caches it.
-     *
-     * @param path - Path to the schema
-     * @returns SchemaType object
-     */
-    private async importSchema(path: SchemaPath): Promise<SchemaType> {
-        if (this.cache.has(path)) {
-            return Promise.resolve(this.cache.get(path)!);
-        }
-
-        try {
-            const schema = await import(
-                `../schema/${mapIdPath.get(path) ?? path}`
-            );
-
-            const schemaObject = schema.default ? schema.default : schema;
-
-            await this.initSchemas(schemaObject);
-
-            this.cache.set(schemaObject.id, schemaObject);
-            this.cache.set(path, schemaObject);
-
-            return Promise.resolve(schemaObject);
-        } catch (error) {
-            if (isMdorimError(error)) {
-                throw error;
-            }
-            throw this.error(
-                `SchemaType ${path} not found`,
-                error as Record<string, unknown>,
-            );
-        }
-    }
-
-    /**
-     * ## Get schema by path
-     *
-     * @param path - Path to the schema
-     * @returns SchemaType object
-     */
-    private async schema(path: SchemaPath): Promise<SchemaType> {
-        try {
-            if (path.startsWith("/")) {
-                // remove the leading /
-                path = path.substring(1);
-            }
-
-            const [schemaPath, rest] = path.split("#");
-
-            const schema = await this.importSchema(schemaPath);
-
-            if (rest) {
-                return (rest.split("/") as Array<keyof SchemaType>).reduce(
-                    (acc, cur) => {
-                        if (acc[cur]) {
-                            return acc[cur];
-                        }
-                        return acc;
-                    },
-                    schema,
-                );
-            }
-
-            return schema;
-        } catch (error) {
-            if (isMdorimError(error)) {
-                throw error;
-            }
-            throw this.error(`SchemaPath ${path} not found`);
-        }
     }
 
     /**
@@ -132,18 +36,20 @@ export class Validator {
      */
     private async initSchemas(schema: SchemaType) {
         try {
-            if (this.validator.schemas[schema.id]) {
+            if (this.validator.schemas[schema.$id]) {
                 // schema already exists, no need to add it again
                 return;
             }
 
-            this.validator.addSchema(schema, schema.id);
+            this.validator.addSchema(schema, schema.$id);
 
             if (this.validator.unresolvedRefs.length > 0) {
                 const loop = async () => {
                     const nextSchema = this.validator.unresolvedRefs.shift();
                     if (nextSchema) {
-                        const schema = await this.schema(nextSchema);
+                        const schema = this.schema.getSchema(nextSchema, {
+                            translate: true,
+                        });
 
                         if (isMdorimError(schema)) {
                             throw schema;
@@ -158,85 +64,8 @@ export class Validator {
             if (isMdorimError(error)) {
                 throw error;
             }
-            throw this.error(`SchemaType ${schema.id} not found`);
+            throw this.error(`SchemaType ${schema.$id} not found`);
         }
-    }
-
-    /**
-     * ## Get schema by ID
-     *
-     * @param schemaId - SchemaType ID to get
-     * @returns - SchemaType object
-     */
-    public async getSchema(
-        schemaId: SchemaID,
-        translate: boolean = true,
-    ): Promise<SchemaType> {
-        try {
-            const schema = await this.schema(schemaId);
-            const deref = (await this.dereference(schema)) as SchemaType;
-            if (!translate) {
-                return deref;
-            }
-            return this.i18n.translateSchema(deref);
-        } catch (error) {
-            if (isMdorimError(error)) {
-                throw error;
-            }
-            throw this.error(`SchemaType ${schemaId} not found`);
-        }
-    }
-
-    /**
-     * ## Dereference schema
-     *
-     * This method dereferences the schema by replacing $ref with the actual schema.
-     * It recursively traverses the schema and replaces all $ref with the actual schema.
-     * It also handles nested schemas and properties.
-     *
-     * @param schema - SchemaType to dereference
-     * @param parent - Parent key for the schema
-     * @returns - Dereferenced schema
-     */
-    public async dereference(schema: SchemaType, parent?: string) {
-        return await Object.entries(schema).reduce(
-            async (asyncAcc, [key, value]) => {
-                const acc = await asyncAcc;
-                if (key === "$ref") {
-                    const derefSchema = await this.schema(value as SchemaPath);
-                    acc[parent!] = await this.dereference(derefSchema, parent);
-                } else if (["properties", "items"].includes(key)) {
-                    acc[key] = await this.dereference(
-                        value as SchemaType,
-                        parent,
-                    );
-                } else if (typeof value === "object" && !Array.isArray(value)) {
-                    const nestedDeref = await this.dereference(
-                        value as SchemaType,
-                        key,
-                    );
-                    acc[key] = nestedDeref[key];
-                } else if (Array.isArray(value)) {
-                    acc[key] = await Promise.all(
-                        value.map(async (item) => {
-                            if (typeof item === "object") {
-                                const derefItem = await this.dereference(
-                                    item as SchemaType,
-                                    key,
-                                );
-                                return derefItem[key];
-                            }
-                            return item;
-                        }),
-                    );
-                } else {
-                    acc[key] = value;
-                }
-
-                return acc;
-            },
-            Promise.resolve({} as Record<string, unknown>),
-        );
     }
 
     /**
@@ -245,11 +74,14 @@ export class Validator {
      * @param value - Value to validate
      * @returns - Promise<boolean | MdorimError> - True if valid, MdorimError if invalid
      */
-    public async validate<T extends Entities[keyof Entities]>(
+    public async validate<T extends SchemaType[keyof SchemaType]>(
+        id: SchemaID,
         value: unknown,
+        options?: GetSchemaOptions,
     ): Promise<T | MdorimError> {
         try {
-            const schema = await this.schema(this.schemaPath);
+            const schema = this.schema.getSchema(id, options);
+            await this.initSchemas(schema as SchemaType);
 
             const result = this.validator.validate(value, schema, {
                 rewrite: (instance, schema) => {
@@ -263,18 +95,20 @@ export class Validator {
                     return instance;
                 },
             });
+
             if (result.valid) {
                 return result.instance as T;
             }
+
             return this.error(
-                `Validation failed for ${schema.id}`,
+                `Validation failed for ${schema.$id}`,
                 result.errors,
             );
         } catch (error) {
             if (isMdorimError(error)) {
                 return error;
             }
-            return this.error(`Validation failed for ${this.schemaPath}`);
+            return this.error(`Schema ${id} not found`);
         }
     }
 
