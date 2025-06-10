@@ -16,3 +16,4 @@ dist
 .pnpm-store
 
 *.local
+*.vitest-temp.json

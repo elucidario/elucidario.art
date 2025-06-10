@@ -2,11 +2,13 @@ import { translations } from "@/translations";
 
 export type UUID = string;
 
-export type CreatedAt = string;
+export type GenericType = string;
 
-export type UpdatedAt = string;
+export type _Label = string;
 
-export type Name = string;
+export type ID = string;
+
+export type PreferredTerm = string;
 
 export type Description = string;
 
@@ -14,11 +16,22 @@ export type Email = string;
 
 export type Password = string;
 
-export type EntityProps<T = unknown> = {
-    uuid?: UUID;
-    created_at?: CreatedAt;
-    updated_at?: UpdatedAt;
-} & T;
+export type LanguageTag = string;
+
+export type Format = string;
+
+export type Content = string;
+
+export type Value = number;
+
+/**
+ * Represents a Well-Known Text (WKT) format for representing geometric objects.
+ * @link https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
+ * @example
+ * const point: WKT = "POINT(30 10)";
+ * const lineString: WKT = "LINESTRING(30 10, 10 30, 40 40)";
+ */
+export type WKT = string;
 
 export type Locales = keyof typeof translations;
 

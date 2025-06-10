@@ -1,2 +1,2 @@
 export * from "./parseObjectPath";
-export * from "./parseLinkedArtSchema";
+export * from "./parseSchema";

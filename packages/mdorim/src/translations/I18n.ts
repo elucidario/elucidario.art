@@ -1,8 +1,8 @@
 import { I18n as I18nBase } from "i18n-js";
 
-import { SchemaType } from "@/schema/types";
+import { SchemaType } from "@/types";
 import { Locales } from "@/types";
-import { translations } from ".";
+import { translations } from "./translations";
 
 /**
  * # I18n class for managing translations.
@@ -60,7 +60,7 @@ export class I18n {
      * @param schema - The schema to translate.
      * @returns The translated schema.
      */
-    translateSchema(schema: SchemaType): SchemaType {
+    translateSchema(schema: Partial<SchemaType>): Partial<SchemaType> {
         return Object.entries(schema).reduce(
             (acc, [key, value]) => {
                 if (["title", "description"].includes(key)) {

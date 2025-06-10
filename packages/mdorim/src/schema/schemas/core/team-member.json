@@ -1,0 +1,15 @@
+{
+    "title": "i18n:team_member",
+    "description": "description-team_member",
+    "type": "object",
+    "properties": {
+        "user": {
+            "$ref": "/core/User"
+        },
+        "role": {
+            "$ref": "/core/definitions#/$defs/role"
+        }
+    },
+    "required": ["user", "role"],
+    "additionalProperties": false
+}

@@ -34,6 +34,11 @@ const config = lcdrRollup({
         }),
         NodeModulesPolyfillPlugin(),
     ],
+    pluginsConfig: {
+        typescript: {
+            tsconfig: "./tsconfig.build.json",
+        },
+    },
 });
 
 export default config;
