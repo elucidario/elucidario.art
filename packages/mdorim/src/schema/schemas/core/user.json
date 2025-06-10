@@ -1,0 +1,21 @@
+{
+    "type": "object",
+    "title": "i18n:user",
+    "description": "i18n:user/description",
+    "properties": {
+        "uuid": {
+            "$ref": "/core/definitions#/$defs/uuid"
+        },
+        "username": {
+            "$ref": "/core/definitions#/$defs/username"
+        },
+        "email": {
+            "$ref": "/core/definitions#/$defs/email"
+        },
+        "password": {
+            "$ref": "/core/definitions#/$defs/password"
+        }
+    },
+    "required": ["email"],
+    "additionalProperties": false
+}

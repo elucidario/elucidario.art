@@ -1,0 +1,70 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "$defs": {
+        "number": {
+            "type": "number"
+        },
+        "created_at": {
+            "title": "i18n:created_at",
+            "type": "string",
+            "format": "date-time"
+        },
+        "updated_at": {
+            "title": "i18n:updated_at",
+            "type": "string",
+            "format": "date-time"
+        },
+        "name": {
+            "title": "i18n:name",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+        },
+        "username": {
+            "title": "i18n:username",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+        },
+        "email": {
+            "title": "i18n:email",
+            "type": "string",
+            "format": "email"
+        },
+        "password": {
+            "title": "i18n:senha",
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 255
+        },
+        "role": {
+            "title": "i18n:role",
+            "type": "string",
+            "enum": ["admin", "editor", "assistant", "researcher", "anonymous"]
+        },
+        "description": {
+            "title": "i18n:description",
+            "type": "string",
+            "minLength": 1
+        },
+        "uuid": {
+            "title": "i18n:uuid",
+            "type": "string",
+            "format": "uuid"
+        },
+        "token_response": {
+            "type": "object",
+            "properties": {
+                "token": { "type": "string" }
+            },
+            "required": ["token"]
+        },
+        "organizations": {
+            "type": "array",
+            "items": {
+                "$ref": "/linked-art/Group"
+            }
+        }
+    }
+}

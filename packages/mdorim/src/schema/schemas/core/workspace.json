@@ -1,0 +1,24 @@
+{
+    "title": "i18n:workspace",
+    "description": "i18n:workspace/description",
+    "type": "object",
+    "properties": {
+        "uuid": {
+            "$ref": "/core/definitions#/$defs/uuid"
+        },
+        "name": {
+            "$ref": "/core/definitions#/$defs/name"
+        },
+        "description": {
+            "$ref": "/core/definitions#/$defs/description"
+        },
+        "organizations": {
+            "$ref": "/core/definitions#/$defs/organizations"
+        },
+        "team": {
+            "$ref": "/core/Team"
+        }
+    },
+    "additionalProperties": false,
+    "required": ["name"]
+}
