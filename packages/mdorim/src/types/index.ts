@@ -1,2 +1,4 @@
 export * from "./generic";
-export * from "./domain";
+export * from "./schema";
+export * from "./mdorim";
+export * from "./linked-art";
