@@ -1,0 +1,14 @@
+{
+    "extends": "./tsconfig.json",
+    "exclude": [
+        "./src/**/*.test.ts",
+        "./src/**/*.spec.ts",
+        "node_modules",
+        "dist",
+    ],
+    "compilerOptions": {
+        "importsNotUsedAsValues": "remove",
+        "noUnusedLocals": false,
+        "noUnusedParameters": false
+    },
+}
