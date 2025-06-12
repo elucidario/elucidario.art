@@ -1,16 +1,120 @@
 services:
+  root:
+    extends:
+      file: compose.base.yaml
+      service: base
+    working_dir: /lcdr
+
   dev_site:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: base
-    volumes:
-      - ./:/lcdr
-      - ./node_modules:/lcdr/node_modules
+    extends:
+      file: compose.base.yaml
+      service: base
     ports:
       - "4000:4000"
     working_dir: /lcdr/apps/site
     command: pnpm dev
 
+  dev_db:
+    extends:
+      file: compose.base.yaml
+      service: base_db
+    environment:
+      - NEO4J_AUTH_FILE=/run/secrets/neo4j_auth_dev_file
+    volumes:
+      - dev_db_data:/logs
+      - dev_db_data:/data
+      - dev_db_data:/config
+      - dev_db_data:/plugins
+    secrets:
+      - neo4j_auth_dev_file
+
+  test_db:
+    extends:
+      file: compose.base.yaml
+      service: base_db
+    environment:
+      - NEO4J_AUTH_FILE=/run/secrets/neo4j_auth_test_file
+    volumes:
+      - test_db_data:/logs
+      - test_db_data:/data
+      - test_db_data:/config
+      - test_db_data:/plugins
+    secrets:
+      - neo4j_auth_test_file
+
+  dev_core:
+    extends:
+      file: compose.base.yaml
+      service: base
+    ports:
+      - "8000:8000"
+    working_dir: /lcdr/core
+    depends_on:
+      dev_db:
+        condition: service_healthy
+        restart: true
+    command: pnpm dev
+
+  test_core:
+    extends:
+      file: compose.base.yaml
+      service: base
+    working_dir: /lcdr/core
+    ports:
+      - "8000:8000"
+    depends_on:
+      test_db:
+        condition: service_healthy
+        restart: true
+    command: sh && pnpm test
+
+  dev_mdorim:
+    extends:
+      file: compose.base.yaml
+      service: base
+    ports:
+      - "3001:3001"
+    working_dir: /lcdr/packages/mdorim
+    command: pnpm start
+
+  test_mdorim:
+    extends:
+      file: compose.base.yaml
+      service: base
+    ports:
+      - "3001:3001"
+    working_dir: /lcdr/packages/mdorim
+    command: pnpm test
+
+  dev_frontend:
+    extends:
+      file: compose.base.yaml
+      service: base
+    ports:
+      - "4000:4000"
+    depends_on:
+      dev_design_system:
+        condition: service_started
+        restart: true
+    working_dir: /lcdr/frontend
+    command: pnpm dev
+
+  dev_design_system:
+    extends:
+      file: compose.base.yaml
+      service: base
+    ports:
+      - "3000:3000"
+    working_dir: /lcdr/packages/design-system
+    command: pnpm dev
+
+secrets:
+  neo4j_auth_dev_file:
+    file: ./core/neo4j_auth_dev_file.txt
+  neo4j_auth_test_file:
+    file: ./core/neo4j_auth_test_file.txt
+
 volumes:
   root:
+  dev_db_data:
+  test_db_data:
