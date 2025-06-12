@@ -6,55 +6,37 @@
 </picture>
 </h1>
 
-Sistema de Gestão de Coleções para museus, galerias, acervos e coleções de arte.
-
 ![monorepo](https://img.shields.io/badge/monorepo-%230078c8?style=flat-square) ![elucidário.art](https://img.shields.io/website?url=https%3A%2F%2Felucidario.art&up_color=%2346C23A&down_color=%23FD7671&style=flat-square&label=elucidario.art&labelColor=011C3E) ![GitHub last commit](https://img.shields.io/github/last-commit/elucidario/elucidario.art?style=flat-square&labelColor=501028&color=e82070)
 
-## descrição
+Sistema de Gestão de Coleções para Museus, Centros-Culturais, Centros de Memória, organizações ou pessoas que possuam acervo ou coleções de itens mistos.
 
-Em linhas gerais o ***elucidario.art*** é um *Collection Management System*.
-A abreviação CMS é majoritariamente conhecida com um outro significado: *Content Management System*, devido a popularidade de plataformas como WordPress, Joomla, Drupal, etc. O ***elucidario.art*** é um CMS para coleções de arte, ou seja, é um sistema de gerenciamento de coleções de arte, ou um *Content Management System* especializado. Portanto utilizaremos a abreviação CMS para nos referirmos ao Elucidário como um *Collection Management System*. Este termo também é utilizado por instituições como [*Collections Trust*](collectionstrust.org.uk/) e [ICOM](https://icom.museum/) para referir-se a esta modalidade de software.
-
-Em suma, o ***elucidario.art*** é um conjunto de funcionalidades para gerenciamento de coleções de arte que utiliza o modelo de dados para aplicações [Linked Art](https://linked.art) para definição das classes principais de conteúdo e se baseia nos procedimentos [Spectrum](https://collectionstrust.org.uk/spectrum/) para definição de seus fluxos de trabalho.
+Para mais informações visite o site [elucidario.art](https://elucidario.art?utm_source=github_readme).
 
 ## desenvolvimento
 
 ### containers
 
-Para rodar o ambiente de desenvolvimento do ***elucidario.art***, é necessário ter o [Docker](https://www.docker.com/) instalado. Então, basta rodar o seguinte comando na raiz do projeto:
+Para rodar o ambiente de desenvolvimento do ***elucidario.art***, é necessário ter o [Docker](https://www.docker.com/) instalado.
 
 ```bash
-docker compose up --build
+docker compose up --build <nome-serviço> // ver em compose.yaml
 ```
-
-Para rodar os componentes isolados, é necessário passar o nome do serviço como argumento para o comando acima:
-
-```bash
-docker compose up --build <nome-serviço>
-```
-
-Por exemplo, para rodar apenas o site:
-
-```bash
-docker compose up --build dev_site
-```
-
-Para ver os serviços disponíveis consulte o arquivo [`compose.yaml`](./compose.yaml).
 
 ### repositório
 
-O repositório está estruturado em uma arquitetura de mono-repositório, em que os pacotes são distribuídos em subdiretórios na raíz do projeto. Cada pacote é uma funcionalidade, ou micro-serviço, que pode ser utilizado de forma independente. A estrutura de diretórios é a seguinte:
+O repositório está estruturado em uma arquitetura de mono-repositório, em que os pacotes são distribuídos em subdiretórios na raíz do projeto. Cada pacote é uma funcionalidade, que pode ser utilizado de forma independente. A estrutura de diretórios é a seguinte:
 
 ```bash
 elucidario
-├── core
 ├── apps
+├── core
+├── frontend
 ├── packages
 ├── tools
 ├── ...
 ```
 
-O diretório `core` contém o pacote principal do ***elucidario.art***, consiste no núcleo do sistema, onde estão definidos os modelos de dados, as regras de negócio e os fluxos de trabalho. O pacote `@elucidario/core` é o coração do sistema.
+O diretório `core` contém o pacote principal do ***elucidario.art***, consiste no núcleo do sistema, onde estão definidos os modelos, serviços, apis e casos de uso. O pacote `@elucidario/core` é o coração do sistema.
 
 O diretório `packages` contém os pacotes que podem ser reutilizados, tanto por outros pacotes, como por aplicações. Todos os pacotes definidos nesta pasta seguem o padrão de nome `@elucidario/pkg-<nome-pacote>`.
 
