@@ -16,4 +16,7 @@ dist
 .pnpm-store
 
 *.local
+
+# files to be removed
+rm--*
 *.vitest-temp.json
