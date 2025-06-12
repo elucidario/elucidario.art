@@ -31,14 +31,14 @@
         }
     },
     "devDependencies": {
-        "@changesets/cli": "^2.28.1",
+        "@changesets/cli": "^2.29.4",
         "commitizen": "^4.3.1",
-        "conventional-changelog": "^6.0.0",
-        "eslint": "^9.21.0",
+        "conventional-changelog": "^7.0.2",
+        "eslint": "^9.27.0",
         "husky": "^9.1.7",
-        "lint-staged": "^15.4.3",
+        "lint-staged": "^16.1.0",
         "prettier": "^3.5.3",
-        "typescript": "^5.8.2"
+        "typescript": "^5.8.3"
     },
-    "packageManager": "pnpm@10.0.0+sha512.b8fef5494bd3fe4cbd4edabd0745df2ee5be3e4b0b8b08fa643aa3e4c6702ccc0f00d68fa8a8c9858a735a0032485a44990ed2810526c875e416f001b17df12b"
+    "packageManager": "pnpm@10.12.1+sha512.f0dda8580f0ee9481c5c79a1d927b9164f2c478e90992ad268bbb2465a736984391d6333d2c327913578b2804af33474ca554ba29c04a8b13060a717675ae3ac"
 }
