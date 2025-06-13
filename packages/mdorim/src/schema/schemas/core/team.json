@@ -5,10 +5,10 @@
     "items": {
         "anyOf": [
             {
-                "$ref": "/core/TeamMember"
+                "$ref": "core/team-member.json"
             },
             {
-                "$ref": "/core/InvitedMember"
+                "$ref": "core/invited-member.json"
             }
         ]
     },

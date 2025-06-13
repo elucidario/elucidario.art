@@ -4,16 +4,16 @@
     "type": "object",
     "properties": {
         "email": {
-            "$ref": "/core/definitions#/$defs/email"
+            "$ref": "core/definitions.json#/$defs/email"
         },
         "role": {
-            "$ref": "/core/definitions#/$defs/role"
+            "$ref": "core/definitions.json#/$defs/role"
         },
         "invited_at": {
-            "$ref": "/core/definitions#/$defs/created_at"
+            "$ref": "core/definitions.json#/$defs/created_at"
         },
         "invited_by": {
-            "$ref": "/core/User"
+            "$ref": "core/user.json"
         }
     },
     "required": ["email", "role", "invited_at", "invited_by"],

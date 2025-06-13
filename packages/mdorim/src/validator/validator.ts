@@ -1,9 +1,11 @@
 import { ValidationError, Validator as JsonSchema } from "jsonschema";
 
-import { SchemaType, SchemaID, GetSchemaOptions } from "@/types";
+import { SchemaID, ValidateOptions } from "@/types";
 import { isMdorimError, mdorimStringToDate, parseObjectPath } from "@/utils";
 import { MdorimError } from "@/errors";
 import { Schema } from "@/schema";
+
+import { JSONSchema } from "@apidevtools/json-schema-ref-parser";
 
 /**
  * # Validator
@@ -34,27 +36,25 @@ export class Validator {
     /**
      * ## Initialize schemas
      */
-    private async initSchemas(schema: SchemaType) {
+    private async initSchemas(schema: JSONSchema) {
         try {
             if (this.validator.schemas[schema.$id]) {
                 // schema already exists, no need to add it again
                 return;
             }
 
-            this.validator.addSchema(schema, schema.$id);
+            this.validator.addSchema(schema as any, schema.$id);
 
             if (this.validator.unresolvedRefs.length > 0) {
                 const loop = async () => {
                     const nextSchema = this.validator.unresolvedRefs.shift();
                     if (nextSchema) {
-                        const schema = this.schema.getSchema(nextSchema, {
-                            translate: true,
-                        });
+                        const schema = await this.schema.getSchema(nextSchema);
 
                         if (isMdorimError(schema)) {
                             throw schema;
                         }
-                        this.validator.addSchema(schema, nextSchema);
+                        this.validator.addSchema(schema as any, nextSchema);
                         await loop();
                     }
                 };
@@ -64,7 +64,7 @@ export class Validator {
             if (isMdorimError(error)) {
                 throw error;
             }
-            throw this.error(`SchemaType ${schema.$id} not found`);
+            throw this.error(`JSONSchema ${schema.$id} not found`);
         }
     }
 
@@ -74,16 +74,19 @@ export class Validator {
      * @param value - Value to validate
      * @returns - Promise<boolean | MdorimError> - True if valid, MdorimError if invalid
      */
-    public async validate<T extends SchemaType[keyof SchemaType]>(
+    public async validate<T extends JSONSchema[keyof JSONSchema]>(
         id: SchemaID,
         value: unknown,
-        options?: GetSchemaOptions,
-    ): Promise<T | MdorimError> {
+        options?: ValidateOptions,
+    ): Promise<boolean> {
         try {
-            const schema = this.schema.getSchema(id, options);
-            await this.initSchemas(schema as SchemaType);
+            const schema = await this.schema.getSchema(id, options?.required);
+            const deref = await this.schema.dereference(schema);
+            const translated = this.schema.translateSchema(deref);
 
-            const result = this.validator.validate(value, schema, {
+            await this.initSchemas(translated);
+
+            const result = this.validator.validate(value, translated as any, {
                 rewrite: (instance, schema) => {
                     if (
                         instance &&
@@ -94,21 +97,22 @@ export class Validator {
                     }
                     return instance;
                 },
+                ...options?.validator,
             });
 
             if (result.valid) {
-                return result.instance as T;
+                return true;
             }
 
-            return this.error(
-                `Validation failed for ${schema.$id}`,
+            throw this.error(
+                `Validation failed for ${translated.$id}`,
                 result.errors,
             );
         } catch (error) {
             if (isMdorimError(error)) {
-                return error;
+                throw error;
             }
-            return this.error(`Schema ${id} not found`);
+            throw this.error(`Schema ${id} not found`);
         }
     }
 

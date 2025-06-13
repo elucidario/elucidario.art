@@ -1,69 +1,50 @@
-import { PrimitiveSchema, SchemaType } from "@/types";
-
-const mapFileId = new Map<string, string>([
-    ["core.json", "/linked-art/Core"],
-    ["set.json", "/linked-art/Set"],
-    ["text.json", "/linked-art/Text"],
-    ["event.json", "/linked-art/Event"],
-    ["group.json", "/linked-art/Group"],
-    ["place.json", "/linked-art/Place"],
-    ["image.json", "/linked-art/Image"],
-    ["object.json", "/linked-art/Object"],
-    ["person.json", "/linked-art/Person"],
-    ["digital.json", "/linked-art/Digital"],
-    ["concept.json", "/linked-art/Concept"],
-    ["abstract.json", "/linked-art/Abstract"],
-    ["provenance.json", "/linked-art/Provenance"],
-]);
+import { JSONSchema } from "@apidevtools/json-schema-ref-parser";
 
 function parseRef(
-    schema: PrimitiveSchema,
+    schema: JSONSchema,
+    base: string,
     filterRequired?: (required: string[]) => string[],
-): PrimitiveSchema {
+): JSONSchema {
     const { $id, ...rest } = schema;
     return Object.entries(rest).reduce((acc, [key, value]) => {
         if (key === "$ref") {
             // where the magic happens
-            if (value.includes("json")) {
+            if (value.includes("#")) {
                 const jsonLD = value.split("#")[0];
-                const jsonId = mapFileId.get(jsonLD);
-                if (jsonId) {
-                    acc[key as keyof SchemaType] = value.replace(
-                        jsonLD,
-                        jsonId,
-                    );
+                if (!jsonLD) {
+                    acc[key as keyof JSONSchema] = `${base}${value}`;
                 } else {
-                    acc[key as keyof SchemaType] = value;
+                    acc[key as keyof JSONSchema] = value;
                 }
             } else {
-                acc[key as keyof SchemaType] = value;
+                acc[key as keyof JSONSchema] = value;
             }
         } else if (key === "required") {
-            acc[key as keyof SchemaType] = filterRequired
+            acc[key as keyof JSONSchema] = filterRequired
                 ? filterRequired(value as string[])
                 : value;
         } else if (typeof value === "object" && !Array.isArray(value)) {
-            const nestedDeref = parseRef(value as SchemaType, filterRequired);
-            acc[key as keyof SchemaType] = nestedDeref;
+            const nestedDeref = parseRef(value, base, filterRequired);
+            acc[key as keyof JSONSchema] = nestedDeref;
         } else if (Array.isArray(value)) {
-            acc[key as keyof SchemaType] = value.map((item) => {
+            acc[key as keyof JSONSchema] = value.map((item) => {
                 if (typeof item === "object") {
-                    return parseRef(item as SchemaType, filterRequired);
+                    return parseRef(item, base, filterRequired);
                 }
                 return item;
             });
         } else {
-            acc[key as keyof SchemaType] = value;
+            acc[key as keyof JSONSchema] = value;
         }
 
         return acc;
-    }, {} as SchemaType);
+    }, {} as JSONSchema);
 }
 
 export function parseSchema(
     schema: any,
     id: string,
     filterRequired?: (required: string[]) => string[],
-): SchemaType {
-    return { $id: id, ...parseRef(schema as SchemaType, filterRequired) };
+): JSONSchema {
+    return { $id: id, ...parseRef(schema, id, filterRequired) };
 }

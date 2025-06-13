@@ -1,8 +1,8 @@
 import { I18n as I18nBase } from "i18n-js";
 
-import { SchemaType } from "@/types";
 import { Locales } from "@/types";
 import { translations } from "./translations";
+import { JSONSchema } from "@apidevtools/json-schema-ref-parser";
 
 /**
  * # I18n class for managing translations.
@@ -60,11 +60,11 @@ export class I18n {
      * @param schema - The schema to translate.
      * @returns The translated schema.
      */
-    translateSchema(schema: Partial<SchemaType>): Partial<SchemaType> {
+    translateSchema(schema: Partial<JSONSchema>): Partial<JSONSchema> {
         return Object.entries(schema).reduce(
             (acc, [key, value]) => {
                 if (["title", "description"].includes(key)) {
-                    const translation = this.translate(value);
+                    const translation = this.translate(value as string);
                     acc[key] = translation;
                 } else if (key === "properties") {
                     acc[key] = Object.entries(
@@ -72,14 +72,14 @@ export class I18n {
                     ).reduce(
                         (acc, [propKey, propValue]) => {
                             acc[propKey] = this.translateSchema(
-                                propValue as SchemaType,
+                                propValue as JSONSchema,
                             );
                             return acc;
                         },
                         {} as Record<string, unknown>,
                     );
                 } else if (key === "items") {
-                    acc[key] = this.translateSchema(value as SchemaType);
+                    acc[key] = this.translateSchema(value as JSONSchema);
                 } else {
                     acc[key] = value;
                 }
@@ -87,6 +87,6 @@ export class I18n {
                 return acc;
             },
             {} as Record<string, unknown>,
-        ) as SchemaType;
+        ) as JSONSchema;
     }
 }

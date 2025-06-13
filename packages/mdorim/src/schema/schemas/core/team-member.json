@@ -4,10 +4,10 @@
     "type": "object",
     "properties": {
         "user": {
-            "$ref": "/core/User"
+            "$ref": "core/user.json"
         },
         "role": {
-            "$ref": "/core/definitions#/$defs/role"
+            "$ref": "core/definitions.json#/$defs/role"
         }
     },
     "required": ["user", "role"],

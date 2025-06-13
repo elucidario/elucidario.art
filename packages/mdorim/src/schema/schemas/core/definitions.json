@@ -18,13 +18,13 @@
         "name": {
             "title": "i18n:name",
             "type": "string",
-            "minLength": 1,
+            "minLength": 3,
             "maxLength": 255
         },
         "username": {
             "title": "i18n:username",
             "type": "string",
-            "minLength": 1,
+            "minLength": 3,
             "maxLength": 128
         },
         "email": {
@@ -59,12 +59,6 @@
                 "token": { "type": "string" }
             },
             "required": ["token"]
-        },
-        "organizations": {
-            "type": "array",
-            "items": {
-                "$ref": "/linked-art/Group"
-            }
         }
     }
 }

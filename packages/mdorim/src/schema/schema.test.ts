@@ -1,113 +1,134 @@
 import { describe, expect, it, test } from "vitest";
 
 import { Schema } from "./schema";
+import { JSONSchema } from "@apidevtools/json-schema-ref-parser";
+import { I18n } from "@/translations";
 
-describe("Schema", () => {
+describe.only("Schema", () => {
+    const i18n = new I18n("pt-br");
+
     it("should create a Schema instance", () => {
-        const schema = new Schema();
+        const schema = new Schema(i18n);
         expect(schema).toBeDefined();
     });
 
     describe("getSchema", () => {
-        it("should return /core/User", () => {
-            const schemas = new Schema();
+        it("should return /core/User", async () => {
+            const schemas = new Schema(i18n);
 
-            const schema = schemas.getSchema("/core/User");
+            const schema = await schemas.getSchema("/core/User");
             expect(schema.$id).toBe("/core/User");
-            expect(schema.properties?.uuid.$ref).toBe(
-                "/core/definitions#/$defs/uuid",
+            expect((schema.properties?.uuid as JSONSchema).$ref).toBe(
+                "core/definitions.json#/$defs/uuid",
             );
         });
 
-        it("should return /core/definitions#/$defs/number", () => {
-            const schemas = new Schema();
+        it("should return /core/definitions.json#/$defs/number", async () => {
+            const schemas = new Schema(i18n);
 
-            const schema = schemas.getSchema("/core/definitions#/$defs/number");
+            const schema = await schemas.getSchema(
+                "/core/Definitions#/$defs/number",
+            );
 
             expect(schema.type).toBe("number");
         });
 
-        it("should return /core/definitions#/$defs/created_at", () => {
-            const schemas = new Schema();
+        it("should return /core/definitions.json#$defs/number", async () => {
+            const schemas = new Schema(i18n);
 
-            const schema = schemas.getSchema(
-                "/core/definitions#/$defs/created_at",
+            const schema = await schemas.getSchema(
+                "/core/Definitions#$defs/number",
+            );
+
+            expect(schema.type).toBe("number");
+        });
+
+        it("should return /core/definitions.json#/$defs/created_at", async () => {
+            const schemas = new Schema(i18n);
+
+            const schema = await schemas.getSchema(
+                "/core/Definitions#/$defs/created_at",
             );
             expect(schema.type).toBe("string");
             expect(schema.format).toBe("date-time");
         });
 
-        it("should return dereferenced schema", () => {
-            const schemas = new Schema();
+        it("should remove required property", async () => {
+            const schemas = new Schema(i18n);
 
-            const schema = schemas.getSchema("/core/User", {
-                deref: true,
-            });
+            const schema = await schemas.getSchema("/core/User", false);
 
             expect(schema.$id).toBe("/core/User");
-            expect(schema.properties?.uuid.type).toBe("string");
-            expect(schema.properties?.uuid.format).toBe("uuid");
-            expect(schema.properties?.uuid.title).toBe("i18n:uuid");
-        });
-
-        it("should return translated schema", () => {
-            const schemas = new Schema();
-
-            const schema = schemas.getSchema("/core/User", {
-                translate: true,
-            });
-
-            expect(schema.$id).toBe("/core/User");
-            expect(schema.title).toBe("Usuário");
-        });
-
-        it("should return dereferenced and translated schema", () => {
-            const schemas = new Schema();
-
-            const schema = schemas.getSchema("/core/User", {
-                deref: true,
-                translate: true,
-            });
-
-            expect(schema.$id).toBe("/core/User");
-            expect(schema.title).toBe("Usuário");
-            expect(schema.properties?.uuid.type).toBe("string");
-            expect(schema.properties?.uuid.format).toBe("uuid");
-            expect(schema.properties?.uuid.title).toBe("UUID");
-        });
-
-        it("should remove required property", () => {
-            const schemas = new Schema();
-
-            const schema = schemas.getSchema("/core/User", {
-                deref: true,
-                translate: true,
-                required: false,
-            });
-
-            expect(schema.$id).toBe("/core/User");
-            expect(schema.title).toBe("Usuário");
-            expect(schema.properties?.uuid.type).toBe("string");
-            expect(schema.properties?.uuid.format).toBe("uuid");
-            expect(schema.properties?.uuid.title).toBe("UUID");
+            expect(schema.title).toBe("i18n:user");
+            expect((schema.properties?.uuid as JSONSchema).$ref).toBe(
+                "core/definitions.json#/$defs/uuid",
+            );
             expect(schema.required).toBeUndefined();
+        });
+
+        describe("errors", () => {
+            it("should throw error if schema not found", async () => {
+                const schemas = new Schema(i18n);
+
+                await expect(
+                    schemas.getSchema("/core/NonExistent"),
+                ).rejects.toThrow(
+                    "MdorimError: Schema /core/NonExistent not found",
+                );
+            });
+
+            it("should throw error if nested schema is not found", async () => {
+                const schemas = new Schema(i18n);
+
+                await expect(
+                    schemas.getSchema("/core/Workspace#/$defs/notFound"),
+                ).rejects.toThrow(
+                    "MdorimError: Sub-schema /$defs/notFound not found in /core/Workspace#/$defs/notFound",
+                );
+            });
         });
     });
 
     describe("should dereference", () => {
-        test("anyOf schema", () => {
-            const validator = new Schema();
+        it("should have a property from linked-art in mdorim", async () => {
+            const schemas = new Schema(i18n);
 
-            const deref = validator.dereference({
+            const schema = await schemas.getSchema("/core/Workspace");
+            const deref = await schemas.dereference(schema);
+
+            expect(deref.$id).toBe("/core/Workspace");
+            expect(deref.properties?.organizations).toBeDefined();
+            expect((deref.properties?.organizations as JSONSchema).type).toBe(
+                "array",
+            );
+        });
+
+        it("should return dereferenced schema", async () => {
+            const schemas = new Schema(i18n);
+
+            const schema = await schemas.getSchema("/core/User");
+            const deref = await schemas.dereference(schema);
+            expect(deref.$id).toBe("/core/User");
+            expect((deref.properties?.uuid as JSONSchema).type).toBe("string");
+            expect((deref.properties?.uuid as JSONSchema).format).toBe("uuid");
+            expect((deref.properties?.uuid as JSONSchema).title).toBe(
+                "i18n:uuid",
+            );
+        });
+
+        test("anyOf schema", async () => {
+            const validator = new Schema(i18n);
+
+            const deref = await validator.dereference({
                 $id: "/test/anyOf",
                 type: "array",
                 items: {
                     anyOf: [
                         {
-                            $ref: "/core/definitions#/$defs/uuid",
+                            $ref: "./core/definitions.json#/$defs/uuid",
                         },
                         {
-                            $ref: "/core/definitions#/$defs/name",
+                            $ref: "./core/definitions.json#/$defs/name",
                         },
                     ],
                 },
@@ -126,19 +147,19 @@ describe("Schema", () => {
             expect(deref.items.anyOf[0].title).toBe("i18n:uuid");
         });
 
-        test("oneOf schema", () => {
-            const validator = new Schema();
+        test("oneOf schema", async () => {
+            const validator = new Schema(i18n);
 
-            const deref = validator.dereference({
+            const deref = await validator.dereference({
                 $id: "/test/anyOf",
                 type: "array",
                 items: {
                     oneOf: [
                         {
-                            $ref: "/core/definitions#/$defs/uuid",
+                            $ref: "./core/definitions.json#/$defs/uuid",
                         },
                         {
-                            $ref: "/core/definitions#/$defs/name",
+                            $ref: "./core/definitions.json#/$defs/name",
                         },
                     ],
                 },
@@ -155,6 +176,60 @@ describe("Schema", () => {
             expect(deref.items.oneOf[0].$ref).toBeUndefined();
             // @ts-ignore
             expect(deref.items.oneOf[0].title).toBe("i18n:uuid");
+        });
+    });
+
+    describe("should translate schema", () => {
+        it("should return translated schema", async () => {
+            const schemas = new Schema(i18n);
+
+            const schema = await schemas.getSchema("/core/User");
+            const translatedSchema = schemas.translateSchema(schema);
+
+            expect(translatedSchema.$id).toBe("/core/User");
+            expect(translatedSchema.title).toBe("Usuário");
+        });
+
+        it("should return dereferenced and translated schema", async () => {
+            const schemas = new Schema(i18n);
+
+            const schema = await schemas.getSchema("/core/User");
+            const deref = await schemas.dereference(schema);
+            const translatedSchema = schemas.translateSchema(deref);
+
+            expect(translatedSchema.$id).toBe("/core/User");
+            expect(translatedSchema.title).toBe("Usuário");
+            expect((translatedSchema.properties?.uuid as JSONSchema).type).toBe(
+                "string",
+            );
+            expect(
+                (translatedSchema.properties?.uuid as JSONSchema).format,
+            ).toBe("uuid");
+            expect(
+                (translatedSchema.properties?.uuid as JSONSchema).title,
+            ).toBe("UUID");
+
+            describe("error", () => {
+                it("should throw error if schema is not found", async () => {
+                    const schemas = new Schema(i18n);
+
+                    const schema = {
+                        // $id: "/core/NonExistent",
+                        type: "object",
+                        properties: {
+                            nonexistent: {
+                                $ref: "/core/NonExistent",
+                            }
+                        }
+                    }
+
+                    await expect(
+                        await schemas.dereference(schema as JSONSchema),
+                    ).rejects.toThrow(
+                        "MdorimError: Schema /core/NonExistent not found",
+                    );
+                });
+            })
         });
     });
 });
