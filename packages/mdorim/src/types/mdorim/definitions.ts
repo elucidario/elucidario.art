@@ -1,4 +1,4 @@
-import { GenericType, UUID } from "../generic";
+import { _Label, GenericType, UUID } from "../generic";
 
 export type MdorimBase<
     T extends Record<string, unknown>,
@@ -6,4 +6,5 @@ export type MdorimBase<
 > = {
     uuid: UUID;
     type: TType;
+    _label: _Label
 } & T;
