@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { I18n } from "./I18n";
+import { JSONSchema } from "@apidevtools/json-schema-ref-parser";
 
 describe("i18n", () => {
     it("should initialize with default locale", () => {
@@ -29,6 +30,6 @@ describe("i18n", () => {
 
         const translatedSchema = i18n.translateSchema(schema);
         expect(translatedSchema.title).toBe("Área de Trabalho");
-        expect(translatedSchema.properties!.uuid.title).toBe("UUID");
+        expect((translatedSchema.properties!.uuid as JSONSchema).title).toBe("UUID");
     });
 });

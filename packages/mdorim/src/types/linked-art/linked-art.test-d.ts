@@ -51,12 +51,6 @@ describe("Shared", () => {
             transferred_title_of: [],
             transferred_title_from: [],
             transferred_title_to: [],
-            // during: {},
-            // took_place_at: {},
-            // influenced_by: [],
-            // carried_out_by: [],
-            // participant: [],
-            // used_specific_object: [],
         }
         const acquisitionProvenance: ProvenanceActivity<"Activity"> = {
             uuid: "0000000-0000-0000-0000-000000000003",

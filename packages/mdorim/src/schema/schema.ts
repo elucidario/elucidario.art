@@ -4,13 +4,26 @@ import { I18n } from "@/translations";
 
 import * as coreSchemas from "./schemas/core";
 import * as linkedArtSchemas from "./schemas/linked-art";
-import { GetSchemaOptions, SchemaID, SchemaType } from "@/types";
-import { DefaultLocale, Locales } from "@/types";
+import { SchemaID } from "@/types";
 
+import { camelCase, startCase } from "lodash-es";
+
+import {
+    $RefParser,
+    JSONSchema,
+    FileInfo,
+} from "@apidevtools/json-schema-ref-parser";
+
+/**
+ * # Schema Class
+ *
+ * This class is responsible for managing and retrieving JSON schemas.
+ * It supports dereferencing schemas, translating them, and filtering required properties.
+ * It uses the $RefParser library to handle schema references.
+ */
 export class Schema {
-    schemas: Map<string, SchemaType> = new Map();
-
-    private i18n: I18n;
+    private parser: $RefParser;
+    private schemas: Map<string, JSONSchema> = new Map();
 
     /**
      * ## Schema constructor
@@ -20,8 +33,8 @@ export class Schema {
      *
      * @param defaultLocale - The default locale to use for translations (optional).
      */
-    constructor(private defaultLocale: Locales = DefaultLocale) {
-        this.i18n = new I18n(this.defaultLocale);
+    constructor(private i18n: I18n) {
+        this.parser = new $RefParser();
 
         for (const [key, value] of Object.entries(coreSchemas)) {
             if (typeof value === "object" && value !== null) {
@@ -45,19 +58,27 @@ export class Schema {
     }
 
     /**
-     * ## Get schema by ID
+     * ## Get a schema by its ID
      *
-     * @param id - SchemaType ID to get
-     * @returns - SchemaType object
+     * Retrieves a schema by its ID, which can be a full path or a reference to a sub-schema.
+     * If the schema is not found, an error is thrown.
+     *
+     * @param id - The ID of the schema to retrieve.
+     * @param required - Whether the schema should have required properties (default: true).
+     * @returns The requested schema as a Partial<JSONSchema>.
      */
-    public getSchema(
+    public async getSchema(
         id: SchemaID,
-        options?: GetSchemaOptions,
-    ): Partial<SchemaType> {
+        required?: boolean,
+    ): Promise<Partial<JSONSchema>> {
         try {
             const [schemaId, rest] = id.split("#");
 
             let schema = this.schemas.get(schemaId);
+
+            if (!schema) {
+                throw this.error(`Schema ${schemaId} not found`);
+            }
 
             if (rest) {
                 const subSchemaPath = rest.startsWith("/")
@@ -65,13 +86,12 @@ export class Schema {
                     : rest;
 
                 const subSchema = (
-                    subSchemaPath.split("/") as Array<keyof SchemaType>
+                    subSchemaPath.split("/") as Array<keyof JSONSchema>
                 ).reduce((acc, cur) => {
-                    if (acc && acc[cur]) {
+                    if (acc && acc[cur] !== undefined) {
                         return acc[cur];
                     }
-                    return undefined;
-                }, schema) as SchemaType | undefined;
+                }, schema) as JSONSchema | undefined;
 
                 if (!subSchema) {
                     throw this.error(`Sub-schema ${rest} not found in ${id}`);
@@ -79,93 +99,94 @@ export class Schema {
                 schema = subSchema;
             }
 
-            let required =
-                typeof options?.required !== "undefined"
-                    ? options.required
-                    : true;
+            required = typeof required !== "undefined" ? required : true;
 
             if (!required && typeof schema?.required !== "undefined") {
                 schema.required = undefined;
             }
 
-            if (options?.translate && options?.deref) {
-                return this.i18n.translateSchema(
-                    this.dereference(schema as SchemaType, options),
-                );
-            } else if (options?.translate) {
-                return this.i18n.translateSchema(schema as SchemaType);
-            } else if (options?.deref) {
-                return this.dereference(schema as SchemaType, options);
-            } else {
-                return schema as SchemaType;
-            }
+            return schema;
         } catch (error) {
-            if (isMdorimError(error)) {
-                throw error;
-            }
-            throw this.error(`Schema ${id} not found`);
+            throw this.error(error);
         }
     }
 
     /**
-     * ## Dereference schema
-     *
-     * This method dereferences the schema by replacing $ref with the actual schema.
-     * It recursively traverses the schema and replaces all $ref with the actual schema.
-     * It also handles nested schemas and properties.
-     *
-     * @param schema - SchemaType to dereference
-     * @param parent - Parent key for the schema
-     * @returns - Dereferenced schema
+     * ## Translate a schema
+     * Translates the title and description of a schema, as well as the titles of its properties and items.
+     * @param schema - The schema to translate.
+     * @returns The translated schema.
      */
-    public dereference(
-        schema: Partial<SchemaType>,
-        options?: GetSchemaOptions,
-        parent?: string,
-    ): Partial<SchemaType> {
-        return Object.entries(schema).reduce(
-            (asyncAcc, [key, value]) => {
-                const acc = asyncAcc;
-                if (key === "$ref") {
-                    const derefSchema = this.getSchema(value, options);
-                    acc[parent!] = this.dereference(
-                        derefSchema,
-                        options,
-                        parent,
-                    );
-                } else if (["properties", "items"].includes(key)) {
-                    acc[key] = this.dereference(
-                        value as SchemaType,
-                        options,
-                        parent,
-                    );
-                } else if (typeof value === "object" && !Array.isArray(value)) {
-                    const nestedDeref = this.dereference(
-                        value as SchemaType,
-                        options,
-                        key,
-                    );
-                    acc[key] = nestedDeref[key as keyof SchemaType];
-                } else if (Array.isArray(value)) {
-                    acc[key] = value.map((item) => {
-                        if (typeof item === "object") {
-                            const derefItem = this.dereference(
-                                item as SchemaType,
-                                options,
-                                key,
-                            );
-                            return derefItem[key as keyof SchemaType];
-                        }
-                        return item;
-                    });
-                } else {
-                    acc[key] = value;
-                }
+    public translateSchema(schema: JSONSchema): JSONSchema {
+        return this.i18n.translateSchema(schema);
+    }
 
-                return acc;
-            },
-            {} as Record<string, unknown>,
-        );
+    /**
+     * ## Dereference a schema
+     * Dereferences a JSON schema, resolving any $ref references to their full definitions.
+     *
+     * @param schema - The JSON schema to dereference.
+     * @returns The dereferenced schema as a Promise<JSONSchema>.
+     */
+    public async dereference(schema: JSONSchema) {
+        try {
+            const getter = this.getSchema.bind(this);
+
+            return await this.parser.dereference(schema, {
+                resolve: {
+                    file: {
+                        canRead: true,
+                        async read(file: FileInfo) {
+                            let url = file.url;
+                            if (
+                                !url.includes("mdorim") &&
+                                url.includes("json")
+                            ) {
+                                const parts = file.url
+                                    .replace(".json", "")
+                                    .slice(1)
+                                    .split("/");
+                                const [namespace, name] = parts.splice(
+                                    parts.length - 2,
+                                    2,
+                                );
+
+                                url = `/${namespace}/${startCase(camelCase(name)).replace(" ", "")}`;
+                            } else if (url.includes("mdorim")) {
+                                // If the URL is a mdorim schema, we need to extract the namespace and name
+                                // from the URL and use the getter to fetch the schema.
+                                // Example: /mdorim/core/User.json -> /core/User
+
+                                const parts = file.url
+                                    .split("mdorim")[1]
+                                    .replace(".json", "")
+                                    .slice(1)
+                                    .split("/");
+
+                                const [namespace, name] = parts.splice(
+                                    parts.length - 2,
+                                    2,
+                                );
+
+                                url = `/${namespace}/${startCase(camelCase(name)).replace(" ", "")}`;
+                            }
+
+                            const deref = await getter(url);
+
+                            if (!deref) {
+                                throw new MdorimError(
+                                    `Schema ${file.url} not found`,
+                                );
+                            }
+
+                            return deref;
+                        },
+                    },
+                },
+            });
+        } catch (error) {
+            throw this.error(error);
+        }
     }
 
     /**
@@ -176,9 +197,13 @@ export class Schema {
      * @returns - MdorimError - MdorimError instance
      */
     private error(
-        message: string,
+        error: unknown,
         errors?: Record<string, unknown>,
     ): MdorimError {
-        return new MdorimError(`SchemaError: ${message}`, errors);
+        if (isMdorimError(error)) {
+            return error;
+        }
+        const message = typeof error === "string" ? error : String(error);
+        return new MdorimError(message, errors);
     }
 }
