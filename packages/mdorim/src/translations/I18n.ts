@@ -1,6 +1,6 @@
 import { I18n as I18nBase } from "i18n-js";
 
-import { Locales } from "@/types";
+import { DefaultLocale, Locales } from "@/types";
 import { translations } from "./translations";
 import { JSONSchema } from "@apidevtools/json-schema-ref-parser";
 
@@ -9,14 +9,18 @@ import { JSONSchema } from "@apidevtools/json-schema-ref-parser";
  */
 export class I18n {
     private engine: I18nBase;
+    private depth = 0;
 
     /**
      * ## Creates an instance of I18n.
      * @param locale - The locale to use for translations. Defaults to "pt-br".
      */
-    constructor(locale: Locales = "pt-br") {
+    constructor(
+        locale: Locales = DefaultLocale,
+        private readonly maxDepth = 10,
+    ) {
         this.engine = new I18nBase();
-        this.engine.defaultLocale = "pt-br";
+        this.engine.defaultLocale = DefaultLocale;
         this.engine.locale = locale;
         Object.entries(translations).forEach(([key, value]) => {
             this.engine.store({ [key]: value });
@@ -61,7 +65,11 @@ export class I18n {
      * @returns The translated schema.
      */
     translateSchema(schema: Partial<JSONSchema>): Partial<JSONSchema> {
-        return Object.entries(schema).reduce(
+        if (this.depth >= this.maxDepth) {
+            return schema as Partial<JSONSchema>;
+        }
+
+        const translated = Object.entries(schema).reduce(
             (acc, [key, value]) => {
                 if (["title", "description"].includes(key)) {
                     const translation = this.translate(value as string);
@@ -88,5 +96,9 @@ export class I18n {
             },
             {} as Record<string, unknown>,
         ) as JSONSchema;
+
+        this.depth++;
+
+        return translated;
     }
 }
