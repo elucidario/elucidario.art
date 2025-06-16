@@ -35,4 +35,4 @@ export type WKT = string;
 
 export type Locales = keyof typeof translations;
 
-export const DefaultLocale = "pt-br";
+export const DefaultLocale: Locales = "pt-BR";

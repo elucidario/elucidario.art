@@ -4,25 +4,23 @@
     "type": "object",
     "properties": {
         "uuid": {
-            "$ref": "core/definitions.json#/$defs/uuid"
+            "$ref": "/core/Definitions#/$defs/uuid"
         },
-
         "name": {
-            "$ref": "core/definitions.json#/$defs/name"
+            "$ref": "/core/Definitions#/$defs/name"
         },
         "description": {
-            "$ref": "core/definitions.json#/$defs/description"
+            "$ref": "/core/Definitions#/$defs/description"
         },
         "organizations": {
             "type": "array",
             "items": {
-                "$ref": "linked-art/group.json"
+                "$ref": "/linked-art/Group"
             }
         },
         "team": {
-            "$ref": "core/team.json"
+            "$ref": "/core/Team"
         }
     },
-    "additionalProperties": false,
-    "required": ["name"]
+    "additionalProperties": false
 }

@@ -16,8 +16,10 @@
     },
     "dependencies": {
         "@apidevtools/json-schema-ref-parser": "^13.0.5",
+        "ajv": "^8.17.1",
+        "ajv-formats": "^3.0.1",
+        "ajv-i18n": "^4.2.0",
         "i18n-js": "^4.5.1",
-        "jsonschema": "^1.5.0",
         "lodash-es": "^4.17.21"
     },
     "devDependencies": {

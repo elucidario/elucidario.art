@@ -1,89 +1,76 @@
 import { describe, expect, it, test } from "vitest";
 
-import { Schema } from "./schema";
+import { Mdorim } from "./mdorim";
 import { JSONSchema } from "@apidevtools/json-schema-ref-parser";
 import { I18n } from "@/translations";
+import { DefaultLocale } from "@/types";
 
-describe.only("Schema", () => {
-    const i18n = new I18n("pt-br");
+describe("Mdorim", () => {
+    const i18n = new I18n(DefaultLocale);
 
-    it("should create a Schema instance", () => {
-        const schema = new Schema(i18n);
+    it("should create a Mdorim instance", () => {
+        const schema = new Mdorim(i18n);
         expect(schema).toBeDefined();
     });
 
     describe("getSchema", () => {
-        it("should return /core/User", async () => {
-            const schemas = new Schema(i18n);
+        it("should return /core/User", () => {
+            const schemas = new Mdorim(i18n);
 
-            const schema = await schemas.getSchema("/core/User");
+            const schema = schemas.getSchema("/core/User");
             expect(schema.$id).toBe("/core/User");
             expect((schema.properties?.uuid as JSONSchema).$ref).toBe(
-                "core/definitions.json#/$defs/uuid",
+                "/core/Definitions#/$defs/uuid",
             );
         });
 
-        it("should return /core/definitions.json#/$defs/number", async () => {
-            const schemas = new Schema(i18n);
+        it("should return /core/Definitions#/$defs/number", () => {
+            const schemas = new Mdorim(i18n);
 
-            const schema = await schemas.getSchema(
-                "/core/Definitions#/$defs/number",
-            );
+            const schema = schemas.getSchema("/core/Definitions#/$defs/number");
 
             expect(schema.type).toBe("number");
         });
 
-        it("should return /core/definitions.json#$defs/number", async () => {
-            const schemas = new Schema(i18n);
+        it("should return /core/Definitions#/$defs/created_at", () => {
+            const schemas = new Mdorim(i18n);
 
-            const schema = await schemas.getSchema(
-                "/core/Definitions#$defs/number",
-            );
-
-            expect(schema.type).toBe("number");
-        });
-
-        it("should return /core/definitions.json#/$defs/created_at", async () => {
-            const schemas = new Schema(i18n);
-
-            const schema = await schemas.getSchema(
+            const schema = schemas.getSchema(
                 "/core/Definitions#/$defs/created_at",
             );
             expect(schema.type).toBe("string");
             expect(schema.format).toBe("date-time");
         });
 
-        it("should remove required property", async () => {
-            const schemas = new Schema(i18n);
+        it("should remove required property", () => {
+            const schemas = new Mdorim(i18n);
 
-            const schema = await schemas.getSchema("/core/User", false);
+            const schema = schemas.getSchema("/core/User", false);
 
             expect(schema.$id).toBe("/core/User");
             expect(schema.title).toBe("i18n:user");
             expect((schema.properties?.uuid as JSONSchema).$ref).toBe(
-                "core/definitions.json#/$defs/uuid",
+                "/core/Definitions#/$defs/uuid",
             );
             expect(schema.required).toBeUndefined();
         });
 
         describe("errors", () => {
-            it("should throw error if schema not found", async () => {
-                const schemas = new Schema(i18n);
+            it("should throw error if schema not found", () => {
+                const schemas = new Mdorim(i18n);
 
-                await expect(
-                    schemas.getSchema("/core/NonExistent"),
-                ).rejects.toThrow(
+                expect(() => schemas.getSchema("/core/NonExistent")).toThrowError(
                     "MdorimError: Schema /core/NonExistent not found",
                 );
             });
 
-            it("should throw error if nested schema is not found", async () => {
-                const schemas = new Schema(i18n);
+            it("should throw error if nested schema is not found", () => {
+                const schemas = new Mdorim(i18n);
 
-                await expect(
-                    schemas.getSchema("/core/Workspace#/$defs/notFound"),
-                ).rejects.toThrow(
-                    "MdorimError: Sub-schema /$defs/notFound not found in /core/Workspace#/$defs/notFound",
+                expect(
+                    () => schemas.getSchema("/core/Workspace#/$defs/notFound"),
+                ).toThrow(
+                    "MdorimError: Schema /core/Workspace#/$defs/notFound not found",
                 );
             });
         });
@@ -91,22 +78,21 @@ describe.only("Schema", () => {
 
     describe("should dereference", () => {
         it("should have a property from linked-art in mdorim", async () => {
-            const schemas = new Schema(i18n);
+            const schemas = new Mdorim(i18n);
 
-            const schema = await schemas.getSchema("/core/Workspace");
-            const deref = await schemas.dereference(schema);
+            const schema = schemas.getSchema("/core/Workspace");
 
-            expect(deref.$id).toBe("/core/Workspace");
-            expect(deref.properties?.organizations).toBeDefined();
-            expect((deref.properties?.organizations as JSONSchema).type).toBe(
+            expect(schema.$id).toBe("/core/Workspace");
+            expect(schema.properties?.organizations).toBeDefined();
+            expect((schema.properties?.organizations as JSONSchema).type).toBe(
                 "array",
             );
         });
 
         it("should return dereferenced schema", async () => {
-            const schemas = new Schema(i18n);
+            const schemas = new Mdorim(i18n);
 
-            const schema = await schemas.getSchema("/core/User");
+            const schema = schemas.getSchema("/core/User");
             const deref = await schemas.dereference(schema);
             expect(deref.$id).toBe("/core/User");
             expect((deref.properties?.uuid as JSONSchema).type).toBe("string");
@@ -117,7 +103,7 @@ describe.only("Schema", () => {
         });
 
         test("anyOf schema", async () => {
-            const validator = new Schema(i18n);
+            const validator = new Mdorim(i18n);
 
             const deref = await validator.dereference({
                 $id: "/test/anyOf",
@@ -137,18 +123,18 @@ describe.only("Schema", () => {
             expect(deref).toBeDefined();
             expect(deref.$id).toBe("/test/anyOf");
             expect(deref.items).toBeDefined();
-            // @ts-ignore
+            // @ts-expect-error items is JSONSchema
             expect(deref.items.anyOf).toBeDefined();
-            // @ts-ignore
+            // @ts-expect-error items is JSONSchema
             expect(deref.items.anyOf[0]).toBeDefined();
-            // @ts-ignore
+            // @ts-expect-error items is JSONSchema
             expect(deref.items.anyOf[0].$ref).toBeUndefined();
-            // @ts-ignore
+            // @ts-expect-error items is JSONSchema
             expect(deref.items.anyOf[0].title).toBe("i18n:uuid");
         });
 
         test("oneOf schema", async () => {
-            const validator = new Schema(i18n);
+            const validator = new Mdorim(i18n);
 
             const deref = await validator.dereference({
                 $id: "/test/anyOf",
@@ -168,22 +154,22 @@ describe.only("Schema", () => {
             expect(deref).toBeDefined();
             expect(deref.$id).toBe("/test/anyOf");
             expect(deref.items).toBeDefined();
-            // @ts-ignore
+            // @ts-expect-error items is JSONSchema
             expect(deref.items.oneOf).toBeDefined();
-            // @ts-ignore
+            // @ts-expect-error items is JSONSchema
             expect(deref.items.oneOf[0]).toBeDefined();
-            // @ts-ignore
+            // @ts-expect-error items is JSONSchema
             expect(deref.items.oneOf[0].$ref).toBeUndefined();
-            // @ts-ignore
+            // @ts-expect-error items is JSONSchema
             expect(deref.items.oneOf[0].title).toBe("i18n:uuid");
         });
     });
 
     describe("should translate schema", () => {
         it("should return translated schema", async () => {
-            const schemas = new Schema(i18n);
+            const schemas = new Mdorim(i18n);
 
-            const schema = await schemas.getSchema("/core/User");
+            const schema = schemas.getSchema("/core/User");
             const translatedSchema = schemas.translateSchema(schema);
 
             expect(translatedSchema.$id).toBe("/core/User");
@@ -191,9 +177,9 @@ describe.only("Schema", () => {
         });
 
         it("should return dereferenced and translated schema", async () => {
-            const schemas = new Schema(i18n);
+            const schemas = new Mdorim(i18n);
 
-            const schema = await schemas.getSchema("/core/User");
+            const schema = schemas.getSchema("/core/User");
             const deref = await schemas.dereference(schema);
             const translatedSchema = schemas.translateSchema(deref);
 
@@ -211,7 +197,7 @@ describe.only("Schema", () => {
 
             describe("error", () => {
                 it("should throw error if schema is not found", async () => {
-                    const schemas = new Schema(i18n);
+                    const schemas = new Mdorim(i18n);
 
                     const schema = {
                         // $id: "/core/NonExistent",
@@ -219,17 +205,36 @@ describe.only("Schema", () => {
                         properties: {
                             nonexistent: {
                                 $ref: "/core/NonExistent",
-                            }
-                        }
-                    }
+                            },
+                        },
+                    };
 
                     await expect(
                         await schemas.dereference(schema as JSONSchema),
                     ).rejects.toThrow(
-                        "MdorimError: Schema /core/NonExistent not found",
+                        "MdorimError: Mdorim /core/NonExistent not found",
                     );
                 });
-            })
+            });
+        });
+    });
+
+    describe("should validate schema", () => {
+        it("should validate /core/User", async () => {
+            const validator = new Mdorim(i18n);
+            const user = {
+                username: "John-Doe",
+                email: "john@example.com",
+            };
+
+            expect(await validator.validate("/core/User", user)).toBeTruthy();
+        });
+
+        it("should validate /core/Definitions#/$defs/uuid", async () => {
+            const validator = new Mdorim(i18n);
+            const uuid = "123e4567-e89b-12d3-a456-426614174000";
+
+            expect(await validator.validate("/core/Definitions#/$defs/uuid", uuid)).toBeTruthy();
         });
     });
 });

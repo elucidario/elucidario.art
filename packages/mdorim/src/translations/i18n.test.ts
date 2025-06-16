@@ -7,13 +7,13 @@ describe("i18n", () => {
     it("should initialize with default locale", () => {
         const i18n = new I18n();
         expect(i18n).toBeDefined();
-        expect(i18n.locale).toBe("pt-br");
+        expect(i18n.locale).toBe("pt-BR");
     });
 
     it("should initialize with custom locale", () => {
-        const i18n = new I18n("en-us");
+        const i18n = new I18n("en");
         expect(i18n).toBeDefined();
-        expect(i18n.locale).toBe("en-us");
+        expect(i18n.locale).toBe("en");
     });
 
     it("should translate schema", () => {
