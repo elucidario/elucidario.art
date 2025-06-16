@@ -14,7 +14,7 @@
         "changeset:version": "changeset version",
         "commit": "cz",
         "commit:no-verify": "pnpm commit --no-verify",
-        "lint": "pnpm --recursive run lint",
+        "lint": "pnpm eslint",
         "prepare": "husky install",
         "preview:site": "pnpm --filter '@elucidario/app-site' run preview",
         "test": "pnpm --recursive run test",
@@ -32,13 +32,21 @@
     },
     "devDependencies": {
         "@changesets/cli": "^2.29.4",
+        "@eslint/js": "^9.29.0",
+        "@eslint/json": "^0.12.0",
+        "@eslint/markdown": "^6.5.0",
+        "@typescript-eslint/parser": "^8.34.0",
         "commitizen": "^4.3.1",
         "conventional-changelog": "^7.0.2",
         "eslint": "^9.27.0",
+        "eslint-plugin-react": "^7.37.5",
+        "globals": "^16.0.0",
         "husky": "^9.1.7",
         "lint-staged": "^16.1.0",
         "prettier": "^3.5.3",
-        "typescript": "^5.8.3"
+        "prettier-eslint": "^16.4.2",
+        "typescript": "^5.8.3",
+        "typescript-eslint": "^8.34.0"
     },
     "packageManager": "pnpm@10.12.1+sha512.f0dda8580f0ee9481c5c79a1d927b9164f2c478e90992ad268bbb2465a736984391d6333d2c327913578b2804af33474ca554ba29c04a8b13060a717675ae3ac"
 }

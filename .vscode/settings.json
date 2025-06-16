@@ -4,18 +4,18 @@
     },
     "markdownlint.run": "onSave",
     "markdown.occurrencesHighlight.enabled": true,
-    "[json]": {
-        "editor.quickSuggestions": {
-            "strings": true
-        },
-        "editor.suggest.insertMode": "replace",
-        "gitlens.codeLens.scopes": [
-            "document"
-        ],
-        "editor.wordWrap": "on"
-    },
-    "editor.formatOnSave": true,
     "npm.packageManager": "pnpm",
-    "prettier.tabWidth": 4,
-    "eslint.format.enable": true,
+    "rest-client.environmentVariables": {
+        "local": {
+            "baseUrl": "http://localhost:8000",
+            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3QrMTVAZXhhbXBsZS5jb20iLCJ1c2VybmFtZSI6InRlc3RfdXNlcisxNSIsInN1YiI6IjkzYmRkMGQyLTU5NzctNGJmZi1hNDkwLTAzZjNhNmNkOTY4ZiIsImlhdCI6MTc0OTE2NDU4N30.xXxM7AekGzlRtnJfSeuyXIjhVbeNcFkn9RnBVjVBiHE"
+        },
+    },
+    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
+    "editor.formatOnType": false, // required
+    "editor.formatOnPaste": true, // optional
+    "editor.formatOnSave": true, // optional
+    "editor.formatOnSaveMode": "file", // required to format on save
+    "files.autoSave": "onFocusChange", // optional but recommended
+    "vs-code-prettier-eslint.prettierLast": false // set as "true" to run 'prettier' last not first
 }
