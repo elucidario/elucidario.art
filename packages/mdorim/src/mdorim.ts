@@ -45,7 +45,7 @@ export class Mdorim {
             if (typeof value === "object" && value !== null) {
                 const id = `/core/${key}`;
                 this.validator.addSchema(
-                    parseSchema(value, id, filterLinkedArtRequired),
+                    parseSchema(value as JSONSchema, id, filterLinkedArtRequired),
                 );
             }
         }
@@ -54,7 +54,7 @@ export class Mdorim {
             if (typeof value === "object" && value !== null) {
                 const id = `/linked-art/${key}`;
                 this.validator.addSchema(
-                    parseSchema(value, id, filterLinkedArtRequired),
+                    parseSchema(value as JSONSchema, id, filterLinkedArtRequired),
                 );
             }
         }
