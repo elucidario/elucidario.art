@@ -4,18 +4,17 @@
     "description": "i18n:user/description",
     "properties": {
         "uuid": {
-            "$ref": "core/definitions.json#/$defs/uuid"
+            "$ref": "/core/Definitions#/$defs/uuid"
         },
         "username": {
-            "$ref": "core/definitions.json#/$defs/username"
+            "$ref": "/core/Definitions#/$defs/username"
         },
         "email": {
-            "$ref": "core/definitions.json#/$defs/email"
+            "$ref": "/core/Definitions#/$defs/email"
         },
         "password": {
-            "$ref": "core/definitions.json#/$defs/password"
+            "$ref": "/core/Definitions#/$defs/password"
         }
     },
-    "required": ["email"],
     "additionalProperties": false
 }
