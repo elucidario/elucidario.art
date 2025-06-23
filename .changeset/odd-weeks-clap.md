@@ -1,6 +1,6 @@
 ---
 "@elucidario/app-site": patch
-"@elucidario/pkg-core": patch
+"@elucidario/core": patch
 ---
 
 add github og:image

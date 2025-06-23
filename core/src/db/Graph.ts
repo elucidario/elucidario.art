@@ -1,0 +1,214 @@
+import {
+    Driver,
+    EagerResult,
+    Neo4jError,
+    ManagedTransaction,
+} from "neo4j-driver";
+
+import { getDriver } from "./driver";
+import { GraphError, isNeo4jError } from "@/errors";
+import { isGraphError } from "@/errors";
+import { MapNeo4jError } from "@/types";
+import { applyFilter } from "@/hooks";
+
+export type QueryCallback<T> = (driver: Driver) => Promise<T>;
+
+export class Graph {
+    /**
+     * Singleton instance of the Graph class.
+     * Ensures that only one instance of the Graph class exists.
+     */
+    private static instance: Graph;
+
+    /**
+     * The Neo4j driver instance used to interact with the database.
+     * This is initialized in the constructor and used for executing queries.
+     */
+    protected driver: Driver;
+
+    /**
+     * Private constructor to enforce singleton pattern.
+     */
+    private constructor() {
+        this.driver = getDriver();
+    }
+
+    async setup() {
+        await this.setConstraints();
+    }
+
+    /**
+     * Returns the singleton instance of the Graph class.
+     * If the instance does not exist, it creates a new one.
+     * @returns The singleton instance of Graph.
+     */
+    public static getInstance(): Graph {
+        if (!Graph.instance) {
+            Graph.instance = new Graph();
+        }
+        return Graph.instance;
+    }
+
+    /**
+     * ██████╗ ██████╗ ██╗██╗   ██╗███████╗██████╗
+     * ██╔══██╗██╔══██╗██║██║   ██║██╔════╝██╔══██╗
+     * ██║  ██║██████╔╝██║██║   ██║█████╗  ██████╔╝
+     * ██║  ██║██╔══██╗██║╚██╗ ██╔╝██╔══╝  ██╔══██╗
+     * ██████╔╝██║  ██║██║ ╚████╔╝ ███████╗██║  ██║
+     * ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝  ╚══════╝╚═╝  ╚═╝
+     */
+    /**
+     * Executes a Cypher query and parses the response.
+     * @param responseParser A function to parse the response.
+     * @param cypher The Cypher query to execute.
+     * @param params Optional parameters for the query.
+     * @returns The parsed response.
+     */
+    async executeQuery<T>(
+        responseParser: (response: EagerResult) => T,
+        cypher: string,
+        params?: Record<string, unknown>,
+    ): Promise<T> {
+        const driver = this.driver;
+        if (!driver) {
+            throw new GraphError("Driver is not initialized");
+        }
+        try {
+            await driver.getServerInfo(); // Ensure the driver is connected
+            const response = await driver.executeQuery(cypher, params);
+            return responseParser(response);
+        } catch (error) {
+            throw this.error(error);
+        }
+    }
+
+    /**
+     * Executes a write transaction.
+     * @param callback A function that receives a ManagedTransaction and returns a Promise of type T.
+     * @returns A Promise that resolves to the result of the callback function.
+     * @throws GraphError if the driver is not initialized or if an error occurs during the transaction.
+     */
+    async writeTransaction<T>(
+        callback: (tx: ManagedTransaction) => Promise<T>,
+    ) {
+        const driver = this.driver;
+        if (!driver) {
+            throw new GraphError("Driver is not initialized");
+        }
+        try {
+            const session = driver.session();
+            const response = await session.executeWrite(callback);
+            await session.close();
+            return response;
+        } catch (error) {
+            throw this.error(error);
+        }
+    }
+
+    /**
+     * Retrieves the current constraints in the database.
+     * @returns A Promise that resolves to an array of constraints.
+     * @throws GraphError if an error occurs while retrieving the constraints.
+     */
+    async getConstraints() {
+        try {
+            return await this.executeQuery(({ records }) => {
+                if (records.length === 0) {
+                    return [];
+                }
+                return records.map((record) => record.toObject());
+            }, `SHOW CONSTRAINTS`);
+        } catch (error) {
+            throw this.error(`Failed to get constraints: ${error}`);
+        }
+    }
+
+    /**
+     * Sets the constraints in the database.
+     *
+     * This method retrieves constraints from the filter "graph.setConstraints"
+     *
+     * @throws GraphError if an error occurs while setting the constraints.
+     */
+    private async setConstraints() {
+        try {
+            await this.writeTransaction(async (tx) => {
+                const constraints = applyFilter<Array<string>>(
+                    "graph.setConstraints",
+                    Array<string>(),
+                );
+
+                if (!Array.isArray(constraints)) {
+                    throw new GraphError(
+                        "The filter 'graph.setConstraints' must return an array of constraints.",
+                    );
+                }
+
+                if (constraints.length === 0) {
+                    return;
+                }
+
+                await Promise.all(
+                    constraints.map(
+                        async (constraint) => await tx.run(constraint),
+                    ),
+                );
+            });
+        } catch (error) {
+            throw this.error(`Failed to set constraints: ${error}`);
+        }
+    }
+
+    /**
+     * ███████╗██████╗ ██████╗  ██████╗ ██████╗
+     * ██╔════╝██╔══██╗██╔══██╗██╔═══██╗██╔══██╗
+     * █████╗  ██████╔╝██████╔╝██║   ██║██████╔╝
+     * ██╔══╝  ██╔══██╗██╔══██╗██║   ██║██╔══██╗
+     * ███████╗██║  ██║██║  ██║╚██████╔╝██║  ██║
+     * ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝
+     */
+    /**
+     * Handles errors that occur during database operations.
+     * @param err The error object.
+     * @param map Optional mapping of error codes to user-friendly messages.
+     * @returns A GraphError instance.
+     */
+    error(err: unknown, map?: MapNeo4jError): GraphError {
+        if (isGraphError(err)) {
+            return err;
+        }
+
+        if (isNeo4jError(err)) {
+            if (map?.mdorim) {
+                const mapped = Object.entries(map.mdorim).find(([key]) =>
+                    (err as Neo4jError).code.includes(key),
+                );
+                if (mapped) {
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    const [_, { message, details }] = mapped;
+                    const error = new GraphError(message, details);
+                    return this.error(error);
+                }
+            }
+
+            if (map?.graph) {
+                const mapped = Object.entries(map.graph).find(([key]) =>
+                    (err as Neo4jError).code.includes(key),
+                );
+                if (mapped) {
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    const [_, { message, details }] = mapped;
+                    const error = new GraphError(message, details);
+                    return this.error(error);
+                }
+            }
+        }
+
+        return new GraphError(
+            err instanceof Error ? err.message : String(err),
+            {
+                error: err,
+            },
+        );
+    }
+}

@@ -1,6 +1,6 @@
 import lcdrRollup from "@elucidario/tool-rollup";
 
-import pkg from "./package.json" assert { type: "json" };
+import pkg from "./package.json" with { type: "json" };
 
 const external = [
     ...Object.keys(pkg.dependencies),
@@ -31,6 +31,11 @@ const config = lcdrRollup({
         typescript: {
             declaration: false,
             declarationDir: null,
+        },
+    },
+    pluginsConfig: {
+        typescript: {
+            tsconfig: "tsconfig.build.json",
         },
     },
 });
