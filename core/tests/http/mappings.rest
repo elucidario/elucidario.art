@@ -1,4 +1,0 @@
-# Mapping
-GET {{base}}/wp-json/{{namespace}}/{{version}}/mapping HTTP/1.1
-content-type: application/json
-
