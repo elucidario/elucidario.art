@@ -168,9 +168,7 @@ export class TeamModel extends AbstractModel<TeamMemberOrInvitedMember> {
                     ...invitedMember.properties,
                     type: invitedMember.labels[1],
                     user: record.get("user")
-                        ? this.parseResponse(record.get("user").properties, [
-                              "password",
-                          ])
+                        ? this.parseResponse(record.get("user").properties)
                         : null,
                 });
 
@@ -310,7 +308,6 @@ export class TeamModel extends AbstractModel<TeamMemberOrInvitedMember> {
 
         const userRecord = this.parseResponse<User>(
             userWorkspaceResponse.records[0].get("user").properties,
-            ["password"],
         );
 
         const workspaceRecord = this.parseResponse<Workspace>(

@@ -380,13 +380,4 @@ export class UserModel extends AbstractModel<User> {
             throw this.error(error);
         }
     }
-
-    /**
-     * Parses the response from the database to a User object.
-     * @param data - The raw data from the database.
-     * @returns A User object.
-     */
-    parseResponse<User>(data: Record<string, unknown>): User {
-        return super.parseResponse(data, ["password"]);
-    }
 }

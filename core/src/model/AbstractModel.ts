@@ -9,14 +9,14 @@ import {
     int,
 } from "neo4j-driver";
 import { LabelExpr, Expr, SetParam, Clause } from "@neo4j/cypher-builder";
+import { NodeRef } from "node_modules/@neo4j/cypher-builder/dist/references/NodeRef";
 
 import { isMdorimError, MdorimError } from "@elucidario/mdorim";
 
-import { MapNeo4jError } from "@/types";
-import { InterfaceModel } from "./InterfaceModel";
+import { MapNeo4jError, PropertyConstraint } from "@/types";
 import Core from "@/Core";
 import { addFilter } from "@/hooks";
-import { NodeRef } from "node_modules/@neo4j/cypher-builder/dist/references/NodeRef";
+import { InterfaceModel } from "./InterfaceModel";
 
 /**
  * # AbstractModel
@@ -30,7 +30,7 @@ export default abstract class AbstractModel<T extends Record<string, unknown>>
      * This static property holds an array of Cypher constraints that should be applied to the model.
      * These constraints are used to ensure data integrity and uniqueness in the database.
      */
-    static constraints: string[] = [];
+    static constraints: PropertyConstraint[] = [];
 
     /**
      * ## AbstractModel.core
@@ -533,9 +533,13 @@ export default abstract class AbstractModel<T extends Record<string, unknown>>
      *
      * @param data - Data to parse
      * @param filter - Optional array of keys to filter out from the response
+     *                 - Defaults to ["password"].
      * @returns Parsed data
      */
-    parseResponse<T>(data: Record<string, unknown>, filter?: string[]): T {
+    parseResponse<T>(
+        data: Record<string, unknown>,
+        filter: string[] = ["password"],
+    ): T {
         const valueToNativeType = (value: unknown) => {
             if (Array.isArray(value)) {
                 value = value.map((innerValue) =>
