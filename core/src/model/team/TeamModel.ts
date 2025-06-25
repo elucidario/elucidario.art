@@ -1,3 +1,5 @@
+import { ManagedTransaction } from "neo4j-driver";
+import { Expr } from "@neo4j/cypher-builder";
 import {
     Email,
     InvitedMember,
@@ -9,12 +11,12 @@ import {
     UUID,
     Workspace,
 } from "@elucidario/mdorim";
-import AbstractModel from "../AbstractModel";
-import { Expr } from "@neo4j/cypher-builder";
-import { ManagedTransaction } from "neo4j-driver";
+
 import Core from "@/Core";
 import { UserModel, WorkspaceModel } from "@/model";
 import { PropertyConstraint } from "@/types";
+
+import AbstractModel from "../AbstractModel";
 
 /**
  * # TeamModel

@@ -1,10 +1,9 @@
 import { compare, hash } from "bcryptjs";
 
-import { SALT_ROUNDS } from "@/constants";
-
-import AbstractModel from "@/model/AbstractModel";
-
 import { isMdorimError, User } from "@elucidario/mdorim";
+
+import { SALT_ROUNDS } from "@/constants";
+import AbstractModel from "@/model/AbstractModel";
 import Core from "@/Core";
 import { PropertyConstraint } from "@/types";
 

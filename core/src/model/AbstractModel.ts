@@ -15,7 +15,6 @@ import { isMdorimError, MdorimError } from "@elucidario/mdorim";
 
 import { MapNeo4jError, PropertyConstraint } from "@/types";
 import Core from "@/Core";
-import { addFilter } from "@/hooks";
 import { InterfaceModel } from "./InterfaceModel";
 
 /**

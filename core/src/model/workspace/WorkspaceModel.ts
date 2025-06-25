@@ -1,6 +1,6 @@
-import AbstractModel from "@/model/AbstractModel";
-
 import { isMdorimError, Workspace } from "@elucidario/mdorim";
+
+import AbstractModel from "@/model/AbstractModel";
 import Core from "@/Core";
 import { PropertyConstraint } from "@/types";
 
