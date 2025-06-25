@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it, test } from "vitest";
-
-import { WorkspaceModel } from "./WorkspaceModel";
 import { Workspace } from "@elucidario/mdorim";
+
+import { WorkspaceModel } from "@/model";
 import Core from "@/Core";
 
 describe("WorkspaceModel", () => {
@@ -9,9 +9,9 @@ describe("WorkspaceModel", () => {
     let workspace: Workspace;
 
     beforeAll(async () => {
-        WorkspaceModel.register();
-        model = new WorkspaceModel(Core.getInstance());
-        WorkspaceModel.register();
+        const core = new Core();
+        model = new WorkspaceModel(core);
+        await core.setup();
     });
 
     afterAll(async () => {
@@ -56,7 +56,7 @@ describe("WorkspaceModel", () => {
 
     describe("READ", async () => {
         it("should read a workspace by ID", async () => {
-            const readWorkspace = await model!.read(workspace.uuid);
+            const readWorkspace = await model!.read(workspace.uuid!);
             expect(readWorkspace).toBeDefined();
             expect(readWorkspace?.name).toBe(
                 "Test Workspace from WorkspaceModel.test",
@@ -72,7 +72,7 @@ describe("WorkspaceModel", () => {
 
     describe("UPDATE", async () => {
         it("should update a workspace", async () => {
-            const updatedWorkspace = await model!.update(workspace.uuid, {
+            const updatedWorkspace = await model!.update(workspace.uuid!, {
                 name: "Updated Workspace",
             });
             expect(updatedWorkspace).toBeDefined();
@@ -82,9 +82,9 @@ describe("WorkspaceModel", () => {
 
     describe("DELETE", async () => {
         it("should delete a workspace", async () => {
-            const deleted = await model!.delete(workspace.uuid);
+            const deleted = await model!.delete(workspace.uuid!);
             expect(deleted).toBe(true);
-            const readWorkspace = await model!.read(workspace.uuid);
+            const readWorkspace = await model!.read(workspace.uuid!);
             expect(readWorkspace).toBeNull();
         });
     });

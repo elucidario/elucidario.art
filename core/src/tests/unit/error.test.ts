@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { GraphError } from "./GraphError";
-import { ServiceError } from "./ServiceError";
-
-import { isGraphError, isServiceError, isNeo4jError } from "./validators";
+import {
+    GraphError,
+    ServiceError,
+    isGraphError,
+    isServiceError,
+    isNeo4jError,
+} from "@/errors";
 
 describe("Errors", () => {
     it("should identify GraphError", () => {

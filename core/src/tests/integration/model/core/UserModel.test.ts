@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it, test } from "vitest";
 import { User } from "@elucidario/mdorim";
 
-import { UserModel } from "./UserModel";
+import { UserModel } from "@/model";
 import Core from "@/Core";
 
 describe("UserModel", () => {
@@ -16,14 +16,15 @@ describe("UserModel", () => {
     };
 
     beforeAll(async () => {
-        UserModel.register();
-        model = new UserModel(Core.getInstance());
+        const core = new Core();
+        model = new UserModel(core);
+        await core.setup();
     });
 
     afterAll(async () => {
         const user = await model.getByEmail(testUser.email);
         if (user) {
-            await model.delete(user.uuid);
+            await model.delete(user.uuid!);
         }
     });
 
@@ -117,7 +118,7 @@ describe("UserModel", () => {
     describe("READ", async () => {
         it("should get a user by id", async () => {
             const userId = user.uuid;
-            const foundUser = await model.read(userId);
+            const foundUser = await model.read(userId!);
 
             expect(foundUser).toBeDefined();
             expect(foundUser).toHaveProperty("uuid", userId);
@@ -201,7 +202,7 @@ describe("UserModel", () => {
 
     describe("UPDATE", async () => {
         it("should update a user", async () => {
-            const updatedUser = await model.update(user.uuid, {
+            const updatedUser = await model.update(user.uuid!, {
                 username: "newusername",
             });
 
@@ -225,7 +226,7 @@ describe("UserModel", () => {
             test("if username is undefined", async () => {
                 await expect(
                     async () =>
-                        await model.update(user.uuid, { username: undefined }),
+                        await model.update(user.uuid!, { username: undefined }),
                 ).rejects.toThrow();
             });
         });
@@ -233,7 +234,7 @@ describe("UserModel", () => {
 
     describe("DELETE", async () => {
         it("should delete a user", async () => {
-            const userId = user.uuid;
+            const userId = user.uuid!;
             const remove = await model.delete(userId);
             expect(remove).toBeTruthy();
         });

@@ -1,12 +1,17 @@
 import { beforeAll, afterAll, describe, expect, it } from "vitest";
 
-import { Graph } from "./Graph";
+import { Cypher, Graph } from "@/db";
+import { Actions, Filters } from "@/hooks";
 
 describe("Graph db", () => {
     let graph: Graph | undefined;
 
     beforeAll(() => {
-        graph = Graph.getInstance();
+        const hooks = {
+            filters: new Filters(),
+            actions: new Actions(),
+        };
+        graph = new Graph(new Cypher(), hooks);
     });
 
     afterAll(() => {

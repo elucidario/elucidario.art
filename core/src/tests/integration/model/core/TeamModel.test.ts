@@ -1,32 +1,25 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-
-import { TeamModel } from "./TeamModel";
 import { InvitedMember, TeamMember, UUID, Workspace } from "@elucidario/mdorim";
-import { WorkspaceModel, UserModel } from "@/model";
+
+import { WorkspaceModel, UserModel, TeamModel } from "@/model";
 import Core from "@/Core";
 
 describe("TeamModel", () => {
     let model: TeamModel;
     let workspaceModel: WorkspaceModel;
     let userModel: UserModel | undefined;
-    // let cypher: Cypher | undefined;
     let invitedMember: { workspace: Workspace; member: InvitedMember };
     let secondInvitedMember: { workspace: Workspace; member: InvitedMember };
     let member: { workspace: Workspace; member: TeamMember };
-    let workspace: UUID;
-    // let user: UUID;
-    // let mdorim: Mdorim | undefined;
+    let workspace: UUID | undefined;
 
     beforeAll(async () => {
         try {
-            TeamModel.register();
-            WorkspaceModel.register();
-            UserModel.register();
-
-            const core = Core.getInstance();
+            const core = new Core();
             model = new TeamModel(core);
             userModel = new UserModel(core);
             workspaceModel = new WorkspaceModel(core);
+            await core.setup();
 
             const hasWorkspace = await workspaceModel.getByName(
                 "Test Workspace from TeamModel.test",
@@ -58,7 +51,7 @@ describe("TeamModel", () => {
     afterAll(async () => {
         const user = await userModel!.getByEmail("test@example.com");
         if (user) {
-            await userModel!.delete(user.uuid);
+            await userModel!.delete(user.uuid!);
         }
         if (workspace) {
             await workspaceModel.delete(workspace);
@@ -97,7 +90,7 @@ describe("TeamModel", () => {
     describe("CREATE", async () => {
         it("should inviteMember with registered user", async () => {
             invitedMember = await model.inviteMember(
-                workspace,
+                workspace!,
                 "test@example.com",
                 "admin",
             );
@@ -112,7 +105,7 @@ describe("TeamModel", () => {
 
         it("should inviteMember with no user registered", async () => {
             secondInvitedMember = await model.inviteMember(
-                workspace,
+                workspace!,
                 "banana@example.com",
                 "admin",
             );
@@ -127,7 +120,7 @@ describe("TeamModel", () => {
 
         it("should promote to TeamMember", async () => {
             member = await model.promoteToMember(
-                workspace,
+                workspace!,
                 "test@example.com",
                 "admin",
             );
@@ -145,7 +138,7 @@ describe("TeamModel", () => {
                 await expect(
                     async () =>
                         await model.inviteMember(
-                            workspace,
+                            workspace!,
                             "test@example.com",
                             "admin",
                         ),
@@ -156,8 +149,8 @@ describe("TeamModel", () => {
 
     describe("DELETE", () => {
         it("should delete a member", async () => {
-            const first = await model.delete(invitedMember.member.uuid);
-            const second = await model.delete(secondInvitedMember.member.uuid);
+            const first = await model.delete(invitedMember.member.uuid!);
+            const second = await model.delete(secondInvitedMember.member.uuid!);
             expect(first).toBe(true);
             expect(second).toBe(true);
         });

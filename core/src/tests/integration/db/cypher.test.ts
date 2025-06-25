@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { Cypher } from "./Cypher";
+import { Cypher } from "@/db";
 
 describe("Cypher", () => {
     const cypher = new Cypher();
