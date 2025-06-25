@@ -2,6 +2,7 @@ import AbstractModel from "@/model/AbstractModel";
 
 import { isMdorimError, Workspace } from "@elucidario/mdorim";
 import Core from "@/Core";
+import { PropertyConstraint } from "@/types";
 
 /**
  * # WorkspaceModel
@@ -11,13 +12,17 @@ export class WorkspaceModel extends AbstractModel<Workspace> {
     /**
      * Constraints for the Workspace entity.
      */
-    static constraints: string[] = [
-        "CREATE CONSTRAINT WorkspaceUuidUnique IF NOT EXISTS\
-        FOR (w:Workspace)\
-        REQUIRE w.uuid IS UNIQUE",
-        "CREATE CONSTRAINT WorkspaceNameUnique IF NOT EXISTS\
-        FOR (w:Workspace)\
-        REQUIRE w.name IS UNIQUE",
+    constraints: PropertyConstraint[] = [
+        {
+            name: "workspace_unique_uuid",
+            labels: ["Workspace"],
+            prop: "uuid",
+        },
+        {
+            name: "workspace_unique_name",
+            labels: ["Workspace"],
+            prop: "name",
+        },
     ];
 
     /**

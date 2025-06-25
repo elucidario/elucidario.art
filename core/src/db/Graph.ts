@@ -133,10 +133,9 @@ export class Graph {
     private async setConstraints() {
         try {
             await this.writeTransaction(async (tx) => {
-                const constraints = applyFilter<Array<string>>(
-                    "graph.setConstraints",
-                    Array<string>(),
-                );
+                const constraints = this.hooks.filters.apply<
+                    Array<PropertyConstraint>
+                >("graph.setConstraints", Array<PropertyConstraint>());
 
                 if (!Array.isArray(constraints)) {
                     throw new GraphError(
@@ -149,9 +148,15 @@ export class Graph {
                 }
 
                 await Promise.all(
-                    constraints.map(
-                        async (constraint) => await tx.run(constraint),
-                    ),
+                    constraints.map(async (constraint) => {
+                        const constraintQuery = this.cypher
+                            .PropertyConstraint(constraint)
+                            .build();
+                        await tx.run(
+                            constraintQuery.cypher,
+                            constraintQuery.params,
+                        );
+                    }),
                 );
             });
         } catch (error) {

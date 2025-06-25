@@ -14,19 +14,24 @@ import { Expr } from "@neo4j/cypher-builder";
 import { ManagedTransaction } from "neo4j-driver";
 import Core from "@/Core";
 import { UserModel, WorkspaceModel } from "@/model";
+import { PropertyConstraint } from "@/types";
 
 /**
  * # TeamModel
  * This class is responsible for managing team members and invited members in a workspace.
  */
 export class TeamModel extends AbstractModel<TeamMemberOrInvitedMember> {
-    static constraints: string[] = [
-        "CREATE CONSTRAINT MemberUuidUnique IF NOT EXISTS\
-        FOR (u:Member)\
-        REQUIRE u.uuid IS UNIQUE",
-        "CREATE CONSTRAINT MemberEmailUnique IF NOT EXISTS\
-        FOR (u:Member)\
-        REQUIRE u.email IS UNIQUE",
+    constraints: PropertyConstraint[] = [
+        {
+            name: "member_unique_uuid",
+            labels: ["Member"],
+            prop: "uuid",
+        },
+        {
+            name: "member_unique_email",
+            labels: ["Member"],
+            prop: "email",
+        },
     ];
 
     /**

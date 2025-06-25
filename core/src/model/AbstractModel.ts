@@ -30,7 +30,7 @@ export default abstract class AbstractModel<T extends Record<string, unknown>>
      * This static property holds an array of Cypher constraints that should be applied to the model.
      * These constraints are used to ensure data integrity and uniqueness in the database.
      */
-    static constraints: PropertyConstraint[] = [];
+    constraints: PropertyConstraint[] = [];
 
     /**
      * ## AbstractModel.core
@@ -59,6 +59,7 @@ export default abstract class AbstractModel<T extends Record<string, unknown>>
             ? new Map(schema.map((s) => [s, s]))
             : schema;
         this.checkSchemaType();
+        this.register();
     }
 
     /**
@@ -68,11 +69,14 @@ export default abstract class AbstractModel<T extends Record<string, unknown>>
      * It should be called once during the application startup to ensure that the constraints are applied.
      * And it should be called before Core.getInstance() to ensure that the constraints are applied at the database set up.
      */
-    static register() {
-        addFilter<string[]>("graph.setConstraints", (constraints) => [
-            ...constraints,
-            ...this.constraints,
-        ]);
+    register() {
+        this.core.hooks.filters.add(
+            "graph.setConstraints",
+            (constraints: PropertyConstraint[]) => [
+                ...constraints,
+                ...this.constraints,
+            ],
+        );
     }
 
     /**

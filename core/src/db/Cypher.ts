@@ -6,6 +6,7 @@ import CypherPrimitive, {
 } from "@neo4j/cypher-builder";
 import { MatchClausePattern } from "node_modules/@neo4j/cypher-builder/dist/clauses/Match";
 import { WithProjection } from "node_modules/@neo4j/cypher-builder/dist/clauses/With";
+import { PropertyConstraint } from "@/types";
 
 /**
  * # Facade for building Cypher queries.
@@ -222,5 +223,20 @@ export class Cypher {
             | CypherPrimitive.PathAssign<CypherPrimitive.Pattern>,
     ) {
         return new CypherPrimitive.Merge(pattern);
+    }
+
+    /**
+     * Creates a new Cypher Property Constraint clause with the specified parameters.
+     * @param param The parameters for the Property Constraint clause.
+     * @returns A new Cypher Property Constraint clause.
+     */
+    PropertyConstraint({
+        name,
+        labels,
+        prop,
+    }: PropertyConstraint): CypherPrimitive.Raw {
+        return new CypherPrimitive.Raw(() => {
+            return `CREATE CONSTRAINT ${name} IF NOT EXISTS FOR (n:${labels.join(":")}) REQUIRE n.${prop} IS UNIQUE`;
+        });
     }
 }

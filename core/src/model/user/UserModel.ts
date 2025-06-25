@@ -6,22 +6,29 @@ import AbstractModel from "@/model/AbstractModel";
 
 import { isMdorimError, User } from "@elucidario/mdorim";
 import Core from "@/Core";
+import { PropertyConstraint } from "@/types";
 
 /**
  * # UserModel
  * The UserModel class provides methods to interact with the User entity in the database.
  */
 export class UserModel extends AbstractModel<User> {
-    static constraints: string[] = [
-        "CREATE CONSTRAINT UserUniqueUUID IF NOT EXISTS\
-        FOR (u:User)\
-        REQUIRE u.uuid IS UNIQUE",
-        "CREATE CONSTRAINT UserUniqueUsername IF NOT EXISTS\
-        FOR (u:User)\
-        REQUIRE u.username IS UNIQUE",
-        "CREATE CONSTRAINT UserUniqueEmail IF NOT EXISTS\
-        FOR (u:User)\
-        REQUIRE u.email IS UNIQUE",
+    constraints: PropertyConstraint[] = [
+        {
+            name: "user_unique_uuid",
+            labels: ["User"],
+            prop: "uuid",
+        },
+        {
+            name: "user_unique_username",
+            labels: ["User"],
+            prop: "username",
+        },
+        {
+            name: "user_unique_email",
+            labels: ["User"],
+            prop: "email",
+        },
     ];
 
     constructor(core: Core) {
