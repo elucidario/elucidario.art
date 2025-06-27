@@ -2,48 +2,55 @@ import { Graph } from "@/db";
 import { isGraphError, isNeo4jError, ServiceError } from "@/errors";
 import InterfaceModel from "@/model/InterfaceModel";
 import InterfaceQuery from "@/queries/InterfaceQuery";
-import { Hooks, ListQueryStrings } from "@/types";
+import { Hooks, ListQueryStrings, Body, Params } from "@/types";
 import { isMdorimError, User } from "@elucidario/mdorim";
 import { FastifyReply, FastifyRequest } from "fastify";
 
 export default abstract class AbstractService<
-    T extends Record<string, unknown>,
+    TType extends Record<string, unknown>,
+    TModel extends InterfaceModel<TType>,
+    TQuery extends InterfaceQuery<TType>,
+    TParams = Record<string, string>,
 > {
-    protected model: InterfaceModel<T>;
-    protected query: InterfaceQuery<T>;
+    protected model: TModel;
+    protected query: TQuery;
     protected graph: Graph;
     protected hooks: Hooks;
 
-    constructor(
-        model: InterfaceModel<T>,
-        query: InterfaceQuery<T>,
-        graph: Graph,
-        hooks: Hooks,
-    ) {
+    constructor(model: TModel, query: TQuery, graph: Graph, hooks: Hooks) {
         this.model = model;
         this.query = query;
         this.graph = graph;
         this.hooks = hooks;
     }
 
-    abstract create(request: FastifyRequest, reply: FastifyReply): Promise<T>;
+    abstract create(
+        request: FastifyRequest<Body<TType>>,
+        reply: FastifyReply,
+    ): Promise<TType>;
 
     abstract read(
-        request: FastifyRequest,
+        request: FastifyRequest<Params<TParams>>,
         reply: FastifyReply,
-    ): Promise<T | null>;
+    ): Promise<TType | null>;
 
-    abstract update(request: FastifyRequest, reply: FastifyReply): Promise<T>;
+    abstract update(
+        request: FastifyRequest<Params<TParams>>,
+        reply: FastifyReply,
+    ): Promise<TType>;
 
     abstract delete(
-        request: FastifyRequest,
+        request: FastifyRequest<Params<TParams>>,
         reply: FastifyReply,
     ): Promise<boolean>;
 
-    abstract list(request: FastifyRequest, reply: FastifyReply): Promise<T[]>;
+    abstract list(
+        request: FastifyRequest<Params<TParams> & ListQueryStrings>,
+        reply: FastifyReply,
+    ): Promise<TType[]>;
 
-    parseBodyRequest(request: FastifyRequest): Partial<T> {
-        return request.body as Partial<T>;
+    parseBodyRequest(request: FastifyRequest): Partial<TType> {
+        return request.body as Partial<TType>;
     }
 
     getUser(request: FastifyRequest): User | undefined {
@@ -54,6 +61,10 @@ export default abstract class AbstractService<
         request: FastifyRequest,
     ): ListQueryStrings["Querystring"] {
         return request.query as ListQueryStrings["Querystring"];
+    }
+
+    getParams(request: FastifyRequest<Params<TParams>>) {
+        return request.params;
     }
 
     error(err: unknown) {

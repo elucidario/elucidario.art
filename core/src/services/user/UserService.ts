@@ -1,12 +1,12 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 
-import { Hooks, ListQueryStrings, UserBody, UserParams } from "@/types";
-import { User } from "@elucidario/mdorim";
+import { Hooks, ListQueryStrings, Body, Params } from "@/types";
+import { User as UserType } from "@elucidario/mdorim";
 import { UserQuery } from "@/queries";
 import { Graph } from "@/db";
 
-import InterfaceModel from "@/model/InterfaceModel";
 import AbstractService from "../AbstractService";
+import { User } from "@/model";
 
 /**
  * # UserService
@@ -14,7 +14,12 @@ import AbstractService from "../AbstractService";
  * It extends the AbstractService class and implements methods for creating,
  * reading, updating, deleting, and listing users.
  */
-export class UserService extends AbstractService<User> {
+export class UserService extends AbstractService<
+    UserType,
+    User,
+    UserQuery,
+    { userUUID: string }
+> {
     /**
      * UserService constructor
      * @param model - The user model
@@ -22,12 +27,7 @@ export class UserService extends AbstractService<User> {
      * @param graph - The graph database instance
      * @param hooks - The service hooks
      */
-    constructor(
-        model: InterfaceModel<User>,
-        query: UserQuery,
-        graph: Graph,
-        hooks: Hooks,
-    ) {
+    constructor(model: User, query: UserQuery, graph: Graph, hooks: Hooks) {
         super(model, query, graph, hooks);
     }
 
@@ -39,7 +39,10 @@ export class UserService extends AbstractService<User> {
      * @returns The created user.
      * @throws MdorimError if the user is invalid or creation fails.
      */
-    async create(request: FastifyRequest, reply: FastifyReply): Promise<User> {
+    async create(
+        request: FastifyRequest<Body<UserType>>,
+        reply: FastifyReply,
+    ): Promise<UserType> {
         try {
             const userData = this.parseBodyRequest(request);
 
@@ -55,7 +58,7 @@ export class UserService extends AbstractService<User> {
                 .build();
 
             this.model.set(
-                await this.graph.executeQuery<User>(
+                await this.graph.executeQuery<UserType>(
                     (response) => {
                         if (response.records.length === 0) {
                             throw this.error("User not created");
@@ -63,7 +66,7 @@ export class UserService extends AbstractService<User> {
 
                         const [first] = response.records;
 
-                        return this.graph.parseResponse<User>(
+                        return this.graph.parseResponse<UserType>(
                             first.get(node).properties,
                         );
                     },
@@ -85,9 +88,9 @@ export class UserService extends AbstractService<User> {
      * @throws MdorimError if the user is invalid or reading fails.
      */
     async read(
-        request: FastifyRequest<UserParams>,
-        reply: FastifyReply<UserParams>,
-    ): Promise<User | null> {
+        request: FastifyRequest<Params<{ userUUID: string }>>,
+        reply: FastifyReply,
+    ): Promise<UserType | null> {
         try {
             const { userUUID } = request.params;
             await this.model.validateUUID(userUUID);
@@ -100,7 +103,7 @@ export class UserService extends AbstractService<User> {
                 .build();
 
             this.model.set(
-                await this.graph.executeQuery<User | null>(
+                await this.graph.executeQuery<UserType | null>(
                     (response) => {
                         if (response.records.length === 0) {
                             return null;
@@ -108,7 +111,7 @@ export class UserService extends AbstractService<User> {
 
                         const [first] = response.records;
 
-                        return this.graph.parseResponse<User>(
+                        return this.graph.parseResponse<UserType>(
                             first.get("u").properties,
                         );
                     },
@@ -131,9 +134,9 @@ export class UserService extends AbstractService<User> {
      * @throws MdorimError if the user is invalid or update fails.
      */
     async update(
-        request: FastifyRequest<UserParams & UserBody>,
-        reply: FastifyReply<UserParams & UserBody>,
-    ): Promise<User> {
+        request: FastifyRequest<Params<{ userUUID: string }> & Body<UserType>>,
+        reply: FastifyReply,
+    ): Promise<UserType> {
         try {
             const { userUUID } = request.params;
             const data = this.parseBodyRequest(request);
@@ -150,7 +153,7 @@ export class UserService extends AbstractService<User> {
                 .build();
 
             this.model.set(
-                await this.graph.executeQuery<User>(
+                await this.graph.executeQuery<UserType>(
                     (response) => {
                         if (response.records.length === 0) {
                             throw this.error("User not found");
@@ -158,7 +161,7 @@ export class UserService extends AbstractService<User> {
 
                         const [first] = response.records;
 
-                        return this.graph.parseResponse<User>(
+                        return this.graph.parseResponse<UserType>(
                             first.get("u").properties,
                         );
                     },
@@ -180,8 +183,8 @@ export class UserService extends AbstractService<User> {
      * @throws MdorimError if the user is invalid or deletion fails.
      */
     async delete(
-        request: FastifyRequest<UserParams>,
-        reply: FastifyReply<UserParams>,
+        request: FastifyRequest<Params<{ userUUID: string }>>,
+        reply: FastifyReply,
     ): Promise<boolean> {
         try {
             const { userUUID } = request.params;
@@ -221,9 +224,9 @@ export class UserService extends AbstractService<User> {
      * @throws MdorimError if listing fails.
      */
     async list(
-        request: FastifyRequest<UserParams & ListQueryStrings>,
-        reply: FastifyReply<UserParams>,
-    ): Promise<User[]> {
+        request: FastifyRequest<ListQueryStrings>,
+        reply: FastifyReply,
+    ): Promise<UserType[]> {
         try {
             const { limit, offset } = this.getListQueryStrings(request);
             await this.model.validateNumber(limit);
@@ -238,7 +241,7 @@ export class UserService extends AbstractService<User> {
                 .build();
 
             this.model.set(
-                await this.graph.executeQuery<User[]>(
+                await this.graph.executeQuery<UserType[]>(
                     (response) => {
                         const { records } = response;
 
@@ -247,7 +250,7 @@ export class UserService extends AbstractService<User> {
                         }
 
                         return records.map((record) => {
-                            return this.graph.parseResponse<User>(
+                            return this.graph.parseResponse<UserType>(
                                 record.get("u").properties,
                             );
                         });

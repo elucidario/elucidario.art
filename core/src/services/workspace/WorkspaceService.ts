@@ -1,22 +1,28 @@
-import { TeamMemberRole, User, Workspace } from "@elucidario/mdorim";
+import {
+    TeamMemberRole,
+    User,
+    Workspace as WorkspaceType,
+} from "@elucidario/mdorim";
 import AbstractService from "../AbstractService";
-import { WorkspaceQuery } from "@/model";
+import { WorkspaceQuery } from "@/queries";
 import { Graph } from "@/db";
-import { Hooks, WorkspaceParams } from "@/types";
-import { WorkspaceInterfaceModel } from "@/model/workspace/WorkspaceInterface";
+import { Hooks, Body, Params, ListQueryStrings } from "@/types";
 import { FastifyReply, FastifyRequest } from "fastify";
+import { Workspace } from "@/model";
 
-export class WorkspaceService extends AbstractService<Workspace> {
-    model: WorkspaceInterfaceModel;
-
+export class WorkspaceService extends AbstractService<
+    WorkspaceType,
+    Workspace,
+    WorkspaceQuery,
+    { workspaceUUID: string }
+> {
     constructor(
-        model: WorkspaceInterfaceModel,
+        model: Workspace,
         query: WorkspaceQuery,
         graph: Graph,
         hooks: Hooks,
     ) {
         super(model, query, graph, hooks);
-        this.model = model;
     }
 
     /**
@@ -26,9 +32,9 @@ export class WorkspaceService extends AbstractService<Workspace> {
      * @throws MdorimError if the workspace is invalid or creation fails.
      */
     async create(
-        request: FastifyRequest,
+        request: FastifyRequest<Body<WorkspaceType>>,
         reply: FastifyReply,
-    ): Promise<Workspace> {
+    ): Promise<WorkspaceType> {
         try {
             const data = this.parseBodyRequest(request);
 
@@ -40,95 +46,101 @@ export class WorkspaceService extends AbstractService<Workspace> {
                 throw this.error("User not found");
             }
 
-            const workspace = await this.graph.writeTransaction(async (tx) => {
-                const workspaceNode = this.graph.cypher.NamedNode("workspace");
-                const userNode = this.graph.cypher.NamedNode("user");
-                const memberOf =
-                    this.graph.cypher.NamedRelationship("memberOf");
+            this.model.set(
+                await this.graph.writeTransaction(async (tx) => {
+                    const workspaceNode =
+                        this.graph.cypher.NamedNode("workspace");
+                    const userNode = this.graph.cypher.NamedNode("user");
+                    const memberOf =
+                        this.graph.cypher.NamedRelationship("memberOf");
 
-                const matchUser = this.graph.cypher.Match(
-                    this.graph.cypher.Pattern(userNode, {
-                        labels: ["User"],
-                        properties: {
-                            uuid: this.graph.cypher.Param(user.uuid),
-                        },
-                    }),
-                );
+                    const matchUser = this.graph.cypher.Match(
+                        this.graph.cypher.Pattern(userNode, {
+                            labels: ["User"],
+                            properties: {
+                                uuid: this.graph.cypher.Param(user.uuid),
+                            },
+                        }),
+                    );
 
-                const mergeWorkspace = this.graph.cypher.Merge(
-                    this.graph.cypher.Pattern(workspaceNode, {
-                        labels: ["Workspace"],
-                        properties: {
-                            uuid: this.graph.cypher.Uuid(),
-                            name: this.graph.cypher.Param(data.name),
-                            description: this.graph.cypher.Param(
-                                data.description,
-                            ),
-                        },
-                    }),
-                );
+                    const mergeWorkspace = this.graph.cypher.Merge(
+                        this.graph.cypher.Pattern(workspaceNode, {
+                            labels: ["WorkspaceType"],
+                            properties: {
+                                uuid: this.graph.cypher.Uuid(),
+                                name: this.graph.cypher.Param(data.name),
+                                description: this.graph.cypher.Param(
+                                    data.description,
+                                ),
+                            },
+                        }),
+                    );
 
-                const createOwnership = this.graph.cypher
-                    .Create(
-                        this.graph.cypher
-                            .Pattern(userNode)
-                            .related(memberOf, {
-                                type: "MEMBER_OF",
-                                properties: {
-                                    role: this.graph.cypher.Literal("admin"),
-                                },
-                            })
-                            .to(workspaceNode),
-                    )
-                    .with(userNode, memberOf, workspaceNode);
+                    const createOwnership = this.graph.cypher
+                        .Create(
+                            this.graph.cypher
+                                .Pattern(userNode)
+                                .related(memberOf, {
+                                    type: "MEMBER_OF",
+                                    properties: {
+                                        role: this.graph.cypher.Literal(
+                                            "admin",
+                                        ),
+                                    },
+                                })
+                                .to(workspaceNode),
+                        )
+                        .with(userNode, memberOf, workspaceNode);
 
-                const returnClause = this.graph.cypher.Return(
-                    userNode,
-                    memberOf,
-                    workspaceNode,
-                );
+                    const returnClause = this.graph.cypher.Return(
+                        userNode,
+                        memberOf,
+                        workspaceNode,
+                    );
 
-                const { cypher, params } = this.graph.cypher
-                    .concat(
-                        matchUser,
-                        mergeWorkspace,
-                        createOwnership,
-                        returnClause,
-                    )
-                    .build();
+                    const { cypher, params } = this.graph.cypher
+                        .concat(
+                            matchUser,
+                            mergeWorkspace,
+                            createOwnership,
+                            returnClause,
+                        )
+                        .build();
 
-                const response = await tx.run(cypher, params);
+                    const response = await tx.run(cypher, params);
 
-                if (response.records.length === 0) {
-                    throw this.error("Workspace not created");
-                }
+                    if (response.records.length === 0) {
+                        throw this.error("WorkspaceType not created");
+                    }
 
-                const [first] = response.records;
+                    const [first] = response.records;
 
-                const workspaceRecord = this.graph.parseResponse<Workspace>(
-                    first.get("workspace").properties,
-                );
+                    const workspaceRecord =
+                        this.graph.parseResponse<WorkspaceType>(
+                            first.get("workspace").properties,
+                        );
 
-                const userRecord = this.graph.parseResponse<User>(
-                    first.get("user").properties,
-                );
+                    const userRecord = this.graph.parseResponse<User>(
+                        first.get("user").properties,
+                    );
 
-                const memberOfRecord = this.graph.parseResponse<{
-                    role: TeamMemberRole;
-                }>(first.get("memberOf").properties);
+                    const memberOfRecord = this.graph.parseResponse<{
+                        role: TeamMemberRole;
+                    }>(first.get("memberOf").properties);
 
-                return {
-                    ...workspaceRecord,
-                    team: [
-                        {
-                            user: userRecord,
-                            role: memberOfRecord.role,
-                        },
-                    ],
-                };
-            });
+                    return {
+                        ...workspaceRecord,
+                        team: [
+                            {
+                                user: userRecord,
+                                role: memberOfRecord.role,
+                            },
+                        ],
+                    };
+                }),
+            );
 
-            return reply.send(workspace);
+            return reply.send(this.model.get());
         } catch (e: unknown) {
             throw this.error(e);
         }
@@ -141,35 +153,40 @@ export class WorkspaceService extends AbstractService<Workspace> {
      * @throws MdorimError if the ID is invalid or reading fails.
      */
     async read(
-        request: FastifyRequest<WorkspaceParams>,
+        request: FastifyRequest<Params<{ workspaceUUID: string }>>,
         reply: FastifyReply,
-    ): Promise<Workspace | null> {
+    ): Promise<WorkspaceType | null> {
         try {
             const { workspaceUUID } = request.params;
 
             await this.model.validateUUID(workspaceUUID);
 
             const { cypher, params } = this.query
-                .read({ data: { uuid: workspaceUUID }, labels: "Workspace" })
+                .read({
+                    data: { uuid: workspaceUUID },
+                    labels: "WorkspaceType",
+                })
                 .build();
 
-            const workspace = await this.graph.executeQuery<Workspace | null>(
-                (response) => {
-                    if (response.records.length === 0) {
-                        return null;
-                    }
+            this.model.set(
+                await this.graph.executeQuery<WorkspaceType | null>(
+                    (response) => {
+                        if (response.records.length === 0) {
+                            return null;
+                        }
 
-                    const [first] = response.records;
+                        const [first] = response.records;
 
-                    return this.graph.parseResponse<Workspace>(
-                        first.get("u").properties,
-                    );
-                },
-                cypher,
-                params,
+                        return this.graph.parseResponse<WorkspaceType>(
+                            first.get("u").properties,
+                        );
+                    },
+                    cypher,
+                    params,
+                ),
             );
 
-            return reply.send(workspace);
+            return reply.send(this.model.get());
         } catch (e) {
             throw this.error(e);
         }
@@ -182,32 +199,46 @@ export class WorkspaceService extends AbstractService<Workspace> {
      * @returns The updated workspace.
      * @throws MdorimError if the ID is invalid, the data is invalid, or updating fails.
      */
-    async update(id: string, args: Partial<Workspace>): Promise<Workspace> {
+    async update(
+        request: FastifyRequest<
+            Params<{ workspaceUUID: string }> & Body<WorkspaceType>
+        >,
+        reply: FastifyReply,
+    ): Promise<WorkspaceType> {
         try {
-            await this.validateUUID(id);
-            await this.validateEntity(args);
+            const { workspaceUUID } = this.getParams(request);
+            const data = this.parseBodyRequest(request);
 
-            const { cypher, params } = this.queryUpdate(
-                id,
-                args,
-                "Workspace",
-            ).build();
+            await this.model.validateUUID(workspaceUUID);
+            await this.model.validateEntity(data);
 
-            return await this.core.graph.executeQuery<Workspace>(
-                (response) => {
-                    if (response.records.length === 0) {
-                        throw this.error("Workspace not found");
-                    }
+            const { cypher, params } = this.query
+                .update({
+                    uuid: workspaceUUID,
+                    data,
+                    labels: "WorkspaceType",
+                })
+                .build();
 
-                    const [first] = response.records;
+            this.model.set(
+                await this.graph.executeQuery<WorkspaceType>(
+                    (response) => {
+                        if (response.records.length === 0) {
+                            throw this.error("WorkspaceType not found");
+                        }
 
-                    return this.parseResponse<Workspace>(
-                        first.get("u").properties,
-                    );
-                },
-                cypher,
-                params,
+                        const [first] = response.records;
+
+                        return this.graph.parseResponse<WorkspaceType>(
+                            first.get("u").properties,
+                        );
+                    },
+                    cypher,
+                    params,
+                ),
             );
+
+            return reply.send(this.model.get());
         } catch (e) {
             throw this.error(e);
         }
@@ -219,19 +250,25 @@ export class WorkspaceService extends AbstractService<Workspace> {
      * @returns true if the workspace was deleted, false otherwise.
      * @throws MdorimError if the ID is invalid or deletion fails.
      */
-    async delete(id: string): Promise<boolean> {
+    async delete(
+        request: FastifyRequest<Params<{ workspaceUUID: string }>>,
+        reply: FastifyReply,
+    ): Promise<boolean> {
         try {
-            await this.validateUUID(id);
+            const { workspaceUUID } = this.getParams(request);
+            await this.model.validateUUID(workspaceUUID);
 
-            const { cypher, params } = this.queryDelete(
-                id,
-                "Workspace",
-            ).build();
+            const { cypher, params } = this.query
+                .delete({
+                    uuid: workspaceUUID,
+                    labels: "WorkspaceType",
+                })
+                .build();
 
-            return await this.core.graph.executeQuery<boolean>(
+            const removed = await this.graph.executeQuery<boolean>(
                 ({ records }) => {
                     if (records.length === 0) {
-                        throw this.error("Workspace not found");
+                        throw this.error("WorkspaceType not found");
                     }
 
                     const [first] = records;
@@ -240,6 +277,8 @@ export class WorkspaceService extends AbstractService<Workspace> {
                 cypher,
                 params,
             );
+
+            return reply.send(removed);
         } catch (e) {
             throw this.error(e);
         }
@@ -252,69 +291,45 @@ export class WorkspaceService extends AbstractService<Workspace> {
      * @returns An array of workspaces.
      * @throws MdorimError if the limit or offset is invalid or listing fails.
      */
-    async list(limit?: number, offset?: number): Promise<Workspace[]> {
+    async list(
+        request: FastifyRequest<ListQueryStrings>,
+        reply: FastifyReply,
+    ): Promise<WorkspaceType[]> {
         try {
-            await this.validateNumber(limit, true);
-            await this.validateNumber(offset, true);
+            const { limit, offset } = this.getListQueryStrings(request);
 
-            const { cypher, params } = this.queryList(
-                limit,
-                offset,
-                "Workspace",
-            ).build();
+            await this.model.validateNumber(limit, true);
+            await this.model.validateNumber(offset, true);
 
-            return await this.core.graph.executeQuery<Workspace[]>(
-                (response) => {
-                    const { records } = response;
+            const { cypher, params } = this.query
+                .list({
+                    limit,
+                    offset,
+                    labels: "WorkspaceType",
+                })
+                .build();
 
-                    if (records.length === 0) {
-                        return [];
-                    }
+            this.model.set(
+                await this.graph.executeQuery<WorkspaceType[]>(
+                    (response) => {
+                        const { records } = response;
 
-                    return records.map((record) => {
-                        return this.parseResponse<Workspace>(
-                            record.get("u").properties,
-                        );
-                    });
-                },
-                cypher,
-                params,
+                        if (records.length === 0) {
+                            return [];
+                        }
+
+                        return records.map((record) => {
+                            return this.graph.parseResponse<WorkspaceType>(
+                                record.get("u").properties,
+                            );
+                        });
+                    },
+                    cypher,
+                    params,
+                ),
             );
-        } catch (e) {
-            console.log(e);
-            throw this.error(e);
-        }
-    }
 
-    /**
-     * Retrieves a workspace by its name.
-     * @param name - The name of the workspace to retrieve.
-     * @returns The workspace if found, or null if not found.
-     * @throws MdorimError if the name is invalid or retrieval fails.
-     */
-    async getByName(name: string): Promise<Workspace | null> {
-        try {
-            await this.validateName(name);
-
-            const { cypher, params } = this.queryRead(
-                { name },
-                "Workspace",
-            ).build();
-
-            return await this.core.graph.executeQuery<Workspace | null>(
-                (response) => {
-                    if (response.records.length === 0) {
-                        return null;
-                    }
-
-                    const [first] = response.records;
-                    return this.parseResponse<Workspace>(
-                        first.get("u").properties,
-                    );
-                },
-                cypher,
-                params,
-            );
+            return reply.send(this.model.get());
         } catch (e) {
             throw this.error(e);
         }
