@@ -22,6 +22,10 @@ export class Cypher {
         return callback(cypher);
     }
 
+    eq(leftExpr: Expr, rightExpr: Expr): CypherPrimitive.ComparisonOp {
+        return CypherPrimitive.eq(leftExpr, rightExpr);
+    }
+
     /**
      * Creates a new Cypher Node instance.
      * @returns A new Cypher Node instance.
@@ -238,5 +242,16 @@ export class Cypher {
         return new CypherPrimitive.Raw(() => {
             return `CREATE CONSTRAINT ${name} IF NOT EXISTS FOR (n:${labels.join(":")}) REQUIRE n.${prop} IS UNIQUE`;
         });
+    }
+
+    /**
+     * Creates a new Cypher Unwind clause with the specified projection column.
+     * @param projection The projection column to unwind in the Cypher query.
+     * @returns A new Cypher Unwind clause.
+     */
+    Unwind(
+        projection: CypherPrimitive.UnwindProjectionColumn,
+    ): CypherPrimitive.Unwind {
+        return new CypherPrimitive.Unwind(projection);
     }
 }
