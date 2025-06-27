@@ -3,22 +3,32 @@ import {
     EagerResult,
     Neo4jError,
     ManagedTransaction,
+    isInt,
+    isDate,
+    isDateTime,
+    isTime,
+    isLocalDateTime,
+    isLocalTime,
+    isDuration,
 } from "neo4j-driver";
 
+import { isGraphError, GraphError, isNeo4jError } from "@/errors";
+import { MapNeo4jError, PropertyConstraint, Hooks } from "@/types";
 import { getDriver } from "./driver";
-import { GraphError, isNeo4jError } from "@/errors";
-import { isGraphError } from "@/errors";
-import { MapNeo4jError } from "@/types";
-import { applyFilter } from "@/hooks";
-
-export type QueryCallback<T> = (driver: Driver) => Promise<T>;
+import { Cypher } from "./Cypher";
 
 export class Graph {
     /**
-     * Singleton instance of the Graph class.
-     * Ensures that only one instance of the Graph class exists.
+     * Cypher instance used for building Cypher queries.
+     * This is initialized in the constructor and used for executing queries.
      */
-    private static instance: Graph;
+    cypher: Cypher;
+
+    /**
+     * Hooks type used for managing filters and actions.
+     * This is initialized in the constructor and used for applying filters.
+     */
+    hooks: Hooks;
 
     /**
      * The Neo4j driver instance used to interact with the database.
@@ -26,27 +36,14 @@ export class Graph {
      */
     protected driver: Driver;
 
-    /**
-     * Private constructor to enforce singleton pattern.
-     */
-    private constructor() {
+    constructor(cypher: Cypher, hooks: Hooks) {
+        this.cypher = cypher;
+        this.hooks = hooks;
         this.driver = getDriver();
     }
 
     async setup() {
         await this.setConstraints();
-    }
-
-    /**
-     * Returns the singleton instance of the Graph class.
-     * If the instance does not exist, it creates a new one.
-     * @returns The singleton instance of Graph.
-     */
-    public static getInstance(): Graph {
-        if (!Graph.instance) {
-            Graph.instance = new Graph();
-        }
-        return Graph.instance;
     }
 
     /**
@@ -162,6 +159,69 @@ export class Graph {
         } catch (error) {
             throw this.error(`Failed to set constraints: ${error}`);
         }
+    }
+
+    /**
+     * ██████╗  █████╗ ██████╗ ███████╗███████╗██████╗
+     * ██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔════╝██╔══██╗
+     * ██████╔╝███████║██████╔╝███████╗█████╗  ██████╔╝
+     * ██╔═══╝ ██╔══██║██╔══██╗╚════██║██╔══╝  ██╔══██╗
+     * ██║     ██║  ██║██║  ██║███████║███████╗██║  ██║
+     * ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝
+     */
+    /**
+     * Parses the response from Neo4j to a native type.
+     * Converts Neo4j types to native JavaScript types.
+     * - Converts Neo4j Int to number
+     * - Converts Neo4j Date, DateTime, Time, LocalDateTime, LocalTime, Duration to string
+     * - Converts Neo4j List to array
+     * - Converts Neo4j Map to object
+     *
+     * It also filters out any keys that are in the provided filter array.
+     *
+     * @param data - Data to parse
+     * @param filter - Optional array of keys to filter out from the response
+     *                 - Defaults to ["password"].
+     * @returns Parsed data
+     */
+    parseResponse<T>(
+        data: Record<string, unknown>,
+        filter: string[] = ["password"],
+    ): T {
+        const valueToNativeType = (value: unknown) => {
+            if (Array.isArray(value)) {
+                value = value.map((innerValue) =>
+                    valueToNativeType(innerValue),
+                );
+            } else if (isInt(value)) {
+                value = value.toNumber();
+            } else if (
+                isDate(value) ||
+                isDateTime(value) ||
+                isTime(value) ||
+                isLocalDateTime(value) ||
+                isLocalTime(value) ||
+                isDuration(value)
+            ) {
+                value = value.toString();
+            } else if (
+                typeof value === "object" &&
+                value !== undefined &&
+                value !== null
+            ) {
+                value = this.parseResponse(value as Record<string, unknown>);
+            }
+
+            return value;
+        };
+        return Object.fromEntries(
+            Object.keys(data)
+                .filter((key) => !filter?.includes(key))
+                .map((key) => {
+                    const value = valueToNativeType(data[key]);
+                    return [key, value];
+                }),
+        ) as T;
     }
 
     /**
