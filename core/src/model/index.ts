@@ -1,5 +1,2 @@
-export * from "./InterfaceModel";
-export * from "./AbstractModel";
-export * from "./user";
-export * from "./team";
-export * from "./workspace";
+export * from "./core";
+export * from "./linked-art";

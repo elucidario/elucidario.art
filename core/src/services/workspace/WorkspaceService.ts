@@ -1,36 +1,22 @@
-import { isMdorimError, Workspace } from "@elucidario/mdorim";
+import { TeamMemberRole, User, Workspace } from "@elucidario/mdorim";
+import AbstractService from "../AbstractService";
+import { WorkspaceQuery } from "@/model";
+import { Graph } from "@/db";
+import { Hooks, WorkspaceParams } from "@/types";
+import { WorkspaceInterfaceModel } from "@/model/workspace/WorkspaceInterface";
+import { FastifyReply, FastifyRequest } from "fastify";
 
-import AbstractModel from "@/model/AbstractModel";
-import Core from "@/Core";
-import { PropertyConstraint } from "@/types";
+export class WorkspaceService extends AbstractService<Workspace> {
+    model: WorkspaceInterfaceModel;
 
-/**
- * # WorkspaceModel
- * The WorkspaceModel class provides methods to interact with the Workspace entity in the database.
- */
-export class WorkspaceModel extends AbstractModel<Workspace> {
-    /**
-     * Constraints for the Workspace entity.
-     */
-    constraints: PropertyConstraint[] = [
-        {
-            name: "workspace_unique_uuid",
-            labels: ["Workspace"],
-            prop: "uuid",
-        },
-        {
-            name: "workspace_unique_name",
-            labels: ["Workspace"],
-            prop: "name",
-        },
-    ];
-
-    /**
-     * Creates a new instance of WorkspaceModel.
-     * @param core - The core instance to use for database operations.
-     */
-    constructor(core: Core) {
-        super("/core/Workspace", core);
+    constructor(
+        model: WorkspaceInterfaceModel,
+        query: WorkspaceQuery,
+        graph: Graph,
+        hooks: Hooks,
+    ) {
+        super(model, query, graph, hooks);
+        this.model = model;
     }
 
     /**
@@ -39,29 +25,110 @@ export class WorkspaceModel extends AbstractModel<Workspace> {
      * @returns The created workspace.
      * @throws MdorimError if the workspace is invalid or creation fails.
      */
-    async create(workspace: Partial<Workspace>): Promise<Workspace> {
+    async create(
+        request: FastifyRequest,
+        reply: FastifyReply,
+    ): Promise<Workspace> {
         try {
-            await this.validateEntity(workspace);
+            const data = this.parseBodyRequest(request);
 
-            // write to the database
-            return await this.core.graph.writeTransaction(async (tx) => {
-                const { cypher, params } = this.queryCreate(
-                    workspace,
-                    "Workspace",
-                ).build();
+            await this.model.validateEntity(data);
+
+            const user = this.getUser(request);
+
+            if (!user) {
+                throw this.error("User not found");
+            }
+
+            const workspace = await this.graph.writeTransaction(async (tx) => {
+                const workspaceNode = this.graph.cypher.NamedNode("workspace");
+                const userNode = this.graph.cypher.NamedNode("user");
+                const memberOf =
+                    this.graph.cypher.NamedRelationship("memberOf");
+
+                const matchUser = this.graph.cypher.Match(
+                    this.graph.cypher.Pattern(userNode, {
+                        labels: ["User"],
+                        properties: {
+                            uuid: this.graph.cypher.Param(user.uuid),
+                        },
+                    }),
+                );
+
+                const mergeWorkspace = this.graph.cypher.Merge(
+                    this.graph.cypher.Pattern(workspaceNode, {
+                        labels: ["Workspace"],
+                        properties: {
+                            uuid: this.graph.cypher.Uuid(),
+                            name: this.graph.cypher.Param(data.name),
+                            description: this.graph.cypher.Param(
+                                data.description,
+                            ),
+                        },
+                    }),
+                );
+
+                const createOwnership = this.graph.cypher
+                    .Create(
+                        this.graph.cypher
+                            .Pattern(userNode)
+                            .related(memberOf, {
+                                type: "MEMBER_OF",
+                                properties: {
+                                    role: this.graph.cypher.Literal("admin"),
+                                },
+                            })
+                            .to(workspaceNode),
+                    )
+                    .with(userNode, memberOf, workspaceNode);
+
+                const returnClause = this.graph.cypher.Return(
+                    userNode,
+                    memberOf,
+                    workspaceNode,
+                );
+
+                const { cypher, params } = this.graph.cypher
+                    .concat(
+                        matchUser,
+                        mergeWorkspace,
+                        createOwnership,
+                        returnClause,
+                    )
+                    .build();
 
                 const response = await tx.run(cypher, params);
+
                 if (response.records.length === 0) {
                     throw this.error("Workspace not created");
                 }
+
                 const [first] = response.records;
 
-                const record = this.parseResponse<Workspace>(
-                    first.get("u").properties,
+                const workspaceRecord = this.graph.parseResponse<Workspace>(
+                    first.get("workspace").properties,
                 );
 
-                return record;
+                const userRecord = this.graph.parseResponse<User>(
+                    first.get("user").properties,
+                );
+
+                const memberOfRecord = this.graph.parseResponse<{
+                    role: TeamMemberRole;
+                }>(first.get("memberOf").properties);
+
+                return {
+                    ...workspaceRecord,
+                    team: [
+                        {
+                            user: userRecord,
+                            role: memberOfRecord.role,
+                        },
+                    ],
+                };
             });
+
+            return reply.send(workspace);
         } catch (e: unknown) {
             throw this.error(e);
         }
@@ -73,16 +140,20 @@ export class WorkspaceModel extends AbstractModel<Workspace> {
      * @returns The workspace data or null if not found.
      * @throws MdorimError if the ID is invalid or reading fails.
      */
-    async read(id: string): Promise<Workspace | null> {
+    async read(
+        request: FastifyRequest<WorkspaceParams>,
+        reply: FastifyReply,
+    ): Promise<Workspace | null> {
         try {
-            await this.validateUUID(id);
+            const { workspaceUUID } = request.params;
 
-            const { cypher, params } = this.queryRead(
-                { uuid: id },
-                "Workspace",
-            ).build();
+            await this.model.validateUUID(workspaceUUID);
 
-            return await this.core.graph.executeQuery<Workspace | null>(
+            const { cypher, params } = this.query
+                .read({ data: { uuid: workspaceUUID }, labels: "Workspace" })
+                .build();
+
+            const workspace = await this.graph.executeQuery<Workspace | null>(
                 (response) => {
                     if (response.records.length === 0) {
                         return null;
@@ -90,13 +161,15 @@ export class WorkspaceModel extends AbstractModel<Workspace> {
 
                     const [first] = response.records;
 
-                    return this.parseResponse<Workspace>(
+                    return this.graph.parseResponse<Workspace>(
                         first.get("u").properties,
                     );
                 },
                 cypher,
                 params,
             );
+
+            return reply.send(workspace);
         } catch (e) {
             throw this.error(e);
         }
@@ -244,29 +317,6 @@ export class WorkspaceModel extends AbstractModel<Workspace> {
             );
         } catch (e) {
             throw this.error(e);
-        }
-    }
-
-    /**
-     * Validates username against the string schema.
-     * @param username - username to validate
-     * @returns true if the username is valid, throws an MdorimError if it is not
-     * @throws MdorimError
-     */
-    async validateName(name: unknown): Promise<true> {
-        try {
-            const isValid = await this.core.mdorim.validate(
-                "/core/Definitions#/$defs/name",
-                name,
-            );
-
-            if (isMdorimError(isValid)) {
-                throw isValid;
-            }
-
-            return isValid;
-        } catch (error) {
-            throw this.error(error);
         }
     }
 }
