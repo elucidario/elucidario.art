@@ -65,7 +65,7 @@ export class WorkspaceService extends AbstractService<
 
                     const mergeWorkspace = this.graph.cypher.Merge(
                         this.graph.cypher.Pattern(workspaceNode, {
-                            labels: ["WorkspaceType"],
+                            labels: ["Workspace"],
                             properties: {
                                 uuid: this.graph.cypher.Uuid(),
                                 name: this.graph.cypher.Param(data.name),
@@ -110,7 +110,7 @@ export class WorkspaceService extends AbstractService<
                     const response = await tx.run(cypher, params);
 
                     if (response.records.length === 0) {
-                        throw this.error("WorkspaceType not created");
+                        throw this.error("Workspace not created");
                     }
 
                     const [first] = response.records;
@@ -163,7 +163,7 @@ export class WorkspaceService extends AbstractService<
             const { cypher, params } = this.query
                 .read({
                     data: { uuid: workspaceUUID },
-                    labels: "WorkspaceType",
+                    labels: "Workspace",
                 })
                 .build();
 
@@ -215,7 +215,7 @@ export class WorkspaceService extends AbstractService<
                 .update({
                     uuid: workspaceUUID,
                     data,
-                    labels: "WorkspaceType",
+                    labels: "Workspace",
                 })
                 .build();
 
@@ -223,7 +223,7 @@ export class WorkspaceService extends AbstractService<
                 await this.graph.executeQuery<WorkspaceType>(
                     (response) => {
                         if (response.records.length === 0) {
-                            throw this.error("WorkspaceType not found");
+                            throw this.error("Workspace not found");
                         }
 
                         const [first] = response.records;
@@ -260,7 +260,7 @@ export class WorkspaceService extends AbstractService<
             const { cypher, params } = this.query
                 .delete({
                     uuid: workspaceUUID,
-                    labels: "WorkspaceType",
+                    labels: "Workspace",
                 })
                 .build();
 
@@ -304,7 +304,7 @@ export class WorkspaceService extends AbstractService<
                 .list({
                     limit,
                     offset,
-                    labels: "WorkspaceType",
+                    labels: "Workspace",
                 })
                 .build();
 
