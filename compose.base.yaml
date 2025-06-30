@@ -15,9 +15,6 @@ services:
       - NEO4J_apoc_import_file_enabled=true
       - NEO4J_apoc_import_file_use__neo4j__config=true
       - NEO4J_PLUGINS=["apoc"]
-    ports:
-      - "7474:7474"
-      - "7687:7687"
     restart: always
     healthcheck:
       test: wget http://localhost:7474 || exit 1
