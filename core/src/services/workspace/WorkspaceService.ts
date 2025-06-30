@@ -115,18 +115,17 @@ export class WorkspaceService extends AbstractService<
 
                     const [first] = response.records;
 
-                    const workspaceRecord =
-                        this.graph.parseResponse<WorkspaceType>(
-                            first.get("workspace").properties,
-                        );
-
-                    const userRecord = this.graph.parseResponse<User>(
-                        first.get("user").properties,
+                    const workspaceRecord = this.graph.parseNode<WorkspaceType>(
+                        first.get("workspace"),
                     );
 
-                    const memberOfRecord = this.graph.parseResponse<{
+                    const userRecord = this.graph.parseNode<User>(
+                        first.get("user"),
+                    );
+
+                    const memberOfRecord = this.graph.parseRelationship<{
                         role: TeamMemberRole;
-                    }>(first.get("memberOf").properties);
+                    }>(first.get("memberOf"));
 
                     return {
                         ...workspaceRecord,
@@ -177,8 +176,8 @@ export class WorkspaceService extends AbstractService<
 
                         const [first] = response.records;
 
-                        return this.graph.parseResponse<WorkspaceType>(
-                            first.get("u").properties,
+                        return this.graph.parseNode<WorkspaceType>(
+                            first.get("u"),
                         );
                     },
                     cypher,
@@ -229,8 +228,8 @@ export class WorkspaceService extends AbstractService<
 
                         const [first] = response.records;
 
-                        return this.graph.parseResponse<WorkspaceType>(
-                            first.get("u").properties,
+                        return this.graph.parseNode<WorkspaceType>(
+                            first.get("u"),
                         );
                     },
                     cypher,
@@ -319,8 +318,8 @@ export class WorkspaceService extends AbstractService<
                         }
 
                         return records.map((record) => {
-                            return this.graph.parseResponse<WorkspaceType>(
-                                record.get("u").properties,
+                            return this.graph.parseNode<WorkspaceType>(
+                                record.get("u"),
                             );
                         });
                     },

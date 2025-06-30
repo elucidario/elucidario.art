@@ -10,12 +10,14 @@ import {
     isLocalDateTime,
     isLocalTime,
     isDuration,
+    RecordShape,
 } from "neo4j-driver";
 
 import { isGraphError, GraphError, isNeo4jError } from "@/errors";
 import { MapNeo4jError, PropertyConstraint, Hooks } from "@/types";
 import { getDriver } from "./driver";
 import { Cypher } from "./Cypher";
+import { MdorimBase } from "@elucidario/mdorim";
 
 export class Graph {
     /**
@@ -170,58 +172,79 @@ export class Graph {
      * ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝
      */
     /**
-     * Parses the response from Neo4j to a native type.
-     * Converts Neo4j types to native JavaScript types.
+     * Converts Neo4j values to native JavaScript types.
      * - Converts Neo4j Int to number
      * - Converts Neo4j Date, DateTime, Time, LocalDateTime, LocalTime, Duration to string
      * - Converts Neo4j List to array
      * - Converts Neo4j Map to object
      *
-     * It also filters out any keys that are in the provided filter array.
+     * @param value - The value to convert
+     * @returns The converted value
+     */
+    private neo4jValueToNativeType(value: unknown): unknown {
+        if (Array.isArray(value)) {
+            value = value.map((innerValue) =>
+                this.neo4jValueToNativeType(innerValue),
+            );
+        } else if (isInt(value)) {
+            value = value.toNumber();
+        } else if (
+            isDate(value) ||
+            isDateTime(value) ||
+            isTime(value) ||
+            isLocalDateTime(value) ||
+            isLocalTime(value) ||
+            isDuration(value)
+        ) {
+            value = value.toString();
+        } else if (
+            typeof value === "object" &&
+            value !== undefined &&
+            value !== null
+        ) {
+            value = Object.entries(value).reduce((acc, [key, val]) => {
+                (acc as Record<string, unknown>)[key] =
+                    this.neo4jValueToNativeType(val);
+                return acc;
+            }, {});
+        }
+        return value;
+    }
+
+    /**
+     * Parses a Node from Neo4j to specific type.
      *
      * @param data - Data to parse
      * @param filter - Optional array of keys to filter out from the response
      *                 - Defaults to ["password"].
      * @returns Parsed data
      */
-    parseResponse<T>(
-        data: Record<string, unknown>,
-        filter: string[] = ["password"],
-    ): T {
-        const valueToNativeType = (value: unknown) => {
-            if (Array.isArray(value)) {
-                value = value.map((innerValue) =>
-                    valueToNativeType(innerValue),
-                );
-            } else if (isInt(value)) {
-                value = value.toNumber();
-            } else if (
-                isDate(value) ||
-                isDateTime(value) ||
-                isTime(value) ||
-                isLocalDateTime(value) ||
-                isLocalTime(value) ||
-                isDuration(value)
-            ) {
-                value = value.toString();
-            } else if (
-                typeof value === "object" &&
-                value !== undefined &&
-                value !== null
-            ) {
-                value = this.parseResponse(value as Record<string, unknown>);
-            }
+    parseNode<T extends MdorimBase>(data: RecordShape): T {
+        const type = data.labels![0] as string;
+        return Object.entries(data.properties).reduce(
+            (acc, [key, value]) => {
+                (acc as Record<string, unknown>)[key] =
+                    this.neo4jValueToNativeType(value);
+                return acc;
+            },
+            {
+                type,
+            } as T,
+        );
+    }
 
-            return value;
-        };
-        return Object.fromEntries(
-            Object.keys(data)
-                .filter((key) => !filter?.includes(key))
-                .map((key) => {
-                    const value = valueToNativeType(data[key]);
-                    return [key, value];
-                }),
-        ) as T;
+    /**
+     * Parses a Relationship from Neo4j to specific type.
+     *
+     * @param data - Data to parse
+     * @returns Parsed data
+     */
+    parseRelationship<T extends Record<string, unknown>>(data: RecordShape): T {
+        return Object.entries(data.properties).reduce((acc, [key, value]) => {
+            (acc as Record<string, unknown>)[key] =
+                this.neo4jValueToNativeType(value);
+            return acc;
+        }, {} as T);
     }
 
     /**
@@ -232,6 +255,7 @@ export class Graph {
      * ███████╗██║  ██║██║  ██║╚██████╔╝██║  ██║
      * ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝
      */
+
     /**
      * Handles errors that occur during database operations.
      * @param err The error object.

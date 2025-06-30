@@ -66,9 +66,7 @@ export class UserService extends AbstractService<
 
                         const [first] = response.records;
 
-                        return this.graph.parseResponse<UserType>(
-                            first.get(node).properties,
-                        );
+                        return this.graph.parseNode<UserType>(first.get(node));
                     },
                     cypher,
                     params,
@@ -111,9 +109,7 @@ export class UserService extends AbstractService<
 
                         const [first] = response.records;
 
-                        return this.graph.parseResponse<UserType>(
-                            first.get("u").properties,
-                        );
+                        return this.graph.parseNode<UserType>(first.get("u"));
                     },
                     cypher,
                     params,
@@ -161,9 +157,7 @@ export class UserService extends AbstractService<
 
                         const [first] = response.records;
 
-                        return this.graph.parseResponse<UserType>(
-                            first.get("u").properties,
-                        );
+                        return this.graph.parseNode<UserType>(first.get("u"));
                     },
                     cypher,
                     params,
@@ -250,8 +244,8 @@ export class UserService extends AbstractService<
                         }
 
                         return records.map((record) => {
-                            return this.graph.parseResponse<UserType>(
-                                record.get("u").properties,
+                            return this.graph.parseNode<UserType>(
+                                record.get("u"),
                             );
                         });
                     },
