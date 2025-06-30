@@ -11,6 +11,7 @@ export default abstract class AbstractService<
     TModel extends InterfaceModel<TType>,
     TQuery extends InterfaceQuery<TType>,
     TParams = Record<string, string>,
+    TQueryStrings = Record<string, unknown>,
 > {
     protected model: TModel;
     protected query: TQuery;
@@ -45,7 +46,9 @@ export default abstract class AbstractService<
     ): Promise<boolean>;
 
     abstract list(
-        request: FastifyRequest<Params<TParams> & ListQueryStrings>,
+        request: FastifyRequest<
+            Params<TParams> & ListQueryStrings<TQueryStrings>
+        >,
         reply: FastifyReply,
     ): Promise<TType[]>;
 
@@ -59,8 +62,8 @@ export default abstract class AbstractService<
 
     getListQueryStrings(
         request: FastifyRequest,
-    ): ListQueryStrings["Querystring"] {
-        return request.query as ListQueryStrings["Querystring"];
+    ): ListQueryStrings<TQueryStrings>["Querystring"] {
+        return request.query as ListQueryStrings<TQueryStrings>["Querystring"];
     }
 
     getParams(request: FastifyRequest<Params<TParams>>) {
