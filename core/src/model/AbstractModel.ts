@@ -9,7 +9,7 @@ import InterfaceModel from "./InterfaceModel";
 export default abstract class AbstractModel<T extends Record<string, unknown>>
     implements InterfaceModel<T>
 {
-    data?: T | T[] | null;
+    data?: T | null;
 
     /**
      * ## mdorim
@@ -33,11 +33,7 @@ export default abstract class AbstractModel<T extends Record<string, unknown>>
      * @param schema - The schema to use for the model. It can be a string or a Array of strings.
      * @param mdorim - The instance of the Mdorim class, which is used for schema validation.
      */
-    constructor(
-        schema: string | string[],
-        mdorim: Mdorim,
-        data?: T | T[] | null,
-    ) {
+    constructor(schema: string | string[], mdorim: Mdorim, data?: T | null) {
         this.mdorim = mdorim;
         this.schema = Array.isArray(schema)
             ? new Map(schema.map((s) => [s, s]))
@@ -53,7 +49,7 @@ export default abstract class AbstractModel<T extends Record<string, unknown>>
      *
      * @param data - The data to set for the model. It can be a single object, an array of objects, or null.
      */
-    set(data?: T | T[] | null): void {
+    set(data?: T | null): void {
         this.data = data;
     }
 
@@ -64,7 +60,7 @@ export default abstract class AbstractModel<T extends Record<string, unknown>>
      *
      * @returns The data for the model. It can be a single object, an array of objects, null, or undefined.
      */
-    get(): T | T[] | null | undefined {
+    get(): T | null | undefined {
         return this.data;
     }
 

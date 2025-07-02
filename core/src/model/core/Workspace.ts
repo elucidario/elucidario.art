@@ -16,7 +16,7 @@ export class Workspace
      * @param mdorim - The mdorim instance to use for validation.
      * @param data - Optional initial data for the workspace.
      */
-    constructor(mdorim: Mdorim, data?: WorkspaceType | WorkspaceType[] | null) {
+    constructor(mdorim: Mdorim, data?: WorkspaceType | null) {
         super("/core/Workspace", mdorim, data);
     }
 

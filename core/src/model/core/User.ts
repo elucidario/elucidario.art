@@ -16,7 +16,7 @@ export class User
      * @param mdorim - The mdorim instance to use for validation.
      * @param data - Optional initial data for the user.
      */
-    constructor(mdorim: Mdorim, data?: UserType | UserType[] | null) {
+    constructor(mdorim: Mdorim, data?: UserType | null) {
         super("/core/User", mdorim, data);
     }
 
