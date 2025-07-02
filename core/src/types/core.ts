@@ -5,6 +5,9 @@ export type Hooks = {
     actions: Actions;
 };
 
-export type FilterCallback<T> = (value: T, ...args: unknown[]) => unknown;
+export type FilterCallback<T, U extends unknown[]> = (
+    value: T,
+    ...args: U
+) => unknown;
 
 export type ActionCallback = (...args: unknown[]) => void;

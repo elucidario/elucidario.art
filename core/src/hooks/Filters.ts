@@ -11,7 +11,7 @@ export class Filters {
      */
     hooks: Map<
         string,
-        { callback: FilterCallback<unknown>; priority: number }[]
+        { callback: FilterCallback<unknown, unknown[]>; priority: number }[]
     >;
 
     /**
@@ -20,7 +20,7 @@ export class Filters {
     constructor() {
         this.hooks = new Map<
             string,
-            { callback: FilterCallback<unknown>; priority: number }[]
+            { callback: FilterCallback<unknown, unknown[]>; priority: number }[]
         >();
     }
 
@@ -31,9 +31,9 @@ export class Filters {
      * @param priority The priority of the hook. Lower numbers are executed first.
      *                 - Defaults to 10 if not provided.
      */
-    add<T>(
+    add<T, U extends unknown[]>(
         hookName: string,
-        callback: FilterCallback<T>,
+        callback: FilterCallback<T, U>,
         priority: number = 10,
     ): void {
         if (!this.hooks.has(hookName)) {
@@ -43,7 +43,7 @@ export class Filters {
         const hooks = this.hooks.get(hookName);
 
         hooks!.push({
-            callback: callback as FilterCallback<unknown>,
+            callback: callback as FilterCallback<unknown, unknown[]>,
             priority,
         });
         hooks!.sort((a, b) => a.priority - b.priority);
@@ -56,7 +56,11 @@ export class Filters {
      * @param args Additional arguments to pass to the hook callbacks.
      * @returns The filtered value after applying all hooks.
      */
-    apply<T>(filterName: string, value: T, ...args: unknown[]): T {
+    apply<T, U extends unknown[] = []>(
+        filterName: string,
+        value: T,
+        ...args: U
+    ): T {
         if (!this.hooks.has(filterName)) {
             return value;
         }
