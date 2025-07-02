@@ -254,4 +254,22 @@ export class Cypher {
     ): CypherPrimitive.Unwind {
         return new CypherPrimitive.Unwind(projection);
     }
+
+    /**
+     * Creates a new Cypher Collect clause with the specified subquery.
+     * @param subquery The subquery to collect in the Cypher query.
+     * @returns A new Cypher Collect clause.
+     */
+    Collect(subquery: Clause): CypherPrimitive.Collect {
+        return new CypherPrimitive.Collect(subquery);
+    }
+
+    /**
+     * Creates a new Cypher Aggregation Function for collecting values.
+     * @param expr The expression to collect in the aggregation function.
+     * @returns A new Cypher Aggregation Function for collecting values.
+     */
+    collect(expr: Expr): CypherPrimitive.AggregationFunction {
+        return CypherPrimitive.collect(expr);
+    }
 }
