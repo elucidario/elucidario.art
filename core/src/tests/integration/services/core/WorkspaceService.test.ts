@@ -15,6 +15,17 @@ describe("WorkspaceService", { skip: false }, async () => {
 
     beforeAll(async () => {
         app = await lcdr(false);
+        const graph = app.lcdr.graph;
+
+        await graph.writeTransaction(async (tx) => {
+            await tx.run(
+                "OPTIONAL MATCH (u:User {email: $email}) DETACH DELETE u",
+                {
+                    email: adminUser.email,
+                },
+            );
+        });
+
         await app.inject({
             method: "POST",
             url: "/api/v1/users/register",
@@ -24,9 +35,15 @@ describe("WorkspaceService", { skip: false }, async () => {
 
     afterAll(async () => {
         const graph = app.lcdr.graph;
+
         await graph.writeTransaction(async (tx) => {
-            return await tx.run("MATCH (n) DETACH DELETE n");
+            await tx.run("MATCH (u:User {email: $email}) DETACH DELETE u", {
+                email: adminUser.email,
+            });
+
+            await tx.run("MATCH (w:Workspace) DETACH DELETE w");
         });
+
         app.close();
     });
 

@@ -17,6 +17,18 @@ describe("UserService", { skip: false }, async () => {
 
     beforeAll(async () => {
         const app = await lcdr(false);
+        const graph = app.lcdr.graph;
+
+        await graph.writeTransaction(async (tx) => {
+            await tx.run("MATCH (u:User {email: $email}) DETACH DELETE u", {
+                email: adminUser.email,
+            });
+
+            await tx.run("MATCH (u:User {email: $email}) DETACH DELETE u", {
+                email: testUser.email,
+            });
+        });
+
         await app.inject({
             method: "POST",
             url: "/api/v1/users/register",
@@ -29,7 +41,13 @@ describe("UserService", { skip: false }, async () => {
         const graph = app.lcdr.graph;
 
         await graph.writeTransaction(async (tx) => {
-            return await tx.run("MATCH (n) DETACH DELETE n");
+            await tx.run("MATCH (u:User {email: $email}) DETACH DELETE u", {
+                email: adminUser.email,
+            });
+
+            await tx.run("MATCH (u:User {email: $email}) DETACH DELETE u", {
+                email: testUser.email,
+            });
         });
 
         app.close();

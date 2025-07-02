@@ -14,7 +14,13 @@ describe("ConfigService", { skip: false }, async () => {
 
         // erase everything before the test
         await graph.writeTransaction(async (tx) => {
-            return await tx.run("MATCH (n) DETACH DELETE n");
+            await tx.run(
+                "OPTIONAL MATCH (u:User {email: $email}) DETACH DELETE u",
+                {
+                    email: adminUser.email,
+                },
+            );
+            await tx.run("OPTIONAL MATCH (m:MainConfig) DETACH DELETE m");
         });
     });
 
@@ -22,8 +28,15 @@ describe("ConfigService", { skip: false }, async () => {
         const app = await lcdr(false);
         const graph = app.lcdr.graph;
 
+        // erase everything before the test
         await graph.writeTransaction(async (tx) => {
-            return await tx.run("MATCH (n) DETACH DELETE n");
+            await tx.run(
+                "OPTIONAL MATCH (u:User {email: $email}) DETACH DELETE u",
+                {
+                    email: adminUser.email,
+                },
+            );
+            await tx.run("OPTIONAL MATCH (m:MainConfig) DETACH DELETE m");
         });
 
         app.close();
