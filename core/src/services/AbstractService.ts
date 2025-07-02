@@ -70,24 +70,26 @@ export default abstract class AbstractService<
         return request.params;
     }
 
-    error(err: unknown) {
-        if (isNeo4jError(err) || isGraphError(err)) {
-            return this.graph.error(err, {
-                mdorim: {
-                    ConstraintValidationFailed: {
-                        message: "Email address already in use",
-                        details: {
-                            email: "Email address already in use",
-                        },
-                    },
-                },
-            });
+    error(
+        e: unknown,
+        statusCode?: number,
+    ): ServiceError | MdorimError | GraphError {
+        if (typeof e === "string") {
+            e = new ServiceError(e, statusCode);
         }
 
-        if (isMdorimError(err)) {
-            return err;
+        if (isServiceError(e)) {
+            return e;
         }
 
-        return new ServiceError(String(err), err);
+        if (isNeo4jError(e) || isGraphError(e)) {
+            return this.graph.error(e, undefined, statusCode);
+        }
+
+        if (isMdorimError(e)) {
+            return e;
+        }
+
+        return new ServiceError(String(e), statusCode);
     }
 }
