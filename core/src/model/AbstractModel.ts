@@ -1,4 +1,9 @@
-import { isMdorimError, Mdorim, MdorimError } from "@elucidario/mdorim";
+import {
+    isMdorimError,
+    Mdorim,
+    MdorimError,
+    SchemaObject,
+} from "@elucidario/mdorim";
 
 import InterfaceModel from "./InterfaceModel";
 
@@ -16,7 +21,7 @@ export default abstract class AbstractModel<T extends Record<string, unknown>>
      * This property holds the instance of the Mdorim class, which is used for schema validation.
      * It is initialized in the constructor and used for validating data against the schema.
      */
-    protected mdorim: Mdorim;
+    mdorim: Mdorim;
 
     /**
      * ## AbstractModel.schema
@@ -113,6 +118,19 @@ export default abstract class AbstractModel<T extends Record<string, unknown>>
                 return schemaName;
             }
             throw new MdorimError("Invalid schema type");
+        } catch (error) {
+            throw this.error(error);
+        }
+    }
+
+    /**
+     * Get the schema for the model.
+     * @param id - ID to get the schema for (optional)
+     * @returns SchemaObject for the model
+     */
+    getSchema(id?: string): SchemaObject {
+        try {
+            return this.mdorim.getSchema(this.schemaName(id));
         } catch (error) {
             throw this.error(error);
         }
