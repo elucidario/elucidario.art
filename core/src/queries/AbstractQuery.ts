@@ -1,4 +1,4 @@
-import { Clause, Expr, SetParam } from "@neo4j/cypher-builder";
+import { Clause, Expr, Pattern, SetParam } from "@neo4j/cypher-builder";
 import { int } from "neo4j-driver";
 import { NodeRef } from "node_modules/@neo4j/cypher-builder/dist/references/NodeRef";
 
@@ -17,7 +17,7 @@ import { Hooks, PropertyConstraint } from "@/types";
  * This is an abstract class that provides a base for all query classes in the application.
  * It defines methods for creating, reading, listing, updating, and deleting entities in the database
  */
-export abstract class AbstractQuery<T extends Record<string, unknown>>
+export abstract class AbstractQuery<T extends MdorimBase>
     implements InterfaceQuery<T>
 {
     /**
@@ -35,7 +35,7 @@ export abstract class AbstractQuery<T extends Record<string, unknown>>
     protected hooks: Hooks;
 
     /**
-     * ## AbstractModel.constraints
+     * ## AbstractQuery.constraints
      * This static property holds an array of Cypher constraints that should be applied to the model.
      * These constraints are used to ensure data integrity and uniqueness in the database.
      */
@@ -177,15 +177,28 @@ export abstract class AbstractQuery<T extends Record<string, unknown>>
         offset,
         labels,
         node = "u",
+        labelRelation = "AND",
         optionalMatch = false,
         returnClause = true,
     }: ListQueryParams): Clause {
         return this.cypher.builder((Cypher) => {
             const n =
                 typeof node === "string" ? new Cypher.NamedNode(node) : node;
-            const pattern = new Cypher.Pattern(n, {
-                labels,
-            });
+            let pattern: Pattern;
+            if (labelRelation === "AND") {
+                pattern = new Cypher.Pattern(n, {
+                    labels,
+                });
+            } else {
+                const orConditions = (
+                    Array.isArray(labels) ? labels : [labels]
+                ).map((label) => {
+                    return n.hasLabel(label as string);
+                });
+                pattern = new Cypher.Pattern(n).where(
+                    Cypher.or(...orConditions),
+                );
+            }
             const match = !optionalMatch
                 ? new Cypher.Match(pattern)
                 : new Cypher.OptionalMatch(pattern);
@@ -272,15 +285,28 @@ export abstract class AbstractQuery<T extends Record<string, unknown>>
         uuid,
         labels,
         node = "u",
+        labelRelation = "AND",
         optionalMatch = false,
         returnClause = true,
     }: DeleteQueryParams): Clause {
         return this.cypher.builder((Cypher) => {
             const n =
                 typeof node === "string" ? new Cypher.NamedNode(node) : node;
-            const pattern = new Cypher.Pattern(n, {
-                labels,
-            });
+            let pattern: Pattern;
+            if (labelRelation === "AND") {
+                pattern = new Cypher.Pattern(n, {
+                    labels,
+                });
+            } else {
+                const orConditions = (
+                    Array.isArray(labels) ? labels : [labels]
+                ).map((label) => {
+                    return n.hasLabel(label as string);
+                });
+                pattern = new Cypher.Pattern(n).where(
+                    Cypher.or(...orConditions),
+                );
+            }
             const match = (
                 !optionalMatch
                     ? new Cypher.Match(pattern)

@@ -8,6 +8,7 @@ export type BaseParams<T> = {
     node?: string | NodeRef;
     optionalMatch?: boolean;
     returnClause?: boolean;
+    labelRelation?: "AND" | "OR";
 } & T;
 
 export type CreateQueryParams<T extends Record<string, unknown>> = Omit<
