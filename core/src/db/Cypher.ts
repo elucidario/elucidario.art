@@ -120,7 +120,7 @@ export class Cypher {
      * It is useful for building complex queries by combining different parts of the query.
      * @returns A new Cypher clause representing the concatenated result.
      */
-    concat(...args: CypherPrimitive.Clause[]) {
+    concat(...args: Array<CypherPrimitive.Clause | undefined>) {
         return CypherPrimitive.utils.concat(...args);
     }
 
