@@ -70,14 +70,24 @@ export class Graph {
     ): Promise<T> {
         const driver = this.driver;
         if (!driver) {
-            throw new GraphError("Driver is not initialized");
+            throw new GraphError("Driver is not initialized", null, 500);
         }
         try {
             await driver.getServerInfo(); // Ensure the driver is connected
             const response = await driver.executeQuery(cypher, params);
             return responseParser(response);
         } catch (error) {
-            throw this.error(error);
+            throw this.error(
+                error,
+                {
+                    mdorim: {
+                        ConstraintValidationFailed: {
+                            message: "Entity already exists.",
+                        },
+                    },
+                },
+                (error as GraphError).statusCode || 409,
+            );
         }
     }
 
@@ -90,11 +100,11 @@ export class Graph {
     async writeTransaction<T>(
         callback: (tx: ManagedTransaction) => Promise<T>,
     ) {
-        const driver = this.driver;
-        if (!driver) {
-            throw new GraphError("Driver is not initialized");
-        }
         try {
+            const driver = this.driver;
+            if (!driver) {
+                throw new GraphError("Driver is not initialized", null, 500);
+            }
             const session = driver.session();
             const response = await session.executeWrite(callback);
             await session.close();
@@ -262,7 +272,7 @@ export class Graph {
      * @param map Optional mapping of error codes to user-friendly messages.
      * @returns A GraphError instance.
      */
-    error(err: unknown, map?: MapNeo4jError): GraphError {
+    error(err: unknown, map?: MapNeo4jError, statusCode?: number): GraphError {
         if (isGraphError(err)) {
             return err;
         }
@@ -275,7 +285,7 @@ export class Graph {
                 if (mapped) {
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     const [_, { message, details }] = mapped;
-                    const error = new GraphError(message, details);
+                    const error = new GraphError(message, details, statusCode);
                     return this.error(error);
                 }
             }
@@ -287,7 +297,7 @@ export class Graph {
                 if (mapped) {
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     const [_, { message, details }] = mapped;
-                    const error = new GraphError(message, details);
+                    const error = new GraphError(message, details, statusCode);
                     return this.error(error);
                 }
             }
@@ -298,6 +308,7 @@ export class Graph {
             {
                 error: err,
             },
+            statusCode,
         );
     }
 }
