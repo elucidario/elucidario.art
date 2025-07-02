@@ -1,6 +1,6 @@
-import { FastifyRequest, FastifyReply } from "fastify";
+import { FastifyRequest, FastifyReply, FastifyInstance } from "fastify";
 
-import { Hooks, ListQueryStrings, Body, Params } from "@/types";
+import { Hooks, QueryStrings, Body, Params } from "@/types";
 import { User as UserType } from "@elucidario/mdorim";
 import { UserQuery } from "@/queries";
 import { Graph } from "@/db";
@@ -26,9 +26,16 @@ export class UserService extends AbstractService<
      * @param query - The user query
      * @param graph - The graph database instance
      * @param hooks - The service hooks
+     * @param fastify - The Fastify instance
      */
-    constructor(model: User, query: UserQuery, graph: Graph, hooks: Hooks) {
-        super(model, query, graph, hooks);
+    constructor(
+        model: User,
+        query: UserQuery,
+        graph: Graph,
+        hooks: Hooks,
+        fastify: FastifyInstance,
+    ) {
+        super(model, query, graph, hooks, fastify);
     }
 
     /**
@@ -47,6 +54,8 @@ export class UserService extends AbstractService<
             const userData = this.parseBodyRequest(request);
 
             await this.model.validateEntity(userData);
+            await this.model.validateEmail(userData.email);
+            await this.model.validateUsername(userData.username);
 
             const node = "user";
             const { cypher, params } = this.query
@@ -73,7 +82,7 @@ export class UserService extends AbstractService<
                 ),
             );
 
-            return reply.send(this.model.get());
+            return reply.code(201).send(this.model.get());
         } catch (e: unknown) {
             throw this.error(e);
         }
@@ -150,12 +159,12 @@ export class UserService extends AbstractService<
 
             this.model.set(
                 await this.graph.executeQuery<UserType>(
-                    (response) => {
-                        if (response.records.length === 0) {
-                            throw this.error("User not found");
+                    ({ records }) => {
+                        if (records.length === 0) {
+                            throw this.error("User not found", 404);
                         }
 
-                        const [first] = response.records;
+                        const [first] = records;
 
                         return this.graph.parseNode<UserType>(first.get("u"));
                     },
@@ -194,7 +203,7 @@ export class UserService extends AbstractService<
             const removed = await this.graph.executeQuery<boolean>(
                 ({ records }) => {
                     if (records.length === 0) {
-                        throw this.error("User not found");
+                        throw this.error("User not found", 404);
                     }
 
                     const [first] = records;
@@ -203,8 +212,12 @@ export class UserService extends AbstractService<
                 cypher,
                 params,
             );
-
-            return reply.send(removed);
+            if (removed) {
+                this.model.set(null);
+                return reply.code(204).send();
+            } else {
+                throw this.error("Could not delete user", 500);
+            }
         } catch (e) {
             throw this.error(e);
         }
@@ -218,11 +231,11 @@ export class UserService extends AbstractService<
      * @throws MdorimError if listing fails.
      */
     async list(
-        request: FastifyRequest<ListQueryStrings>,
+        request: FastifyRequest<QueryStrings>,
         reply: FastifyReply,
     ): Promise<UserType[]> {
         try {
-            const { limit, offset } = this.getListQueryStrings(request);
+            const { limit, offset } = this.getQueryStrings(request);
             await this.model.validateNumber(limit);
             await this.model.validateNumber(offset);
 
@@ -234,29 +247,45 @@ export class UserService extends AbstractService<
                 })
                 .build();
 
-            this.model.set(
-                await this.graph.executeQuery<UserType[]>(
-                    (response) => {
-                        const { records } = response;
+            return reply.send(
+                this.processList(
+                    await this.graph.executeQuery<UserType[]>(
+                        (response) => {
+                            const { records } = response;
 
-                        if (records.length === 0) {
-                            return [];
-                        }
+                            if (records.length === 0) {
+                                return [];
+                            }
 
-                        return records.map((record) => {
-                            return this.graph.parseNode<UserType>(
-                                record.get("u"),
-                            );
-                        });
-                    },
-                    cypher,
-                    params,
+                            return records.map((record) => {
+                                return this.graph.parseNode<UserType>(
+                                    record.get("u"),
+                                );
+                            });
+                        },
+                        cypher,
+                        params,
+                    ),
                 ),
             );
-
-            return reply.send(this.model.get());
         } catch (e) {
             throw this.error(e);
         }
+    }
+
+    /**
+     * Processes a list of users, filtering out null and undefined values,
+     * and initializing each user with the User model instance before returning
+     * its properties.
+     *
+     * @param list - The list of users to process.
+     * @returns An array of UserType instances.
+     */
+    processList(list: Array<UserType | null | undefined>): Array<UserType> {
+        return list
+            .filter(
+                (user): user is UserType => user !== null && user !== undefined,
+            )
+            .map((user) => new User(this.model.mdorim, user).get() as UserType);
     }
 }
