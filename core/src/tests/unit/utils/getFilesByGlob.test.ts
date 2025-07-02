@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getFilesByGlob } from "./getFilesByGlob";
+import { getFilesByGlob } from "@/utils";
 
 describe("getFilesByGlob", () => {
     it("should read files matching the glob pattern and return their contents", async () => {
