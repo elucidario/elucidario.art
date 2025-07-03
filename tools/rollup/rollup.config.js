@@ -1,6 +1,7 @@
 import typescript from "@rollup/plugin-typescript";
 import terser from "@rollup/plugin-terser";
 import json from "@rollup/plugin-json";
+import { typescriptPaths } from "rollup-plugin-typescript-paths";
 
 import { mergeWith } from "lodash-es";
 
@@ -41,6 +42,7 @@ const lcdrRollup = (config = null) => {
                 tsconfig: "tsconfig.json",
                 ...typescriptConfig,
             }),
+            typescriptPaths(),
             terser({
                 ...terserConfig,
                 output: {

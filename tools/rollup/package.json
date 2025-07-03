@@ -11,7 +11,8 @@
         "@rollup/plugin-terser": "^0.4.4",
         "@rollup/plugin-typescript": "^12.1.2",
         "lodash-es": "^4.17.21",
-        "rollup": "^4.35.0",
-        "typescript": "^5.8.2"
+        "rollup": "^4.40.0",
+        "rollup-plugin-typescript-paths": "^1.5.0",
+        "typescript": "^5.8.3"
     }
 }
