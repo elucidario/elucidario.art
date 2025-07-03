@@ -10,11 +10,17 @@
  */
 export class MdorimError extends Error {
     public errors: Record<string, unknown>;
+    public statusCode?: number;
 
-    constructor(message: string, errors: Record<string, unknown> = {}) {
+    constructor(
+        message: string,
+        errors: Record<string, unknown> = {},
+        statusCode?: number,
+    ) {
         super(`MdorimError: ${message}`);
         this.name = "MdorimError";
         this.errors = errors;
+        this.statusCode = statusCode || 400; // Default to 400 Bad Request
     }
 
     getErrors(): Record<string, unknown> {
