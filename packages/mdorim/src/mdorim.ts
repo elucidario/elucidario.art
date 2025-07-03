@@ -9,13 +9,14 @@ import {
 } from "@apidevtools/json-schema-ref-parser";
 import { AnyValidateFunction } from "ajv/dist/core";
 
-import { filterLinkedArtRequired, isMdorimError, parseSchema } from "@/utils";
+import { filterLinkedArtRequired, isMdorimError } from "@/utils";
 import { MdorimError } from "@/errors";
 import { I18n } from "@/translations";
 
 import Schemas from "@/schemas";
 import { SchemaID } from "@/types";
 
+export { SchemaObject }; // Re-export SchemaObject from Ajv so it can be used in other parts of the application
 
 /**
  * # Mdorim Class
@@ -28,6 +29,8 @@ export class Mdorim {
     private parser: $RefParser;
     private validator: Ajv;
 
+    protected schemas: Set<string> = new Set();
+
     /**
      * ## Mdorim constructor
      *
@@ -36,16 +39,28 @@ export class Mdorim {
      *
      * @param defaultLocale - The default locale to use for translations (optional).
      */
-    constructor(private i18n: I18n, ajvOptions?: Options) {
+    constructor(
+        private i18n: I18n,
+        ajvOptions?: Options,
+    ) {
         this.parser = new $RefParser();
-        this.validator = new Ajv({ allErrors: false, strict: false, ...ajvOptions });
+        this.validator = new Ajv({
+            allErrors: false,
+            strict: false,
+            ...ajvOptions,
+        });
         addFormats(this.validator);
 
         for (const [key, value] of Object.entries(Schemas.Core)) {
             if (typeof value === "object" && value !== null) {
                 const id = `/core/${key}`;
+                this.schemas.add(id);
                 this.validator.addSchema(
-                    parseSchema(value as JSONSchema, id, filterLinkedArtRequired),
+                    this.parseSchema(
+                        value as JSONSchema,
+                        id,
+                        filterLinkedArtRequired,
+                    ),
                 );
             }
         }
@@ -53,8 +68,13 @@ export class Mdorim {
         for (const [key, value] of Object.entries(Schemas.LinkedArt)) {
             if (typeof value === "object" && value !== null) {
                 const id = `/linked-art/${key}`;
+                this.schemas.add(id);
                 this.validator.addSchema(
-                    parseSchema(value as JSONSchema, id, filterLinkedArtRequired),
+                    this.parseSchema(
+                        value as JSONSchema,
+                        id,
+                        filterLinkedArtRequired,
+                    ),
                 );
             }
         }
@@ -87,6 +107,27 @@ export class Mdorim {
         }
     }
 
+    /**
+     * ## Get all schema references
+     *
+     * Retrieves all schema references that have been added to the Mdorim instance.
+     * This includes both core and linked art schemas.
+     *
+     * @returns An array of schema references as strings.
+     */
+    public getSchemasRefs(): string[] {
+        return Array.from(this.schemas);
+    }
+
+    /**
+     * ## Get a validator by its ID
+     *
+     * Retrieves a validator function for the schema with the given ID.
+     * If the schema is not found, an error is thrown.
+     *
+     * @param id - The ID of the schema to retrieve the validator for.
+     * @returns The validator function for the schema.
+     */
     public getValidator(id: SchemaID): AnyValidateFunction {
         const schema = this.validator.getSchema(id);
         if (!schema) {
@@ -95,10 +136,13 @@ export class Mdorim {
         return schema;
     }
 
-    public async validate(
-        id: SchemaID,
-        value: unknown,
-    ): Promise<boolean> {
+    /**
+     * ## Validate a value against a schema
+     * @param id - The ID of the schema to validate.
+     * @param value - The value to validate against the schema.
+     * @returns A promise that resolves to true if the value is valid, or false if it is not.
+     */
+    public async validate(id: SchemaID, value: unknown): Promise<boolean> {
         const validator = this.getValidator(id);
         const valid = await validator(value);
 
@@ -108,11 +152,14 @@ export class Mdorim {
 
             throw this.error("Validation failed", {
                 id,
-                errors: errors.reduce((acc, error) => {
-                    const key = error.instancePath.slice(1) || id;
-                    acc[key] = error.message ?? "";
-                    return acc;
-                }, {} as Record<string, string>),
+                errors: errors.reduce(
+                    (acc, error) => {
+                        const key = error.instancePath.slice(1) || id;
+                        acc[key] = error.message ?? "";
+                        return acc;
+                    },
+                    {} as Record<string, string>,
+                ),
             });
         }
 
@@ -166,13 +213,23 @@ export class Mdorim {
         }
     }
 
-    pathToId(path: string): SchemaID {
+    /**
+     * ## Map a file path to a Mdorim Schema ID
+     * This method converts a file path to a Mdorim Schema ID.
+     * It handles both mdorim schemas and regular JSON schemas.
+     *
+     * @param path - The file path to map.
+     * @returns The mapped Mdorim Schema ID.
+     */
+    public pathToId(path: string): SchemaID {
         path = path.split("#")[0]; // Remove fragment identifier if present
+
+        let schemaId = path;
         if (!path.includes("mdorim") && path.includes("json")) {
             const parts = path.replace(".json", "").slice(1).split("/");
             const [namespace, name] = parts.splice(parts.length - 2, 2);
 
-            return `/${namespace}/${startCase(camelCase(name)).replace(" ", "")}`;
+            schemaId = `/${namespace}/${startCase(camelCase(name)).replace(" ", "")}`;
         } else if (path.includes("mdorim")) {
             // If the URL is a mdorim schema, we need to extract the namespace and name
             // from the URL and use the getter to fetch the schema.
@@ -186,9 +243,98 @@ export class Mdorim {
 
             const [namespace, name] = parts.splice(parts.length - 2, 2);
 
-            return `/${namespace}/${startCase(camelCase(name)).replace(" ", "")}`;
+            schemaId = `/${namespace}/${startCase(camelCase(name)).replace(" ", "")}`;
         }
-        return path as SchemaID;
+
+        return schemaId as SchemaID;
+    }
+
+    /**
+     * ## Map a file ID/path to a Mdorim Schema ID
+     * @param value - The file ID/path to map
+     * @param namespace - The namespace to use for the mapping
+     * @returns The mapped file ID
+     */
+    private mapFileId(value: string, namespace?: string): string {
+        if (!namespace) {
+            namespace = "";
+        }
+        namespace = namespace.startsWith("/") ? namespace : `/${namespace}`;
+
+        let id = "";
+
+        if (value.startsWith("#")) {
+            id = `${namespace}${value}`;
+        } else if (value.includes(".json")) {
+            const primaryNamespace = namespace.split("/")[1];
+            const [file, hash] = value.replace(".json", "").split("#");
+            id = `/${primaryNamespace}/${startCase(camelCase(file)).replace(" ", "")}#${hash}`;
+        } else {
+            id = value;
+        }
+
+        return id;
+    }
+
+    /**
+     * ## Parse a JSON Schema reference
+     * @param schema - The JSON Schema to parse
+     * @param base - The base URL to use for resolving references
+     * @param filterRequired - A function to filter required properties
+     * @returns The parsed JSON Schema
+     *
+     * @notes
+     * - It is for internal use only, don't use it outside of this package.
+     */
+    private parseRef(
+        schema: JSONSchema,
+        base: string,
+        filterRequired?: (required: string[]) => string[],
+    ): JSONSchema {
+        return Object.entries(schema).reduce((acc, [key, value]) => {
+            if (key === "$ref") {
+                acc[key as keyof JSONSchema] = this.mapFileId(value, base);
+            } else if (key === "required") {
+                acc[key as keyof JSONSchema] = filterRequired
+                    ? filterRequired(value as string[])
+                    : value;
+            } else if (typeof value === "object" && !Array.isArray(value)) {
+                const nestedDeref = this.parseRef(value, base, filterRequired);
+                acc[key as keyof JSONSchema] = nestedDeref;
+            } else if (Array.isArray(value)) {
+                acc[key as keyof JSONSchema] = value.map((item) => {
+                    if (typeof item === "object") {
+                        return this.parseRef(item, base, filterRequired);
+                    }
+                    return item;
+                });
+            } else {
+                acc[key as keyof JSONSchema] = value;
+            }
+
+            return acc;
+        }, {} as JSONSchema);
+    }
+
+    /**
+     * ## Parse a JSON Schema
+     * @param schema - The JSON Schema to parse
+     * @param id - The ID to assign to the schema
+     * @param filterRequired - A function to filter required properties
+     * @returns The parsed JSON Schema
+     *
+     * @notes
+     * - It is for internal use only, don't use it outside of this package.
+     */
+    private parseSchema(
+        schema: JSONSchema,
+        id: string,
+        filterRequired?: (required: string[]) => string[],
+    ): JSONSchema {
+        // We are intentionally removing $id and $schema from the schema object
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { $id, $schema, ...rest } = schema;
+        return { $id: id, ...this.parseRef(rest, id, filterRequired) };
     }
 
     /**
