@@ -1,0 +1,20 @@
+{
+    "title": "i18n:config",
+    "description": "description-config",
+    "type": "object",
+    "properties": {
+        "type": {
+            "type": "string",
+            "enum": ["MainConfig"]
+        },
+        "sysadmins": {
+            "type": "array",
+            "items": {
+                "$ref": "/core/User"
+            },
+            "minItems": 1
+        }
+    },
+    "required": ["type", "sysadmins"],
+    "additionalProperties": false
+}

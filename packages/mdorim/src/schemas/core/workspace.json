@@ -3,6 +3,10 @@
     "description": "i18n:workspace/description",
     "type": "object",
     "properties": {
+        "type": {
+            "type": "string",
+            "const": "Workspace"
+        },
         "uuid": {
             "$ref": "/core/Definitions#/$defs/uuid"
         },

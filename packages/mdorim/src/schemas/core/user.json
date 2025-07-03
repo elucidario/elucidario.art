@@ -3,6 +3,10 @@
     "title": "i18n:user",
     "description": "i18n:user/description",
     "properties": {
+        "type": {
+            "type": "string",
+            "const": "User"
+        },
         "uuid": {
             "$ref": "/core/Definitions#/$defs/uuid"
         },
@@ -11,9 +15,6 @@
         },
         "email": {
             "$ref": "/core/Definitions#/$defs/email"
-        },
-        "password": {
-            "$ref": "/core/Definitions#/$defs/password"
         }
     },
     "additionalProperties": false

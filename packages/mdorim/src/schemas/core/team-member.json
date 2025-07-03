@@ -3,13 +3,27 @@
     "description": "description-team_member",
     "type": "object",
     "properties": {
+        "uuid": {
+            "$ref": "/core/Definitions#/$defs/uuid"
+        },
+        "type": {
+            "type": "string",
+            "enum": ["TeamMember"]
+        },
+        "status": {
+            "type": "string",
+            "enum": ["active", "suspended", "inactive"]
+        },
         "user": {
             "$ref": "/core/User"
+        },
+        "email": {
+            "$ref": "/core/Definitions#/$defs/email"
         },
         "role": {
             "$ref": "/core/Definitions#/$defs/role"
         }
     },
-    "required": ["user", "role"],
+    "required": ["email", "role"],
     "additionalProperties": false
 }
