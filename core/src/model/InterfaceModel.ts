@@ -1,7 +1,9 @@
 export default interface InterfaceModel<T extends Record<string, unknown>> {
-    set(data?: T | T[] | null): void;
+    data?: T | null;
 
-    get(): T | T[] | undefined | null;
+    set(data?: T | null): void;
+
+    get(): T | undefined | null;
 
     validate(data: unknown, schema: string): Promise<boolean>;
 
