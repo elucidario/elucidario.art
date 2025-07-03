@@ -14,5 +14,11 @@
     },
     "minItems": 1,
     "uniqueItems": true,
-    "additionalProperties": false
+    "additionalProperties": false,
+    "$defs": {
+        "InvitedMemberOrTeamMemberType": {
+            "type": "string",
+            "enum": ["InvitedMember", "TeamMember"]
+        }
+    }
 }
