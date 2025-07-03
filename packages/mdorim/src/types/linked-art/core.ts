@@ -45,15 +45,14 @@ import { Group } from "./group";
 import { ProvenanceActivity, TypesOfProvenanceActivity } from "./provenance";
 import { Abstract } from "./abstract";
 
-export interface Reference<ResourceType extends GenericType = "Type">
-    extends MdorimBase<
-        {
-            _label: _Label;
-            equivalent?: Reference[];
-            notation?: LanguageTag[];
-        },
-        ResourceType
-    > { }
+export type Reference<ResourceType extends GenericType> = MdorimBase<
+    {
+        id: ID;
+        equivalent?: Reference<string>[];
+        notation?: LanguageTag[];
+    },
+    ResourceType
+>;
 
 export type PersonOrGroup = Person | Group;
 
@@ -61,7 +60,7 @@ export type LinkedArtProperties = {
     identified_by?: IdentifierOrName[];
     classified_as?: Concept[];
     referred_to_by?: Statement[];
-    equivalent?: Reference[];
+    equivalent?: Reference<string>[];
     representation?: Visual[];
     member_of?: Set[];
     subject_of?: Textual[];
@@ -84,7 +83,7 @@ export type LinkedArtProperties = {
     removed_by?: PartRemoval[];
     modified_by?: Modification[];
     encountered_by?: Encounter[];
-    changed_ownership_through?: ProvenanceActivity<TypesOfProvenanceActivity>[]
+    changed_ownership_through?: ProvenanceActivity<TypesOfProvenanceActivity>[];
     transferred_title_from?: PersonOrGroup[];
     transferred_title_to?: PersonOrGroup[];
     conceptually_part_of?: Abstract[];
@@ -97,7 +96,7 @@ export type LinkedArtProperties = {
     digitally_carries?: Textual[];
     digitally_shows?: Visual[];
     digitally_available_via?: DigitalService[];
-    access_point?: Reference[];
+    access_point?: Reference<string>[];
     timespan?: Timespan;
     during?: Period[];
     before?: PeriodEventOrActivity[];
