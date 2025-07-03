@@ -20,6 +20,9 @@ services:
       service: base_db
     environment:
       - NEO4J_AUTH_FILE=/run/secrets/neo4j_auth_dev_file
+    ports:
+      - "7474:7474"
+      - "7687:7687"
     volumes:
       - dev_db_data:/logs
       - dev_db_data:/data
@@ -34,6 +37,10 @@ services:
       service: base_db
     environment:
       - NEO4J_AUTH_FILE=/run/secrets/neo4j_auth_test_file
+      - NODE_ENV=test
+    ports:
+      - "7575:7474"
+      - "7689:7687"
     volumes:
       - test_db_data:/logs
       - test_db_data:/data
@@ -60,6 +67,8 @@ services:
       file: compose.base.yaml
       service: base
     working_dir: /lcdr/core
+    environment:
+    - NODE_ENV=test
     ports:
       - "8000:8000"
     depends_on:
@@ -75,7 +84,7 @@ services:
     ports:
       - "3001:3001"
     working_dir: /lcdr/packages/mdorim
-    command: pnpm start
+    command: pnpm dev
 
   test_mdorim:
     extends:

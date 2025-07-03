@@ -4,6 +4,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 export default defineConfig({
     plugins: [tsconfigPaths()],
     test: {
+        fileParallelism: false,
         globals: true,
         coverage: {
             include: ["src/**/*.ts", "src/**/*.js"],
@@ -16,9 +17,6 @@ export default defineConfig({
                 "**/types.ts",
             ],
             all: true,
-        },
-        sequence: {
-            setupFiles: ["./src/index.test.ts"],
         },
     },
 });

@@ -1,40 +1,26 @@
-export type FilterCallback<T> = (value: T, ...args: unknown[]) => unknown;
+import { FilterCallback } from "@/types";
 
-export function addFilter<T>(
-    filterName: string,
-    callback: FilterCallback<T>,
-    priority: number = 10,
-): void {
-    Filters.getInstance().add(filterName, callback, priority);
-}
-
-export function applyFilter<T>(
-    filterName: string,
-    value: T,
-    ...args: unknown[]
-): T {
-    return Filters.getInstance().apply(filterName, value, ...args);
-}
-
+/**
+ * # Filters Class
+ * This class manages hooks for various filters in the application.
+ * It allows you to register callbacks for specific filter events and apply them in order of priority.
+ */
 export class Filters {
-    private static instance: Filters;
-
+    /**
+     * A map that holds hooks for different filter names.
+     */
     hooks: Map<
         string,
-        { callback: FilterCallback<unknown>; priority: number }[]
+        { callback: FilterCallback<unknown, unknown[]>; priority: number }[]
     >;
 
-    static getInstance(): Filters {
-        if (!Filters.instance) {
-            Filters.instance = new Filters();
-        }
-        return Filters.instance;
-    }
-
+    /**
+     * ## Initializes the Filters class with an empty hooks map.
+     */
     constructor() {
         this.hooks = new Map<
             string,
-            { callback: FilterCallback<unknown>; priority: number }[]
+            { callback: FilterCallback<unknown, unknown[]>; priority: number }[]
         >();
     }
 
@@ -43,11 +29,11 @@ export class Filters {
      * @param hookName The event name to register the hook for.
      * @param callback The function to be called when the event occurs.
      * @param priority The priority of the hook. Lower numbers are executed first.
-     *                 Defaults to 10 if not provided.
+     *                 - Defaults to 10 if not provided.
      */
-    add<T>(
+    add<T, U extends unknown[]>(
         hookName: string,
-        callback: FilterCallback<T>,
+        callback: FilterCallback<T, U>,
         priority: number = 10,
     ): void {
         if (!this.hooks.has(hookName)) {
@@ -57,13 +43,24 @@ export class Filters {
         const hooks = this.hooks.get(hookName);
 
         hooks!.push({
-            callback: callback as FilterCallback<unknown>,
+            callback: callback as FilterCallback<unknown, unknown[]>,
             priority,
         });
         hooks!.sort((a, b) => a.priority - b.priority);
     }
 
-    apply<T>(filterName: string, value: T, ...args: unknown[]): T {
+    /**
+     * Applies all hooks registered for a specific filter name.
+     * @param filterName The name of the filter to apply hooks for.
+     * @param value The initial value to be filtered.
+     * @param args Additional arguments to pass to the hook callbacks.
+     * @returns The filtered value after applying all hooks.
+     */
+    apply<T, U extends unknown[] = []>(
+        filterName: string,
+        value: T,
+        ...args: U
+    ): T {
         if (!this.hooks.has(filterName)) {
             return value;
         }

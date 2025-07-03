@@ -3,22 +3,34 @@ import {
     EagerResult,
     Neo4jError,
     ManagedTransaction,
+    isInt,
+    isDate,
+    isDateTime,
+    isTime,
+    isLocalDateTime,
+    isLocalTime,
+    isDuration,
+    RecordShape,
 } from "neo4j-driver";
 
+import { isGraphError, GraphError, isNeo4jError } from "@/errors";
+import { MapNeo4jError, PropertyConstraint, Hooks } from "@/types";
 import { getDriver } from "./driver";
-import { GraphError, isNeo4jError } from "@/errors";
-import { isGraphError } from "@/errors";
-import { MapNeo4jError } from "@/types";
-import { applyFilter } from "@/hooks";
-
-export type QueryCallback<T> = (driver: Driver) => Promise<T>;
+import { Cypher } from "./Cypher";
+import { MdorimBase } from "@elucidario/mdorim";
 
 export class Graph {
     /**
-     * Singleton instance of the Graph class.
-     * Ensures that only one instance of the Graph class exists.
+     * Cypher instance used for building Cypher queries.
+     * This is initialized in the constructor and used for executing queries.
      */
-    private static instance: Graph;
+    cypher: Cypher;
+
+    /**
+     * Hooks type used for managing filters and actions.
+     * This is initialized in the constructor and used for applying filters.
+     */
+    hooks: Hooks;
 
     /**
      * The Neo4j driver instance used to interact with the database.
@@ -26,27 +38,14 @@ export class Graph {
      */
     protected driver: Driver;
 
-    /**
-     * Private constructor to enforce singleton pattern.
-     */
-    private constructor() {
+    constructor(cypher: Cypher, hooks: Hooks) {
+        this.cypher = cypher;
+        this.hooks = hooks;
         this.driver = getDriver();
     }
 
     async setup() {
         await this.setConstraints();
-    }
-
-    /**
-     * Returns the singleton instance of the Graph class.
-     * If the instance does not exist, it creates a new one.
-     * @returns The singleton instance of Graph.
-     */
-    public static getInstance(): Graph {
-        if (!Graph.instance) {
-            Graph.instance = new Graph();
-        }
-        return Graph.instance;
     }
 
     /**
@@ -71,14 +70,24 @@ export class Graph {
     ): Promise<T> {
         const driver = this.driver;
         if (!driver) {
-            throw new GraphError("Driver is not initialized");
+            throw new GraphError("Driver is not initialized", null, 500);
         }
         try {
             await driver.getServerInfo(); // Ensure the driver is connected
             const response = await driver.executeQuery(cypher, params);
             return responseParser(response);
         } catch (error) {
-            throw this.error(error);
+            throw this.error(
+                error,
+                {
+                    mdorim: {
+                        ConstraintValidationFailed: {
+                            message: "Entity already exists.",
+                        },
+                    },
+                },
+                (error as GraphError).statusCode || 409,
+            );
         }
     }
 
@@ -91,11 +100,11 @@ export class Graph {
     async writeTransaction<T>(
         callback: (tx: ManagedTransaction) => Promise<T>,
     ) {
-        const driver = this.driver;
-        if (!driver) {
-            throw new GraphError("Driver is not initialized");
-        }
         try {
+            const driver = this.driver;
+            if (!driver) {
+                throw new GraphError("Driver is not initialized", null, 500);
+            }
             const session = driver.session();
             const response = await session.executeWrite(callback);
             await session.close();
@@ -133,10 +142,9 @@ export class Graph {
     private async setConstraints() {
         try {
             await this.writeTransaction(async (tx) => {
-                const constraints = applyFilter<Array<string>>(
-                    "graph.setConstraints",
-                    Array<string>(),
-                );
+                const constraints = this.hooks.filters.apply<
+                    Array<PropertyConstraint>
+                >("graph.setConstraints", Array<PropertyConstraint>());
 
                 if (!Array.isArray(constraints)) {
                     throw new GraphError(
@@ -149,14 +157,104 @@ export class Graph {
                 }
 
                 await Promise.all(
-                    constraints.map(
-                        async (constraint) => await tx.run(constraint),
-                    ),
+                    constraints.map(async (constraint) => {
+                        const constraintQuery = this.cypher
+                            .PropertyConstraint(constraint)
+                            .build();
+                        await tx.run(
+                            constraintQuery.cypher,
+                            constraintQuery.params,
+                        );
+                    }),
                 );
             });
         } catch (error) {
             throw this.error(`Failed to set constraints: ${error}`);
         }
+    }
+
+    /**
+     * ██████╗  █████╗ ██████╗ ███████╗███████╗██████╗
+     * ██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔════╝██╔══██╗
+     * ██████╔╝███████║██████╔╝███████╗█████╗  ██████╔╝
+     * ██╔═══╝ ██╔══██║██╔══██╗╚════██║██╔══╝  ██╔══██╗
+     * ██║     ██║  ██║██║  ██║███████║███████╗██║  ██║
+     * ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝
+     */
+    /**
+     * Converts Neo4j values to native JavaScript types.
+     * - Converts Neo4j Int to number
+     * - Converts Neo4j Date, DateTime, Time, LocalDateTime, LocalTime, Duration to string
+     * - Converts Neo4j List to array
+     * - Converts Neo4j Map to object
+     *
+     * @param value - The value to convert
+     * @returns The converted value
+     */
+    private neo4jValueToNativeType(value: unknown): unknown {
+        if (Array.isArray(value)) {
+            value = value.map((innerValue) =>
+                this.neo4jValueToNativeType(innerValue),
+            );
+        } else if (isInt(value)) {
+            value = value.toNumber();
+        } else if (
+            isDate(value) ||
+            isDateTime(value) ||
+            isTime(value) ||
+            isLocalDateTime(value) ||
+            isLocalTime(value) ||
+            isDuration(value)
+        ) {
+            value = value.toString();
+        } else if (
+            typeof value === "object" &&
+            value !== undefined &&
+            value !== null
+        ) {
+            value = Object.entries(value).reduce((acc, [key, val]) => {
+                (acc as Record<string, unknown>)[key] =
+                    this.neo4jValueToNativeType(val);
+                return acc;
+            }, {});
+        }
+        return value;
+    }
+
+    /**
+     * Parses a Node from Neo4j to specific type.
+     *
+     * @param data - Data to parse
+     * @param filter - Optional array of keys to filter out from the response
+     *                 - Defaults to ["password"].
+     * @returns Parsed data
+     */
+    parseNode<T extends MdorimBase>(data: RecordShape): T {
+        const type = data.labels![0] as string;
+        return Object.entries(data.properties).reduce(
+            (acc, [key, value]) => {
+                (acc as Record<string, unknown>)[key] =
+                    this.neo4jValueToNativeType(value);
+                return acc;
+            },
+            {
+                type,
+            } as T,
+        );
+    }
+
+    /**
+     * Parses a Relationship from Neo4j to specific type.
+     *
+     * @param data - Data to parse
+     * @returns Parsed data
+     */
+    parseRelationship<T extends Record<string, unknown>>(data: RecordShape): T {
+        return Object.entries(data.properties).reduce((acc, [key, value]) => {
+            (acc as Record<string, unknown>)[key] =
+                this.neo4jValueToNativeType(value);
+            return acc;
+        }, {} as T);
     }
 
     /**
@@ -167,13 +265,14 @@ export class Graph {
      * ███████╗██║  ██║██║  ██║╚██████╔╝██║  ██║
      * ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝
      */
+
     /**
      * Handles errors that occur during database operations.
      * @param err The error object.
      * @param map Optional mapping of error codes to user-friendly messages.
      * @returns A GraphError instance.
      */
-    error(err: unknown, map?: MapNeo4jError): GraphError {
+    error(err: unknown, map?: MapNeo4jError, statusCode?: number): GraphError {
         if (isGraphError(err)) {
             return err;
         }
@@ -186,7 +285,7 @@ export class Graph {
                 if (mapped) {
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     const [_, { message, details }] = mapped;
-                    const error = new GraphError(message, details);
+                    const error = new GraphError(message, details, statusCode);
                     return this.error(error);
                 }
             }
@@ -198,7 +297,7 @@ export class Graph {
                 if (mapped) {
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     const [_, { message, details }] = mapped;
-                    const error = new GraphError(message, details);
+                    const error = new GraphError(message, details, statusCode);
                     return this.error(error);
                 }
             }
@@ -209,6 +308,7 @@ export class Graph {
             {
                 error: err,
             },
+            statusCode,
         );
     }
 }

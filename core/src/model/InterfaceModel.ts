@@ -1,9 +1,22 @@
-import { MapNeo4jError } from "@/types";
+export default interface InterfaceModel<T extends Record<string, unknown>> {
+    data?: T | null;
 
-export interface InterfaceModel<
-    T extends Record<string, unknown> = Record<string, unknown>,
-> {
-    parseResponse(data: Record<string, unknown>, filter?: string[]): T;
+    set(data?: T | null): void;
 
-    error(error: unknown, details?: MapNeo4jError): Error;
+    get(): T | undefined | null;
+
+    validate(data: unknown, schema: string): Promise<boolean>;
+
+    validateEntity(
+        data: Record<string, unknown>,
+        schemaName?: string,
+    ): Promise<boolean>;
+
+    validateUUID(uuid: unknown): Promise<boolean>;
+
+    validateNumber(value: unknown): Promise<boolean>;
+
+    validateEmail(email: unknown): Promise<boolean>;
+
+    error(err: unknown): Error;
 }

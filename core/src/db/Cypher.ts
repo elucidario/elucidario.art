@@ -6,6 +6,7 @@ import CypherPrimitive, {
 } from "@neo4j/cypher-builder";
 import { MatchClausePattern } from "node_modules/@neo4j/cypher-builder/dist/clauses/Match";
 import { WithProjection } from "node_modules/@neo4j/cypher-builder/dist/clauses/With";
+import { PropertyConstraint } from "@/types";
 
 /**
  * # Facade for building Cypher queries.
@@ -19,6 +20,10 @@ export class Cypher {
     builder(callback: (cypher: typeof CypherPrimitive) => Clause): Clause {
         const cypher = CypherPrimitive;
         return callback(cypher);
+    }
+
+    eq(leftExpr: Expr, rightExpr: Expr): CypherPrimitive.ComparisonOp {
+        return CypherPrimitive.eq(leftExpr, rightExpr);
     }
 
     /**
@@ -115,7 +120,7 @@ export class Cypher {
      * It is useful for building complex queries by combining different parts of the query.
      * @returns A new Cypher clause representing the concatenated result.
      */
-    concat(...args: CypherPrimitive.Clause[]) {
+    concat(...args: Array<CypherPrimitive.Clause | undefined>) {
         return CypherPrimitive.utils.concat(...args);
     }
 
@@ -222,5 +227,49 @@ export class Cypher {
             | CypherPrimitive.PathAssign<CypherPrimitive.Pattern>,
     ) {
         return new CypherPrimitive.Merge(pattern);
+    }
+
+    /**
+     * Creates a new Cypher Property Constraint clause with the specified parameters.
+     * @param param The parameters for the Property Constraint clause.
+     * @returns A new Cypher Property Constraint clause.
+     */
+    PropertyConstraint({
+        name,
+        labels,
+        prop,
+    }: PropertyConstraint): CypherPrimitive.Raw {
+        return new CypherPrimitive.Raw(() => {
+            return `CREATE CONSTRAINT ${name} IF NOT EXISTS FOR (n:${labels.join(":")}) REQUIRE n.${prop} IS UNIQUE`;
+        });
+    }
+
+    /**
+     * Creates a new Cypher Unwind clause with the specified projection column.
+     * @param projection The projection column to unwind in the Cypher query.
+     * @returns A new Cypher Unwind clause.
+     */
+    Unwind(
+        projection: CypherPrimitive.UnwindProjectionColumn,
+    ): CypherPrimitive.Unwind {
+        return new CypherPrimitive.Unwind(projection);
+    }
+
+    /**
+     * Creates a new Cypher Collect clause with the specified subquery.
+     * @param subquery The subquery to collect in the Cypher query.
+     * @returns A new Cypher Collect clause.
+     */
+    Collect(subquery: Clause): CypherPrimitive.Collect {
+        return new CypherPrimitive.Collect(subquery);
+    }
+
+    /**
+     * Creates a new Cypher Aggregation Function for collecting values.
+     * @param expr The expression to collect in the aggregation function.
+     * @returns A new Cypher Aggregation Function for collecting values.
+     */
+    collect(expr: Expr): CypherPrimitive.AggregationFunction {
+        return CypherPrimitive.collect(expr);
     }
 }

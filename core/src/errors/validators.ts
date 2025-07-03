@@ -2,6 +2,7 @@ import { Neo4jError } from "neo4j-driver";
 
 import { GraphError } from "./GraphError";
 import { ServiceError } from "./ServiceError";
+import { QueryError } from "./QueryError";
 
 export function isGraphError(error: unknown): error is GraphError {
     return (
@@ -22,6 +23,17 @@ export function isServiceError(error: unknown): error is ServiceError {
             "name" in error &&
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (error as any).name === "ServiceError")
+    );
+}
+
+export function isQueryError(error: unknown): error is QueryError {
+    return (
+        error instanceof QueryError ||
+        (typeof error === "object" &&
+            error !== null &&
+            "name" in error &&
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (error as any).name === "QueryError")
     );
 }
 

@@ -1,0 +1,30 @@
+import { UUID } from "@elucidario/mdorim";
+
+export type QueryStrings<T = Record<string, unknown>> = {
+    Querystring: {
+        limit?: number;
+        offset?: number;
+        sort?: string;
+        filter?: string;
+        type?: string;
+    } & T;
+};
+
+export type Params<
+    T extends Record<string, unknown> = Record<string, unknown>,
+> = {
+    Params: T;
+};
+
+export type ParamsWithWorkspace<T = unknown> = Params<
+    { workspaceUUID?: UUID } & T
+>;
+
+export type Body<T> = {
+    Body: T;
+};
+
+export type ReferenceParams = {
+    referenceUUID: UUID;
+    workspaceUUID: UUID;
+};
