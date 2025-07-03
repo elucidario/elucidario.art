@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { lcdr } from "@/app";
+import { testSetup } from "@/tests/setup";
 
 describe("ConfigService", { skip: false }, async () => {
     const adminUser = {
@@ -28,16 +29,21 @@ describe("ConfigService", { skip: false }, async () => {
         const app = await lcdr(false);
         const graph = app.lcdr.graph;
 
-        // erase everything before the test
-        await graph.writeTransaction(async (tx) => {
-            await tx.run(
-                "OPTIONAL MATCH (u:User {email: $email}) DETACH DELETE u",
-                {
-                    email: adminUser.email,
-                },
+        if (!testSetup.DELETE.skip) {
+            await graph.writeTransaction(async (tx) => {
+                await tx.run(
+                    "OPTIONAL MATCH (u:User {email: $email}) DETACH DELETE u",
+                    {
+                        email: adminUser.email,
+                    },
+                );
+                await tx.run("OPTIONAL MATCH (m:MainConfig) DETACH DELETE m");
+            });
+        } else {
+            console.log(
+                "Skipping DELETE afterAll operations as per test setup configuration.",
             );
-            await tx.run("OPTIONAL MATCH (m:MainConfig) DETACH DELETE m");
-        });
+        }
 
         app.close();
     });
@@ -48,7 +54,7 @@ describe("ConfigService", { skip: false }, async () => {
         expect(app.services.config).toBeDefined();
     });
 
-    describe("CREATE", async () => {
+    describe("CREATE", testSetup.CREATE, async () => {
         it("should create main config", async () => {
             const app = await lcdr(false);
 
@@ -76,7 +82,7 @@ describe("ConfigService", { skip: false }, async () => {
         });
     });
 
-    describe("READ", async () => {
+    describe("READ", testSetup.READ, async () => {
         it("should read MainConfig", async () => {
             const app = await lcdr(false);
 

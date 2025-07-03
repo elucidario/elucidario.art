@@ -1,6 +1,13 @@
 import { FastifyRequest, FastifyReply, FastifyInstance } from "fastify";
+import { RawRuleOf, MongoAbility } from "@casl/ability";
 
-import { Hooks, Body } from "@/types";
+import {
+    Hooks,
+    Body,
+    AuthContext,
+    QueryStrings,
+    ParamsWithWorkspace,
+} from "@/types";
 import { Config as ConfigType, ConfigTypes, User } from "@elucidario/mdorim";
 import { ConfigQuery } from "@/queries";
 import { Graph } from "@/db";
@@ -21,7 +28,7 @@ export class ConfigService extends AbstractService<
     ConfigQuery
 > {
     /**
-     * ConfigService constructor
+     * # ConfigService constructor
      * @param model - The membership model
      * @param query - The membership query
      * @param graph - The graph database instance
@@ -36,8 +43,117 @@ export class ConfigService extends AbstractService<
         fastify: FastifyInstance,
     ) {
         super(model, query, graph, hooks, fastify);
+        this.register();
     }
 
+    /**
+     * ## Registers the service hooks for authorization rules.
+     * This method adds a filter to the "authorization.rules" hook
+     * to set abilities based on the user's role.
+     */
+    protected register() {
+        this.hooks.filters.add<
+            RawRuleOf<MongoAbility>[],
+            [AuthContext<ConfigType<ConfigTypes>>]
+        >("authorization.rules", (abilities, context) =>
+            this.setAbilities(abilities, context),
+        );
+    }
+
+    /**
+     * ## Sets the abilities for the user based on their role.
+     * This method modifies the abilities array to include management permissions.
+     *
+     * @param abilities - The current abilities array.
+     * @param context - The authentication context containing user and role information.
+     * @returns The modified abilities array.
+     */
+    protected setAbilities(
+        abilities: RawRuleOf<MongoAbility>[],
+        context: AuthContext<ConfigType<ConfigTypes>>,
+    ): RawRuleOf<MongoAbility>[] {
+        const { role } = context;
+
+        if (role === "sysadmin") {
+            abilities.push({
+                action: "manage",
+                subject: "Config",
+            });
+        }
+
+        return abilities;
+    }
+
+    /**
+     * ## Creates a new configuration.
+     * This method processes the request to create a new configuration
+     * and returns the created configuration.
+     *
+     * @param request - The Fastify request object containing the configuration data.
+     * @param reply - The Fastify reply object to send the response.
+     * @returns The created configuration.
+     * @throws Error if the creation fails or if unauthorized.
+     */
+    async create(
+        request: FastifyRequest<
+            ParamsWithWorkspace & Body<ConfigType<ConfigTypes>> & QueryStrings
+        >,
+        reply: FastifyReply,
+    ): Promise<ConfigType<ConfigTypes>> {
+        try {
+            const data = this.parseBodyRequest(request);
+
+            const response = await this.setMainConfig(data);
+
+            this.model.set(response);
+            return reply.code(201).send(this.model.get());
+        } catch (e) {
+            throw this.error(e);
+        }
+    }
+
+    /**
+     * ## Reads a configuration.
+     * This method processes the request to read a configuration
+     * and returns the found configuration.
+     *
+     * @param request - The Fastify request object containing the configuration data.
+     * @param reply - The Fastify reply object to send the response.
+     * @returns The found configuration.
+     * @throws Error if the read fails or if unauthorized.
+     */
+    async read(
+        request: FastifyRequest<
+            ParamsWithWorkspace & Body<ConfigType<ConfigTypes>> & QueryStrings
+        >,
+        reply: FastifyReply,
+    ): Promise<ConfigType<ConfigTypes> | null> {
+        try {
+            await this.processRequest(request);
+
+            if (!this.getPermissions().can("read", this.model)) {
+                throw this.error("Unauthorized", 403);
+            }
+
+            const mainConfig = await this.getMainConfig();
+            if (!mainConfig) {
+                throw this.error("Main config not found", 404);
+            }
+            this.model.set(mainConfig);
+            return reply.send(this.model.get());
+        } catch (e) {
+            throw this.error(e);
+        }
+    }
+
+    /**
+     * ## Retrieves the main configuration from the database.
+     * This method queries the database to find the main configuration node
+     * and returns it along with its associated sysadmins.
+     *
+     * @returns The main configuration or null if not found.
+     * @throws Error if the query fails.
+     */
     protected async getMainConfig(): Promise<ConfigType<ConfigTypes> | null> {
         const cypher = this.query.cypher;
         const configNode = cypher.NamedNode("c");
@@ -95,15 +211,20 @@ export class ConfigService extends AbstractService<
         );
     }
 
+    /**
+     * ## Sets the main configuration in the database.
+     * This method creates a new main configuration node and associates it with the first sysadmin.
+     *
+     * @param data - The configuration data to set.
+     * @returns The created configuration.
+     * @throws Error if unauthorized or if validation fails.
+     */
     protected async setMainConfig(
         data: Partial<ConfigType<ConfigTypes>>,
     ): Promise<ConfigType<ConfigTypes>> {
         const mainConfig = await this.getMainConfig();
         if (mainConfig) {
-            throw this.error(
-                "Main config already exists. Use update method to modify it.",
-                409,
-            );
+            throw this.error("Unauthorized.", 403);
         }
 
         await this.model.validateEntity(data);
@@ -168,39 +289,6 @@ export class ConfigService extends AbstractService<
             cypher,
             params,
         );
-    }
-
-    async create(
-        request: FastifyRequest<Body<ConfigType<ConfigTypes>>>,
-        reply: FastifyReply,
-    ): Promise<ConfigType<ConfigTypes>> {
-        try {
-            const data = this.parseBodyRequest(request);
-
-            const response = await this.setMainConfig(data);
-
-            this.model.set(response);
-            return reply.code(201).send(this.model.get());
-        } catch (e) {
-            console.info("create", e);
-            throw this.error(e);
-        }
-    }
-
-    async read(
-        request: FastifyRequest,
-        reply: FastifyReply,
-    ): Promise<ConfigType<ConfigTypes> | null> {
-        try {
-            const mainConfig = await this.getMainConfig();
-            if (!mainConfig) {
-                throw this.error("Main config not found", 404);
-            }
-            this.model.set(mainConfig);
-            return reply.send(this.model.get());
-        } catch (e) {
-            throw this.error(e);
-        }
     }
 
     /**

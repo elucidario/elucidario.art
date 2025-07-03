@@ -3,8 +3,9 @@ import { Workspace } from "@elucidario/mdorim";
 
 import { lcdr } from "@/app";
 import { FastifyInstance } from "fastify";
+import { testSetup } from "@/tests/setup";
 
-describe("WorkspaceService", { skip: false }, async () => {
+describe("WorkspaceService", async () => {
     let app: FastifyInstance;
     let workspace: Workspace;
 
@@ -18,31 +19,43 @@ describe("WorkspaceService", { skip: false }, async () => {
         const graph = app.lcdr.graph;
 
         await graph.writeTransaction(async (tx) => {
-            await tx.run(
-                "OPTIONAL MATCH (u:User {email: $email}) DETACH DELETE u",
-                {
-                    email: adminUser.email,
-                },
-            );
+            await tx.run("MATCH (u:User {email: $email}) DETACH DELETE u", {
+                email: adminUser.email,
+            });
+
+            await tx.run("MATCH (m:MainConfig) DETACH DELETE m");
+
+            await tx.run("MATCH (w:Workspace) DETACH DELETE w");
         });
 
         await app.inject({
             method: "POST",
-            url: "/api/v1/users/register",
-            payload: adminUser,
+            url: "/api/v1/config",
+            payload: {
+                type: "MainConfig",
+                sysadmins: [adminUser],
+            },
         });
     });
 
     afterAll(async () => {
         const graph = app.lcdr.graph;
 
-        await graph.writeTransaction(async (tx) => {
-            await tx.run("MATCH (u:User {email: $email}) DETACH DELETE u", {
-                email: adminUser.email,
-            });
+        if (!testSetup.DELETE.skip) {
+            await graph.writeTransaction(async (tx) => {
+                await tx.run("MATCH (u:User {email: $email}) DETACH DELETE u", {
+                    email: adminUser.email,
+                });
 
-            await tx.run("MATCH (w:Workspace) DETACH DELETE w");
-        });
+                await tx.run("MATCH (m:MainConfig) DETACH DELETE m");
+
+                await tx.run("MATCH (w:Workspace) DETACH DELETE w");
+            });
+        } else {
+            console.log(
+                "Skipping DELETE afterAll operations as per test setup configuration.",
+            );
+        }
 
         app.close();
     });
@@ -52,7 +65,7 @@ describe("WorkspaceService", { skip: false }, async () => {
         expect(app.services.workspace).toBeDefined();
     });
 
-    describe("CREATE", async () => {
+    describe("CREATE", testSetup.CREATE, async () => {
         it("should create a workspace", async () => {
             const response = await app.inject({
                 method: "POST",
@@ -71,7 +84,7 @@ describe("WorkspaceService", { skip: false }, async () => {
         });
     });
 
-    describe("READ", async () => {
+    describe("READ", testSetup.READ, async () => {
         it("should read a workspace by ID", async () => {
             const response = await app.inject({
                 method: "GET",
@@ -99,7 +112,7 @@ describe("WorkspaceService", { skip: false }, async () => {
         });
     });
 
-    describe("UPDATE", async () => {
+    describe("UPDATE", testSetup.UPDATE, async () => {
         it("should update a workspace", async () => {
             const updatedWorkspace = {
                 name: "Updated Workspace Name",
@@ -122,7 +135,7 @@ describe("WorkspaceService", { skip: false }, async () => {
         });
     });
 
-    describe("DELETE", async () => {
+    describe("DELETE", testSetup.DELETE, async () => {
         it("should delete a workspace", async () => {
             const response = await app.inject({
                 method: "DELETE",
@@ -137,7 +150,7 @@ describe("WorkspaceService", { skip: false }, async () => {
                 url: `/api/v1/workspaces/profile/${workspace.uuid}`,
             });
 
-            expect(checkResponse.statusCode).toBe(404);
+            expect(checkResponse.statusCode).toBe(403); // Should return 403 Forbidden since the workspace is deleted
         });
     });
 });

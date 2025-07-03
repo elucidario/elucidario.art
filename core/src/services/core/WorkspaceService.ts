@@ -1,3 +1,5 @@
+import { RawRuleOf, MongoAbility } from "@casl/ability";
+
 import {
     TeamMemberRole,
     User,
@@ -6,7 +8,13 @@ import {
 import AbstractService from "../AbstractService";
 import { WorkspaceQuery } from "@/queries";
 import { Graph } from "@/db";
-import { Hooks, Body, Params, QueryStrings } from "@/types";
+import {
+    Hooks,
+    Body,
+    QueryStrings,
+    AuthContext,
+    ParamsWithWorkspace,
+} from "@/types";
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { Workspace } from "@/model";
 
@@ -14,7 +22,7 @@ export class WorkspaceService extends AbstractService<
     WorkspaceType,
     Workspace,
     WorkspaceQuery,
-    { workspaceUUID: string }
+    { workspaceUUID?: string }
 > {
     /**
      * WorkspaceService constructor
@@ -32,6 +40,45 @@ export class WorkspaceService extends AbstractService<
         fastify: FastifyInstance,
     ) {
         super(model, query, graph, hooks, fastify);
+        this.register();
+    }
+
+    /**
+     * ## Registers the service hooks for authorization rules.
+     * This method adds a filter to the "authorization.rules" hook
+     * to set abilities based on the user's role.
+     */
+    protected register() {
+        this.hooks.filters.add<
+            RawRuleOf<MongoAbility>[],
+            [AuthContext<WorkspaceType>]
+        >("authorization.rules", (abilities, context) =>
+            this.setAbilities(abilities, context),
+        );
+    }
+
+    /**
+     * ## Sets the abilities for the user based on their role.
+     * This method modifies the abilities array to include management permissions.
+     *
+     * @param abilities - The current abilities array.
+     * @param context - The authentication context containing user and role information.
+     * @returns The modified abilities array.
+     */
+    protected setAbilities(
+        abilities: RawRuleOf<MongoAbility>[],
+        context: AuthContext<WorkspaceType>,
+    ): RawRuleOf<MongoAbility>[] {
+        const { role } = context;
+
+        if (["admin", "sysadmin"].includes(role)) {
+            abilities.push({
+                action: "manage",
+                subject: "Workspace",
+            });
+        }
+
+        return abilities;
     }
 
     /**
@@ -41,10 +88,18 @@ export class WorkspaceService extends AbstractService<
      * @throws MdorimError if the workspace is invalid or creation fails.
      */
     async create(
-        request: FastifyRequest<Body<WorkspaceType>>,
+        request: FastifyRequest<
+            ParamsWithWorkspace & Body<WorkspaceType> & QueryStrings
+        >,
         reply: FastifyReply,
     ): Promise<WorkspaceType> {
         try {
+            await this.processRequest(request);
+
+            if (!this.getPermissions().can("create", this.model)) {
+                throw this.error("Unauthorized", 403);
+            }
+
             const data = this.parseBodyRequest(request);
 
             await this.model.validateEntity(data);
@@ -57,7 +112,6 @@ export class WorkspaceService extends AbstractService<
 
             const workspace = await this.graph.writeTransaction(async (tx) => {
                 const workspaceNode = this.graph.cypher.NamedNode("workspace");
-
                 const mergeWorkspace = this.query
                     .create({
                         data,
@@ -120,6 +174,7 @@ export class WorkspaceService extends AbstractService<
 
             return reply.code(201).send(this.model.get());
         } catch (e: unknown) {
+            console.error(e);
             throw this.error(e);
         }
     }
@@ -131,11 +186,19 @@ export class WorkspaceService extends AbstractService<
      * @throws MdorimError if the ID is invalid or reading fails.
      */
     async read(
-        request: FastifyRequest<Params<{ workspaceUUID: string }>>,
+        request: FastifyRequest<
+            ParamsWithWorkspace & Body<WorkspaceType> & QueryStrings
+        >,
         reply: FastifyReply,
     ): Promise<WorkspaceType | null> {
         try {
-            const { workspaceUUID } = request.params;
+            await this.processRequest(request);
+
+            if (!this.getPermissions().can("read", this.model)) {
+                throw this.error("Unauthorized", 403);
+            }
+
+            const { workspaceUUID } = this.getParams(request);
 
             await this.model.validateUUID(workspaceUUID);
 
@@ -179,11 +242,17 @@ export class WorkspaceService extends AbstractService<
      */
     async update(
         request: FastifyRequest<
-            Params<{ workspaceUUID: string }> & Body<WorkspaceType>
+            ParamsWithWorkspace & Body<WorkspaceType> & QueryStrings
         >,
         reply: FastifyReply,
     ): Promise<WorkspaceType> {
         try {
+            await this.processRequest(request);
+
+            if (!this.getPermissions().can("update", this.model)) {
+                throw this.error("Unauthorized", 403);
+            }
+
             const { workspaceUUID } = this.getParams(request);
             const data = this.parseBodyRequest(request);
 
@@ -192,7 +261,7 @@ export class WorkspaceService extends AbstractService<
 
             const { cypher, params } = this.query
                 .update({
-                    uuid: workspaceUUID,
+                    uuid: workspaceUUID!,
                     data,
                     labels: "Workspace",
                 })
@@ -230,10 +299,18 @@ export class WorkspaceService extends AbstractService<
      * @throws MdorimError if the ID is invalid or deletion fails.
      */
     async delete(
-        request: FastifyRequest<Params<{ workspaceUUID: string }>>,
+        request: FastifyRequest<
+            ParamsWithWorkspace & Body<WorkspaceType> & QueryStrings
+        >,
         reply: FastifyReply,
     ): Promise<boolean> {
         try {
+            await this.processRequest(request);
+
+            if (!this.getPermissions().can("delete", this.model)) {
+                throw this.error("Unauthorized", 403);
+            }
+
             const { workspaceUUID } = this.getParams(request);
             await this.model.validateUUID(workspaceUUID);
 
@@ -299,10 +376,18 @@ export class WorkspaceService extends AbstractService<
      * @throws MdorimError if the limit or offset is invalid or listing fails.
      */
     async list(
-        request: FastifyRequest<QueryStrings>,
+        request: FastifyRequest<
+            ParamsWithWorkspace & Body<WorkspaceType> & QueryStrings
+        >,
         reply: FastifyReply,
     ): Promise<WorkspaceType[]> {
         try {
+            await this.processRequest(request);
+
+            if (!this.getPermissions().can("read", this.model)) {
+                throw this.error("Unauthorized", 403);
+            }
+
             const { limit, offset } = this.getQueryStrings(request);
 
             await this.model.validateNumber(limit, true);

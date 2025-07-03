@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it, test } from "vitest";
 
 import { lcdr } from "@/app";
 import { User } from "@elucidario/mdorim";
+import { testSetup } from "@/tests/setup";
 
 describe("UserService", { skip: false }, async () => {
     const testUser = {
@@ -31,24 +32,41 @@ describe("UserService", { skip: false }, async () => {
 
         await app.inject({
             method: "POST",
-            url: "/api/v1/users/register",
-            payload: adminUser,
+            url: "/api/v1/config",
+            payload: {
+                type: "MainConfig",
+                sysadmins: [adminUser],
+            },
         });
+
+        // await app.inject({
+        //     method: "POST",
+        //     url: "/api/v1/users/register",
+        //     payload: adminUser,
+        // });
     });
 
     afterAll(async () => {
         const app = await lcdr(false);
         const graph = app.lcdr.graph;
 
-        await graph.writeTransaction(async (tx) => {
-            await tx.run("MATCH (u:User {email: $email}) DETACH DELETE u", {
-                email: adminUser.email,
-            });
+        if (!testSetup.DELETE.skip) {
+            await graph.writeTransaction(async (tx) => {
+                await tx.run("MATCH (u:User {email: $email}) DETACH DELETE u", {
+                    email: adminUser.email,
+                });
 
-            await tx.run("MATCH (u:User {email: $email}) DETACH DELETE u", {
-                email: testUser.email,
+                await tx.run("MATCH (u:User {email: $email}) DETACH DELETE u", {
+                    email: testUser.email,
+                });
+
+                await tx.run("MATCH (m:MainConfig) DETACH DELETE m");
             });
-        });
+        } else {
+            console.log(
+                "Skipping DELETE afterAll operations as per test setup configuration.",
+            );
+        }
 
         app.close();
     });
@@ -59,7 +77,7 @@ describe("UserService", { skip: false }, async () => {
         expect(app.services.user).toBeDefined();
     });
 
-    describe("CREATE", async () => {
+    describe("CREATE", testSetup.CREATE, async () => {
         it("should create user", async () => {
             const app = await lcdr(false);
             const response = await app.inject({
@@ -128,8 +146,8 @@ describe("UserService", { skip: false }, async () => {
         });
     });
 
-    describe("READ", async () => {
-        it("should get return a user", async () => {
+    describe("READ", testSetup.READ, async () => {
+        it("should return a user", async () => {
             const app = await lcdr(false);
             const response = await app.inject({
                 method: "GET",
@@ -164,7 +182,7 @@ describe("UserService", { skip: false }, async () => {
         });
     });
 
-    describe("UPDATE", async () => {
+    describe("UPDATE", testSetup.UPDATE, async () => {
         it("should update a user", async () => {
             const app = await lcdr(false);
             const newUsername = "newusername";
@@ -215,7 +233,7 @@ describe("UserService", { skip: false }, async () => {
         });
     });
 
-    describe("DELETE", async () => {
+    describe("DELETE", testSetup.DELETE, async () => {
         it("should delete a user", async () => {
             const app = await lcdr(false);
 
