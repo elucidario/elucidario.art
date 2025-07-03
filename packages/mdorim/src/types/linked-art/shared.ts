@@ -9,62 +9,60 @@ import {
 import { Value } from "../generic";
 import { PhysicalObject } from "./object";
 
-export interface Identifier
-    extends MdorimBase<
-        LinkedArtProperty<Pick<LinkedArtProperties, "content" | "assigned_by">>,
-        "Identifier"
-    > { }
+export type NameOrIdentifierType = "Name" | "Identifier";
 
-export interface Name
-    extends MdorimBase<
-        LinkedArtProperty<
-            Pick<
-                LinkedArtProperties,
-                "content" | "language" | "part" | "assigned_by"
-            >
-        >,
-        "Name"
-    > { }
+export type Identifier = MdorimBase<
+    LinkedArtProperty<Pick<LinkedArtProperties, "content" | "assigned_by">>,
+    "Identifier"
+>;
+
+export type Name = MdorimBase<
+    LinkedArtProperty<
+        Pick<
+            LinkedArtProperties,
+            "content" | "language" | "part" | "assigned_by"
+        >
+    >,
+    "Name"
+>;
 
 export type IdentifierOrName = Identifier | Name;
 
-export interface Statement
-    extends MdorimBase<
-        LinkedArtProperty<
-            Pick<
-                LinkedArtProperties,
-                | "content"
-                | "language"
-                | "format"
-                | "assigned_by"
-                | "subject_to"
-                | "created_by"
-            >
-        >,
-        "Statement"
-    > { }
+export type Statement = MdorimBase<
+    LinkedArtProperty<
+        Pick<
+            LinkedArtProperties,
+            | "content"
+            | "language"
+            | "format"
+            | "assigned_by"
+            | "subject_to"
+            | "created_by"
+        >
+    >,
+    "Statement"
+>;
 
-export interface Assignment
-    extends MdorimBase<
-        LinkedArtProperty<
-            Pick<
-                LinkedArtProperties,
-                | "carried_out_by"
-                | "timespan"
-                | "during"
-                | "before"
-                | "after"
-                | "influenced_by"
-                | "caused_by"
-                | "used_specific_object"
-                | "technique"
-            >
-        >,
-        "AttributeAssignment"
-    > {
+export type Assignment = MdorimBase<
+    LinkedArtProperty<
+        Pick<
+            LinkedArtProperties,
+            | "carried_out_by"
+            | "timespan"
+            | "during"
+            | "before"
+            | "after"
+            | "influenced_by"
+            | "caused_by"
+            | "used_specific_object"
+            | "technique"
+        >
+    >,
+    "AttributeAssignment"
+> & {
     assigned: LinkedArtEntity;
     assigned_property?: string;
-}
+};
 
 export type TypesOfType =
     | "Type"
@@ -73,16 +71,12 @@ export type TypesOfType =
     | "Material"
     | "MeasurementUnit";
 
-export interface Type<T extends TypesOfType = "Type">
-    extends MdorimBase<
-        LinkedArtBase<
-            Pick<
-                LinkedArtProperties,
-                "equivalent" | "notation" | "classified_as"
-            >
-        >,
-        T
-    > { }
+export type Type<T extends TypesOfType = "Type"> = MdorimBase<
+    LinkedArtBase<
+        Pick<LinkedArtProperties, "equivalent" | "notation" | "classified_as">
+    >,
+    T
+>;
 
 export type Currency = Type<"Currency">;
 
@@ -107,32 +101,31 @@ export type TypesOfActivity =
     | "Encounter"
     | "Modification";
 
-export interface Activity<T extends TypesOfActivity = "Activity">
-    extends MdorimBase<
-        LinkedArtEntity<
-            Pick<
-                LinkedArtProperties,
-                | "took_place_at"
-                | "timespan"
-                | "during"
-                | "before"
-                | "after"
-                | "caused_by"
-                | "carried_out_by"
-                | "influenced_by"
-                | "used_specific_object"
-                | "technique"
-                | "part"
-                | "part_of"
-                | "participant"
-            >
-        >,
-        T
-    > { }
+export type Activity<T extends TypesOfActivity = "Activity"> = MdorimBase<
+    LinkedArtEntity<
+        Pick<
+            LinkedArtProperties,
+            | "took_place_at"
+            | "timespan"
+            | "during"
+            | "before"
+            | "after"
+            | "caused_by"
+            | "carried_out_by"
+            | "influenced_by"
+            | "used_specific_object"
+            | "technique"
+            | "part"
+            | "part_of"
+            | "participant"
+        >
+    >,
+    T
+>;
 
-export type Event = Activity<"Event">
+export type Event = Activity<"Event">;
 
-export type Period = Activity<"Period">
+export type Period = Activity<"Period">;
 
 export type PeriodEventOrActivity = Activity | Event | Period;
 
@@ -185,44 +178,40 @@ export type Activities =
     | Encounter
     | Modification;
 
-export interface Dimension
-    extends MdorimBase<
-        LinkedArtProperty<
-            {
-                value: Value;
-                unit: MeasurementUnit;
-                upper_value_limit?: Value;
-                lower_value_limit?: Value;
-            } & Pick<LinkedArtProperties, "assigned_by">
-        >,
-        "Dimension"
-    > { }
-
-export interface Right
-    extends MdorimBase<
-        LinkedArtProperty<{ possessed_by?: PersonOrGroup }>,
-        "Right"
-    > { }
-
-export interface Timespan
-    extends MdorimBase<
-        LinkedArtProperty<{
-            begin_of_the_begin?: Date;
-            end_of_the_end?: Date;
-            end_of_the_begin?: Date;
-            begin_of_the_end?: Date;
-            duration?: Dimension;
-        }>,
-        "Timespan"
-    > { }
-
-export interface MonetaryAmount
-    extends MdorimBase<
-        LinkedArtProperty<{
+export type Dimension = MdorimBase<
+    LinkedArtProperty<
+        {
             value: Value;
-            currency: Currency;
+            unit: MeasurementUnit;
             upper_value_limit?: Value;
             lower_value_limit?: Value;
-        }>,
-        "MonetaryAmount"
-    > { }
+        } & Pick<LinkedArtProperties, "assigned_by">
+    >,
+    "Dimension"
+>;
+
+export type Right = MdorimBase<
+    LinkedArtProperty<{ possessed_by?: PersonOrGroup }>,
+    "Right"
+>;
+
+export type Timespan = MdorimBase<
+    LinkedArtProperty<{
+        begin_of_the_begin?: Date;
+        end_of_the_end?: Date;
+        end_of_the_begin?: Date;
+        begin_of_the_end?: Date;
+        duration?: Dimension;
+    }>,
+    "Timespan"
+>;
+
+export type MonetaryAmount = MdorimBase<
+    LinkedArtProperty<{
+        value: Value;
+        currency: Currency;
+        upper_value_limit?: Value;
+        lower_value_limit?: Value;
+    }>,
+    "MonetaryAmount"
+>;

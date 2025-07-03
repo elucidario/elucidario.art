@@ -36,3 +36,5 @@ export type WKT = string;
 export type Locales = keyof typeof translations;
 
 export const DefaultLocale: Locales = "pt-BR";
+
+export type NoUUID<T> = Omit<T, "uuid">;
