@@ -14,7 +14,7 @@ export class User extends AModel<UserType> implements IModel<UserType> {
      * This static property holds an array of Cypher constraints that should be applied to the model.
      * These constraints are used to ensure data integrity and uniqueness in the database.
      */
-    static constraints: PropertyConstraint[] = [
+    constraints: PropertyConstraint[] = [
         {
             name: "user_unique_uuid",
             labels: ["User"],
@@ -36,7 +36,7 @@ export class User extends AModel<UserType> implements IModel<UserType> {
      * Creates a new instance of UserModel.
      * @param data - Optional initial data for the user.
      */
-    constructor(data?: UserType | null) {
+    constructor(data?: UserType) {
         super("/core/User", data);
     }
 }

@@ -14,10 +14,10 @@ export class History
 {
     /**
      * ## History.constraints
-     * This static property holds an array of Cypher constraints that should be applied to the model.
+     * This property holds an array of Cypher constraints that should be applied to the model.
      * These constraints are used to ensure data integrity and uniqueness in the database.
      */
-    static constraints: PropertyConstraint[] = [
+    constraints: PropertyConstraint[] = [
         {
             name: "history_unique_uuid",
             labels: ["History"],
@@ -29,7 +29,7 @@ export class History
      * Creates a new instance of History.
      * @param data - Optional initial data for the history.
      */
-    constructor(data?: HistoryType | null) {
+    constructor(data?: HistoryType) {
         super("/core/History", data);
     }
 }

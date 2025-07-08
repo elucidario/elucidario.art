@@ -2,6 +2,7 @@ import { Concept as ConceptType } from "@elucidario/mdorim";
 
 import AModel from "../AModel";
 import IModel from "../IModel";
+import { PropertyConstraint } from "@/types";
 
 /**
  * # Concept
@@ -12,7 +13,14 @@ export class Concept
     extends AModel<ConceptType>
     implements IModel<ConceptType>
 {
-    constructor(data?: ConceptType | null) {
+    /**
+     * ## Concept.constraints
+     * This property holds an array of Cypher constraints that should be applied to the model.
+     * These constraints are used to ensure data integrity and uniqueness in the database.
+     */
+    constraints: PropertyConstraint[] = [];
+
+    constructor(data?: ConceptType) {
         super("/linked-art/Concept", data);
     }
 }

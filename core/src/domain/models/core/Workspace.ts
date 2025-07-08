@@ -14,10 +14,10 @@ export class Workspace
 {
     /**
      * ## Workspace.constraints
-     * This static property holds an array of Cypher constraints that should be applied to the model.
+     * This property holds an array of Cypher constraints that should be applied to the model.
      * These constraints are used to ensure data integrity and uniqueness in the database.
      */
-    static constraints: PropertyConstraint[] = [
+    constraints: PropertyConstraint[] = [
         {
             name: "workspace_unique_uuid",
             labels: ["Workspace"],
@@ -34,7 +34,7 @@ export class Workspace
      * Creates a new instance of Workspace.
      * @param data - Optional initial data for the workspace.
      */
-    constructor(data?: WorkspaceType | null) {
+    constructor(data?: WorkspaceType) {
         super("/core/Workspace", data);
     }
 }
