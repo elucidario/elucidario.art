@@ -1,13 +1,15 @@
 import { UUID } from "@elucidario/mdorim";
 
+export type ListParams = {
+    limit?: number;
+    offset?: number;
+    sort?: string;
+    filter?: string;
+    type?: string;
+};
+
 export type QueryStrings<T = Record<string, unknown>> = {
-    Querystring: {
-        limit?: number;
-        offset?: number;
-        sort?: string;
-        filter?: string;
-        type?: string;
-    } & T;
+    Querystring: ListParams & T;
 };
 
 export type Params<
