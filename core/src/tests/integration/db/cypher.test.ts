@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { Cypher } from "@/db";
+import { Cypher } from "@/application/Cypher";
 
-describe("Cypher", () => {
+describe("Cypher", { skip: false }, () => {
     const cypher = new Cypher();
 
     it("should cypherBuilder", () => {

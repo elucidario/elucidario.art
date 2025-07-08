@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-
-import { Authorization } from "@/app";
-import { Actions, Filters } from "@/hooks";
 import { MongoAbility, RawRuleOf } from "@casl/ability";
 
-describe("Authorization", { only: true }, () => {
+import { Authorization } from "@/application/Authorization";
+import { Actions, Filters } from "@/domain/hooks";
+
+describe("Authorization", { skip: false }, () => {
     const hooks = {
         actions: new Actions(),
         filters: new Filters(),
@@ -17,12 +17,16 @@ describe("Authorization", { only: true }, () => {
 
     it("should add rules", () => {
         const auth = new Authorization(hooks);
-        hooks.filters.add<RawRuleOf<MongoAbility>[]>(
+
+        hooks.filters.add<RawRuleOf<MongoAbility>[], unknown[]>(
             "authorization.rules",
             (rules) => [...rules, { action: "read", subject: "User" }],
         );
 
-        const ability = auth.permissions();
+        const ability = auth.permissions({
+            user: { uuid: "123", type: "User" },
+            role: "admin",
+        });
         expect(ability.can("read", "User")).toBe(true);
     });
 });

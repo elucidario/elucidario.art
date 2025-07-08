@@ -1,5 +1,5 @@
 const mainConfig: MainConfig = {
-    skipDelete: true,
+    skipDelete: false,
 };
 
 type MainConfig = Record<string, boolean>;

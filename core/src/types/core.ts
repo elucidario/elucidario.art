@@ -1,4 +1,4 @@
-import { Actions, Filters } from "@/hooks";
+import { Actions, Filters } from "@/domain/hooks";
 
 export type Hooks = {
     filters: Filters;

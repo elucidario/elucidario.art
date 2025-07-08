@@ -7,9 +7,9 @@ import {
 
 export type SysadminRole = "sysadmin";
 
-export type AuthContext<T extends MdorimBase> = {
+export type AuthContext<T extends Partial<MdorimBase>> = {
     user: User;
     role: TeamMemberRole | SysadminRole; // there is no user without a role
-    workspace?: Workspace | null;
-    entity?: T | null;
+    workspace?: Workspace;
+    entity?: T;
 };

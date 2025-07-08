@@ -1,26 +1,21 @@
 import { beforeAll, describe, expect, it } from "vitest";
-
-import { AbstractQuery } from "@/queries/AbstractQuery";
-import { Cypher } from "@/db";
-import { Hooks } from "@/types";
-import { Actions, Filters } from "@/hooks";
 import { MdorimBase } from "@elucidario/mdorim";
 
-class Query extends AbstractQuery<MdorimBase> {
+import { AQuery } from "@/application/queries/AQuery";
+import { Cypher } from "@/application/Cypher";
+
+class Query extends AQuery<MdorimBase> {
     constraints = [];
-    constructor(cypher: Cypher, hooks: Hooks) {
-        super(cypher, hooks);
+    constructor(cypher: Cypher) {
+        super(cypher);
     }
 }
 
-describe("AbstractQuery", () => {
+describe("AQuery", () => {
     let query: Query;
 
     beforeAll(() => {
-        query = new Query(new Cypher(), {
-            actions: new Actions(),
-            filters: new Filters(),
-        });
+        query = new Query(new Cypher());
     });
 
     it("should be defined", () => {
@@ -33,10 +28,5 @@ describe("AbstractQuery", () => {
 
     it("should have a cypher property", () => {
         expect(query.cypher).toBeDefined();
-    });
-
-    it("should have a hooks property", () => {
-        // @ts-expect-error protected property
-        expect(query.hooks).toBeDefined();
     });
 });
