@@ -1,20 +1,33 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { DefaultLocale, I18n, Mdorim, User } from "@elucidario/mdorim";
 
-import { lcdr } from "@/app";
+import Core from "@/Core";
 import { testSetup } from "@/tests/setup";
+import { ConfigService } from "@/application/services";
+import { Validator } from "@/application/Validator";
+import { ConfigQuery } from "@/application/queries/core";
 
-describe("ConfigService", { skip: false }, async () => {
-    const adminUser = {
+describe("ConfigService", async () => {
+    let lcdr: Core;
+    let service: ConfigService;
+
+    const adminUser: User = {
+        type: "User",
         email: "admin@example.com",
         username: "username123",
     };
 
     beforeAll(async () => {
-        const app = await lcdr(false);
-        const graph = app.lcdr.graph;
-
-        // erase everything before the test
-        await graph.writeTransaction(async (tx) => {
+        lcdr = new Core();
+        service = new ConfigService(
+            new Validator(new Mdorim(new I18n(DefaultLocale))),
+            new ConfigQuery(lcdr.cypher),
+            lcdr.authorization,
+            lcdr.graph,
+            lcdr.hooks,
+        );
+        await lcdr.setup();
+        await lcdr.graph.writeTransaction(async (tx) => {
             await tx.run(
                 "OPTIONAL MATCH (u:User {email: $email}) DETACH DELETE u",
                 {
@@ -26,11 +39,8 @@ describe("ConfigService", { skip: false }, async () => {
     });
 
     afterAll(async () => {
-        const app = await lcdr(false);
-        const graph = app.lcdr.graph;
-
         if (!testSetup.DELETE.skip) {
-            await graph.writeTransaction(async (tx) => {
+            await lcdr.graph.writeTransaction(async (tx) => {
                 await tx.run(
                     "OPTIONAL MATCH (u:User {email: $email}) DETACH DELETE u",
                     {
@@ -45,37 +55,28 @@ describe("ConfigService", { skip: false }, async () => {
             );
         }
 
-        app.close();
+        await lcdr.close();
     });
 
     it("should be defined", async () => {
-        const app = await lcdr(false);
-        expect(app).toBeDefined();
-        expect(app.services.config).toBeDefined();
+        expect(service).toBeDefined();
     });
 
     describe("CREATE", testSetup.CREATE, async () => {
-        it("should create main config", async () => {
-            const app = await lcdr(false);
-
-            const response = await app.inject({
-                method: "POST",
-                url: "/api/v1/config",
-                payload: {
-                    type: "MainConfig",
-                    sysadmins: [adminUser],
-                },
+        it("should setMainConfig", async () => {
+            const config = await service.setMainConfig({
+                type: "MainConfig",
+                sysadmins: [adminUser],
             });
 
-            expect(response.statusCode).toBe(201);
-            expect(response.json()).toHaveProperty("type", "MainConfig");
-            expect(response.json()).toHaveProperty("sysadmins");
-            expect(response.json().sysadmins).toBeInstanceOf(Array);
-            expect(response.json().sysadmins[0]).toHaveProperty(
+            expect(config).toHaveProperty("type", "MainConfig");
+            expect(config).toHaveProperty("sysadmins");
+            expect(config.sysadmins).toBeInstanceOf(Array);
+            expect(config.sysadmins[0]).toHaveProperty(
                 "email",
                 adminUser.email,
             );
-            expect(response.json().sysadmins[0]).toHaveProperty(
+            expect(config.sysadmins[0]).toHaveProperty(
                 "username",
                 adminUser.username,
             );
@@ -83,23 +84,16 @@ describe("ConfigService", { skip: false }, async () => {
     });
 
     describe("READ", testSetup.READ, async () => {
-        it("should read MainConfig", async () => {
-            const app = await lcdr(false);
-
-            const response = await app.inject({
-                method: "GET",
-                url: "/api/v1/config",
-            });
-
-            expect(response.statusCode).toBe(200);
-            expect(response.json()).toHaveProperty("type", "MainConfig");
-            expect(response.json()).toHaveProperty("sysadmins");
-            expect(response.json().sysadmins).toBeInstanceOf(Array);
-            expect(response.json().sysadmins[0]).toHaveProperty(
+        it("should getMainConfig", async () => {
+            const config = await service.getMainConfig();
+            expect(config).toHaveProperty("type", "MainConfig");
+            expect(config).toHaveProperty("sysadmins");
+            expect(config.sysadmins).toBeInstanceOf(Array);
+            expect(config.sysadmins[0]).toHaveProperty(
                 "email",
                 adminUser.email,
             );
-            expect(response.json().sysadmins[0]).toHaveProperty(
+            expect(config.sysadmins[0]).toHaveProperty(
                 "username",
                 adminUser.username,
             );

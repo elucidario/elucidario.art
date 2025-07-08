@@ -1,26 +1,46 @@
 import { afterAll, beforeAll, describe, expect, it, test } from "vitest";
 
-import { lcdr } from "@/app";
-import { User } from "@elucidario/mdorim";
+import {
+    DefaultLocale,
+    I18n,
+    Mdorim,
+    User as UserType,
+} from "@elucidario/mdorim";
 import { testSetup } from "@/tests/setup";
+import Core from "@/Core";
+import { ConfigService, UserService } from "@/application/services";
+import { Validator } from "@/application/Validator";
+import { ConfigQuery, UserQuery } from "@/application/queries/core";
 
-describe("UserService", { skip: false }, async () => {
+describe("UserService", async () => {
+    let lcdr: Core;
+    let service: UserService;
+
     const testUser = {
         email: "testador@example.com.br",
         username: "username_testador",
     };
-    let user: User;
+
+    let user: UserType;
 
     const adminUser = {
+        type: "User" as const,
         email: "admin@example.com",
         username: "username_admin",
     };
 
     beforeAll(async () => {
-        const app = await lcdr(false);
-        const graph = app.lcdr.graph;
+        lcdr = new Core();
+        service = new UserService(
+            new Validator(new Mdorim(new I18n(DefaultLocale))),
+            new UserQuery(lcdr.cypher),
+            lcdr.authorization,
+            lcdr.graph,
+            lcdr.hooks,
+        );
+        await lcdr.setup();
 
-        await graph.writeTransaction(async (tx) => {
+        await lcdr.graph.writeTransaction(async (tx) => {
             await tx.run("MATCH (u:User {email: $email}) DETACH DELETE u", {
                 email: adminUser.email,
             });
@@ -30,28 +50,22 @@ describe("UserService", { skip: false }, async () => {
             });
         });
 
-        await app.inject({
-            method: "POST",
-            url: "/api/v1/config",
-            payload: {
-                type: "MainConfig",
-                sysadmins: [adminUser],
-            },
+        const config = new ConfigService(
+            new Validator(new Mdorim(new I18n(DefaultLocale))),
+            new ConfigQuery(lcdr.cypher),
+            lcdr.authorization,
+            lcdr.graph,
+            lcdr.hooks,
+        );
+        await config.setMainConfig({
+            type: "MainConfig",
+            sysadmins: [adminUser],
         });
-
-        // await app.inject({
-        //     method: "POST",
-        //     url: "/api/v1/users/register",
-        //     payload: adminUser,
-        // });
     });
 
     afterAll(async () => {
-        const app = await lcdr(false);
-        const graph = app.lcdr.graph;
-
         if (!testSetup.DELETE.skip) {
-            await graph.writeTransaction(async (tx) => {
+            await lcdr.graph.writeTransaction(async (tx) => {
                 await tx.run("MATCH (u:User {email: $email}) DETACH DELETE u", {
                     email: adminUser.email,
                 });
@@ -68,94 +82,73 @@ describe("UserService", { skip: false }, async () => {
             );
         }
 
-        app.close();
+        await lcdr.close();
     });
 
     it("should be defined", async () => {
-        const app = await lcdr(false);
-        expect(app).toBeDefined();
-        expect(app.services.user).toBeDefined();
+        expect(service).toBeDefined();
     });
 
     describe("CREATE", testSetup.CREATE, async () => {
         it("should create user", async () => {
-            const app = await lcdr(false);
-            const response = await app.inject({
-                method: "POST",
-                url: "/api/v1/users/register",
-                payload: testUser,
+            service.setContext({
+                user,
+                role: "admin",
             });
+            user = await service.create(testUser);
 
-            expect(response.statusCode).toBe(201);
-            expect(response.json()).toHaveProperty("email", testUser.email);
-            expect(response.json()).toHaveProperty(
-                "username",
-                testUser.username,
-            );
-
-            user = response.json() as User;
+            expect(user).toHaveProperty("email", testUser.email);
+            expect(user).toHaveProperty("username", testUser.username);
         });
 
-        describe("should return Errors", async () => {
+        describe("should throw Errors", async () => {
             test("if user already exists", async () => {
-                const app = await lcdr(false);
-                const response = await app.inject({
-                    method: "POST",
-                    url: "/api/v1/users/register",
-                    payload: testUser,
-                });
-                expect(response.statusCode).toBe(409);
+                await expect(async () =>
+                    service.create(testUser),
+                ).rejects.toThrow("Entity already exists.");
             });
 
             test("if email is undefined", async () => {
-                const app = await lcdr(false);
-                const response = await app.inject({
-                    method: "POST",
-                    url: "/api/v1/users/register",
-                    payload: {
+                await expect(async () =>
+                    service.create({
                         username: "testuser",
-                    },
-                });
-                expect(response.statusCode).toBe(400);
+                    }),
+                ).rejects.toThrow("MdorimError: Validation failed");
             });
 
             test("if username is undefined", async () => {
-                const app = await lcdr(false);
-                const response = await app.inject({
-                    method: "POST",
-                    url: "/api/v1/users/register",
-                    payload: {
-                        email: "testuser@example.com",
-                    },
-                });
-                expect(response.statusCode).toBe(400);
+                await expect(async () =>
+                    service.create({
+                        email: "test@example.com",
+                    }),
+                ).rejects.toThrow("MdorimError: Validation failed");
             });
 
             test("if email is not a valid email", async () => {
-                const app = await lcdr(false);
-                const response = await app.inject({
-                    method: "POST",
-                    url: "/api/v1/users/register",
-                    payload: {
+                await expect(async () =>
+                    service.create({
                         email: "invalid-email",
                         username: "testuser",
-                    },
-                });
-                expect(response.statusCode).toBe(400);
+                    }),
+                ).rejects.toThrow("MdorimError: Validation failed");
+
+                // const app = await lcdr(false);
+                // const response = await app.inject({
+                //     method: "POST",
+                //     url: "/api/v1/users/register",
+                //     payload: {
+                //         email: "invalid-email",
+                //         username: "testuser",
+                //     },
+                // });
+                // expect(response.statusCode).toBe(400);
             });
         });
     });
 
     describe("READ", testSetup.READ, async () => {
         it("should return a user", async () => {
-            const app = await lcdr(false);
-            const response = await app.inject({
-                method: "GET",
-                url: `/api/v1/users/profile/${user.uuid}`,
-            });
-
-            expect(response.statusCode).toBe(200);
-            const foundUser = response.json() as User;
+            const foundUser = await service.read({ uuid: user.uuid! });
 
             expect(foundUser).toBeDefined();
             expect(foundUser).toHaveProperty("uuid", user.uuid);
@@ -165,14 +158,7 @@ describe("UserService", { skip: false }, async () => {
         });
 
         it("should list users", async () => {
-            const app = await lcdr(false);
-            const response = await app.inject({
-                method: "GET",
-                url: "/api/v1/users",
-            });
-
-            expect(response.statusCode).toBe(200);
-            const users = response.json() as User[];
+            const users = await service.list();
 
             expect(users).toBeDefined();
             expect(users.length).toBeGreaterThan(0);
@@ -184,18 +170,13 @@ describe("UserService", { skip: false }, async () => {
 
     describe("UPDATE", testSetup.UPDATE, async () => {
         it("should update a user", async () => {
-            const app = await lcdr(false);
             const newUsername = "newusername";
-            const response = await app.inject({
-                method: "PUT",
-                url: `/api/v1/users/profile/${user.uuid}`,
-                payload: {
-                    username: newUsername,
-                },
+            const updatedUser = await service.update(user.uuid!, {
+                username: newUsername,
             });
 
-            expect(response.statusCode).toBe(200);
-            const updatedUser = response.json() as User;
+            expect(updatedUser).toBeDefined();
+            expect(updatedUser).toHaveProperty("uuid", user.uuid);
 
             expect(updatedUser).toBeDefined();
             expect(updatedUser).toHaveProperty("uuid", user.uuid);
@@ -205,45 +186,27 @@ describe("UserService", { skip: false }, async () => {
 
         describe("should return error on update method", () => {
             test("if invalid uuid", async () => {
-                const app = await lcdr(false);
-                const response = await app.inject({
-                    method: "PUT",
-                    url: `/api/v1/users/profile/invalid-uuid`,
-                    payload: {
-                        username: "newusername",
-                        email: "banana@example.com",
-                    },
-                });
-                expect(response.statusCode).toBe(400);
+                await expect(async () =>
+                    service.update("invalid-uuid", { username: "newusername" }),
+                ).rejects.toThrow("MdorimError: Validation failed");
             });
 
             test("if user does not exist", async () => {
-                const app = await lcdr(false);
-                const response = await app.inject({
-                    method: "PUT",
-                    url: `/api/v1/users/profile/81f73922-e39b-4ba1-a544-59201d1da319`,
-                    payload: {
+                await expect(async () =>
+                    service.update("f8059152-ed4c-4a07-a6bf-9cdc6826fd6f", {
                         username: "newusername",
-                        email: "banana@example.com",
-                    },
-                });
-
-                expect(response.statusCode).toBe(404);
+                        type: "User",
+                    }),
+                ).rejects.toThrow("User not found.");
             });
         });
     });
 
     describe("DELETE", testSetup.DELETE, async () => {
         it("should delete a user", async () => {
-            const app = await lcdr(false);
+            const deletedUser = await service.delete(user.uuid!);
 
-            const response = await app.inject({
-                method: "DELETE",
-                url: `/api/v1/users/${user.uuid}`,
-                payload: {},
-            });
-
-            expect(response.statusCode).toBe(204);
+            expect(deletedUser).toBe(true);
         });
     });
 });

@@ -1,7 +1,9 @@
 import { beforeAll, afterAll, describe, expect, it } from "vitest";
 
-import { Cypher, Graph } from "@/db";
-import { Actions, Filters } from "@/hooks";
+import { Graph } from "@/application/Graph";
+import { Cypher } from "@/application/Cypher";
+import { Actions, Filters } from "@/domain/hooks";
+import { getDriver } from "@/infrastructure/db/driver";
 
 describe("Graph db", () => {
     let graph: Graph | undefined;
@@ -11,7 +13,7 @@ describe("Graph db", () => {
             filters: new Filters(),
             actions: new Actions(),
         };
-        graph = new Graph(new Cypher(), hooks);
+        graph = new Graph(getDriver(), new Cypher(), hooks);
     });
 
     afterAll(() => {

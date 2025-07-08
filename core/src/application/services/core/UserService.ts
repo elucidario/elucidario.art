@@ -1,32 +1,22 @@
-import { FastifyRequest, FastifyReply, FastifyInstance } from "fastify";
 import { RawRuleOf, MongoAbility } from "@casl/ability";
 
-import {
-    Hooks,
-    QueryStrings,
-    Body,
-    ParamsWithWorkspace,
-    AuthContext,
-} from "@/types";
-import { User as UserType } from "@elucidario/mdorim";
-import { UserQuery } from "@/queries";
-import { Graph } from "@/db";
+import { Hooks, AuthContext, ListParams } from "@/types";
+import { User as UserType, UUID } from "@elucidario/mdorim";
+import { UserQuery } from "@/application/queries/core";
+import { Graph } from "@/application/Graph";
 
-import AbstractService from "../AbstractService";
-import { User } from "@/model";
+import AService from "../AService";
+import { User } from "@/domain/models/core";
+import { Validator } from "@/application/Validator";
+import { Authorization } from "@/application/Authorization";
 
 /**
  * # UserService
  * This service class provides methods to manage users in the application.
- * It extends the AbstractService class and implements methods for creating,
+ * It extends the AService class and implements methods for creating,
  * reading, updating, deleting, and listing users.
  */
-export class UserService extends AbstractService<
-    UserType,
-    User,
-    UserQuery,
-    { userUUID: string }
-> {
+export class UserService extends AService<UserType, UserQuery> {
     /**
      * # UserService constructor
      * @param model - The user model
@@ -36,13 +26,13 @@ export class UserService extends AbstractService<
      * @param fastify - The Fastify instance
      */
     constructor(
-        model: User,
-        query: UserQuery,
-        graph: Graph,
-        hooks: Hooks,
-        fastify: FastifyInstance,
+        protected validator: Validator,
+        protected query: UserQuery,
+        protected authorization: Authorization,
+        protected graph: Graph,
+        protected hooks: Hooks,
     ) {
-        super(model, query, graph, hooks, fastify);
+        super(validator, query, authorization, graph, hooks);
         this.register();
     }
 
@@ -92,31 +82,25 @@ export class UserService extends AbstractService<
      * @returns The created user.
      * @throws MdorimError if the user is invalid or creation fails.
      */
-    async create(
-        request: FastifyRequest<
-            ParamsWithWorkspace<{ userUUID: string }> &
-                Body<UserType> &
-                QueryStrings
-        >,
-        reply: FastifyReply,
-    ): Promise<UserType> {
+    async create(data: Partial<UserType>): Promise<UserType> {
         try {
-            const userData = this.parseBodyRequest(request);
+            const model = new User();
+            this.validator.setModel(model);
 
-            await this.model.validateEntity(userData);
-            await this.model.validateEmail(userData.email);
-            await this.model.validateUsername(userData.username);
+            await this.validator.validateEntity({ data });
+            await this.validator.validateEmail(data.email);
+            await this.validator.validateUsername(data.username);
 
             const node = "user";
             const { cypher, params } = this.query
                 .create({
-                    data: userData,
+                    data,
                     labels: "User",
                     node,
                 })
                 .build();
 
-            this.model.set(
+            model.set(
                 await this.graph.executeQuery<UserType>(
                     (response) => {
                         if (response.records.length === 0) {
@@ -132,7 +116,7 @@ export class UserService extends AbstractService<
                 ),
             );
 
-            return reply.code(201).send(this.model.get());
+            return model.get();
         } catch (e: unknown) {
             throw this.error(e);
         }
@@ -144,48 +128,44 @@ export class UserService extends AbstractService<
      * @returns The user, or null if not found.
      * @throws MdorimError if the user is invalid or reading fails.
      */
-    async read(
-        request: FastifyRequest<
-            ParamsWithWorkspace<{ userUUID: string }> &
-                Body<UserType> &
-                QueryStrings
-        >,
-        reply: FastifyReply,
-    ): Promise<UserType | null> {
+    async read(data: Partial<UserType>): Promise<UserType | null> {
         try {
-            await this.processRequest(request);
-
-            if (!this.getPermissions().can("read", this.model)) {
+            const model = new User();
+            if (!this.getPermissions().can("read", model)) {
                 throw this.error("Unauthorized", 403);
             }
 
-            const { userUUID } = this.getParams(request);
-            await this.model.validateUUID(userUUID);
+            this.validator.setModel(model);
+            await this.validator.validateEntity({ data });
 
             const { cypher, params } = this.query
                 .read({
-                    data: { uuid: userUUID },
+                    data,
                     labels: "User",
                 })
                 .build();
 
-            this.model.set(
-                await this.graph.executeQuery<UserType | null>(
+            model.set(
+                await this.graph.executeQuery<UserType | undefined>(
                     (response) => {
                         if (response.records.length === 0) {
-                            return null;
+                            return undefined;
                         }
 
                         const [first] = response.records;
 
-                        return this.graph.parseNode<UserType>(first.get("u"));
+                        const user = this.graph.parseNode<UserType>(
+                            first.get("u"),
+                        );
+
+                        return user;
                     },
                     cypher,
                     params,
                 ),
             );
 
-            return reply.send(this.model.get());
+            return model.get();
         } catch (e) {
             throw this.error(e);
         }
@@ -198,26 +178,16 @@ export class UserService extends AbstractService<
      * @returns The updated user.
      * @throws MdorimError if the user is invalid or update fails.
      */
-    async update(
-        request: FastifyRequest<
-            ParamsWithWorkspace<{ userUUID: string }> &
-                Body<UserType> &
-                QueryStrings
-        >,
-        reply: FastifyReply,
-    ): Promise<UserType> {
+    async update(userUUID: UUID, data: Partial<UserType>): Promise<UserType> {
         try {
-            await this.processRequest(request);
-
-            if (!this.getPermissions().can("update", this.model)) {
+            const model = new User();
+            if (!this.getPermissions().can("update", model)) {
                 throw this.error("Unauthorized", 403);
             }
 
-            const { userUUID } = request.params;
-            const data = this.parseBodyRequest(request);
-
-            await this.model.validateUUID(userUUID);
-            await this.model.validateEntity(data);
+            this.validator.setModel(model);
+            await this.validator.validateUUID(userUUID);
+            await this.validator.validateEntity({ data });
 
             const { cypher, params } = this.query
                 .update({
@@ -227,11 +197,11 @@ export class UserService extends AbstractService<
                 })
                 .build();
 
-            this.model.set(
+            model.set(
                 await this.graph.executeQuery<UserType>(
                     ({ records }) => {
                         if (records.length === 0) {
-                            throw this.error("User not found", 404);
+                            throw this.error("User not found.", 404);
                         }
 
                         const [first] = records;
@@ -243,7 +213,7 @@ export class UserService extends AbstractService<
                 ),
             );
 
-            return reply.send(this.model.get());
+            return model.get();
         } catch (e) {
             throw this.error(e);
         }
@@ -255,23 +225,15 @@ export class UserService extends AbstractService<
      * @returns true if the user was deleted, false otherwise.
      * @throws MdorimError if the user is invalid or deletion fails.
      */
-    async delete(
-        request: FastifyRequest<
-            ParamsWithWorkspace<{ userUUID: string }> &
-                Body<UserType> &
-                QueryStrings
-        >,
-        reply: FastifyReply,
-    ): Promise<boolean> {
+    async delete(userUUID: UUID): Promise<boolean> {
         try {
-            await this.processRequest(request);
-
-            if (!this.getPermissions().can("delete", this.model)) {
+            const model = new User();
+            if (!this.getPermissions().can("delete", model)) {
                 throw this.error("Unauthorized", 403);
             }
 
-            const { userUUID } = request.params;
-            await this.model.validateUUID(userUUID);
+            this.validator.setModel(model);
+            await this.validator.validateUUID(userUUID);
 
             const { cypher, params } = this.query
                 .delete({
@@ -294,8 +256,8 @@ export class UserService extends AbstractService<
             );
 
             if (removed) {
-                this.model.set(null);
-                return reply.code(204).send();
+                model.set(undefined);
+                return true;
             } else {
                 throw this.error("Could not delete user", 500);
             }
@@ -311,52 +273,42 @@ export class UserService extends AbstractService<
      * @returns An array of users.
      * @throws MdorimError if listing fails.
      */
-    async list(
-        request: FastifyRequest<
-            ParamsWithWorkspace<{ userUUID: string }> &
-                Body<UserType> &
-                QueryStrings
-        >,
-        reply: FastifyReply,
-    ): Promise<UserType[]> {
+    async list(args?: ListParams): Promise<UserType[]> {
         try {
-            await this.processRequest(request);
-
-            if (!this.getPermissions().can("read", this.model)) {
+            const model = new User();
+            if (!this.getPermissions().can("read", model)) {
                 throw this.error("Unauthorized", 403);
             }
 
-            const { limit, offset } = this.getQueryStrings(request);
-            await this.model.validateNumber(limit);
-            await this.model.validateNumber(offset);
+            this.validator.setModel(model);
+            await this.validator.validateNumber(args?.limit);
+            await this.validator.validateNumber(args?.offset);
 
             const { cypher, params } = this.query
                 .list({
-                    limit,
-                    offset,
+                    limit: args?.limit,
+                    offset: args?.offset,
                     labels: "User",
                 })
                 .build();
 
-            return reply.send(
-                this.processList(
-                    await this.graph.executeQuery<UserType[]>(
-                        (response) => {
-                            const { records } = response;
+            return this.processList(
+                await this.graph.executeQuery<UserType[]>(
+                    (response) => {
+                        const { records } = response;
 
-                            if (records.length === 0) {
-                                return [];
-                            }
+                        if (records.length === 0) {
+                            return [];
+                        }
 
-                            return records.map((record) => {
-                                return this.graph.parseNode<UserType>(
-                                    record.get("u"),
-                                );
-                            });
-                        },
-                        cypher,
-                        params,
-                    ),
+                        return records.map((record) => {
+                            return this.graph.parseNode<UserType>(
+                                record.get("u"),
+                            );
+                        });
+                    },
+                    cypher,
+                    params,
                 ),
             );
         } catch (e) {
@@ -379,6 +331,6 @@ export class UserService extends AbstractService<
             .filter(
                 (user): user is UserType => user !== null && user !== undefined,
             )
-            .map((user) => new User(this.model.mdorim, user).get() as UserType);
+            .map((user) => new User(user).get() as UserType);
     }
 }

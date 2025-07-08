@@ -1,45 +1,33 @@
 import { Clause, Expr, Pattern, SetParam } from "@neo4j/cypher-builder";
 import { int } from "neo4j-driver";
 import { NodeRef } from "node_modules/@neo4j/cypher-builder/dist/references/NodeRef";
+import { MdorimBase, SchemaObject, UUID } from "@elucidario/mdorim";
 
-import { Cypher } from "@/db";
-import InterfaceQuery, {
+import { Cypher } from "@/application/Cypher";
+import {
     CreateQueryParams,
     DeleteQueryParams,
     ListQueryParams,
     ReadQueryParams,
     UpdateQueryParams,
-} from "./InterfaceQuery";
-import { Hooks, PropertyConstraint } from "@/types";
+} from "@/types";
+import { QueryError } from "@/domain/errors";
+import IQuery from "./IQuery";
 
 /**
  * # AbstractQuery
  * This is an abstract class that provides a base for all query classes in the application.
  * It defines methods for creating, reading, listing, updating, and deleting entities in the database
  */
-export abstract class AbstractQuery<T extends MdorimBase>
-    implements InterfaceQuery<T>
+export abstract class AQuery<T extends Partial<MdorimBase>>
+    implements IQuery<T>
 {
     /**
-     * ## AbstractQuery.cypher
+     * ## Query.cypher
      * This property holds the Cypher instance used for building Cypher queries.
      * It is initialized in the constructor and used for executing queries.
      */
     cypher: Cypher;
-
-    /**
-     * ## AbstractQuery.hooks
-     * This property holds the hooks used for managing filters and actions in the application.
-     * It is initialized in the constructor and used for applying filters to the Cypher queries.
-     */
-    protected hooks: Hooks;
-
-    /**
-     * ## AbstractQuery.constraints
-     * This static property holds an array of Cypher constraints that should be applied to the model.
-     * These constraints are used to ensure data integrity and uniqueness in the database.
-     */
-    abstract constraints: PropertyConstraint[];
 
     /**
      * # AbstractQuery
@@ -49,26 +37,25 @@ export abstract class AbstractQuery<T extends MdorimBase>
      * @param cypher - The instance of the Cypher class used for building Cypher queries.
      * @param hooks - The instance of the Hooks class used for managing filters and actions.
      */
-    constructor(cypher: Cypher, hooks: Hooks) {
+    constructor(cypher: Cypher) {
         this.cypher = cypher;
-        this.hooks = hooks;
-        this.register();
+        // this.register();
     }
 
-    /**
-     * ## register
-     * This method registers the constraints defined in the `constraints` property
-     * to the Neo4j database using the `graph.setConstraints` filter.
-     */
-    register() {
-        this.hooks.filters.add(
-            "graph.setConstraints",
-            (constraints: PropertyConstraint[]) => [
-                ...constraints,
-                ...this.constraints,
-            ],
-        );
-    }
+    // /**
+    //  * ## register
+    //  * This method registers the constraints defined in the `constraints` property
+    //  * to the Neo4j database using the `graph.setConstraints` filter.
+    //  */
+    // register() {
+    //     this.hooks.filters.add(
+    //         "graph.setConstraints",
+    //         (constraints: PropertyConstraint[]) => [
+    //             ...constraints,
+    //             ...((this.constructor as typeof Query).constraints || []),
+    //         ],
+    //     );
+    // }
 
     /**
      * ## A Cypher query to create a new entity in the database.
@@ -329,5 +316,141 @@ export abstract class AbstractQuery<T extends MdorimBase>
 
             return query;
         });
+    }
+
+    /**
+     * ██████╗ ██████╗  ██████╗ ██████╗ ███████╗
+     * ██╔══██╗██╔══██╗██╔═══██╗██╔══██╗██╔════╝
+     * ██████╔╝██████╔╝██║   ██║██████╔╝███████╗
+     * ██╔═══╝ ██╔══██╗██║   ██║██╔═══╝ ╚════██║
+     * ██║     ██║  ██║╚██████╔╝██║     ███████║
+     * ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚══════╝
+     *
+     * Queries to be used within transactions.
+     */
+
+    belongsToWorkspace(node: NodeRef, workspaceUUID: UUID) {
+        const workspaceNode = this.cypher.NamedNode("workspace");
+        const matchWorkspace = this.cypher.Match(
+            this.cypher.Pattern(workspaceNode, {
+                labels: ["Workspace"],
+                properties: {
+                    uuid: this.cypher.Param(workspaceUUID),
+                },
+            }),
+        );
+
+        const nodeBelongsToWorkspace = this.cypher
+            .Create(
+                this.cypher
+                    .Pattern(node)
+                    .related(this.cypher.Relationship(), {
+                        type: "BELONGS_TO",
+                    })
+                    .to(workspaceNode),
+            )
+            .with(node, workspaceNode);
+
+        return this.cypher.concat(matchWorkspace, nodeBelongsToWorkspace);
+    }
+
+    relationshipProperties(
+        from: NodeRef,
+        schema: SchemaObject,
+        data: Partial<T>,
+    ) {
+        // Loop through the schema properties, filtering out non-relationship properties
+        // and create the cypher clauses for relationships
+        const clauses: Array<Clause | undefined> = [];
+        const filteredProperties = Object.keys(schema.properties).filter(
+            (key) =>
+                ![
+                    "@context",
+                    "id",
+                    "type",
+                    "_label",
+                    "content",
+                    "value",
+                    "notation",
+                ].includes(key),
+        );
+        for (const key of filteredProperties) {
+            if (key in data) {
+                const clause = this.addMultiRelationship(
+                    from,
+                    key.toUpperCase(),
+                    data[key as keyof T] as MdorimBase[],
+                );
+                clauses.push(clause);
+            }
+        }
+        return clauses;
+    }
+
+    addMultiRelationship<T extends MdorimBase>(
+        from: NodeRef,
+        related: string,
+        to: T[],
+        returnClause = false,
+    ) {
+        try {
+            const clauses: Array<Clause | undefined> = [];
+            to.forEach((item, i) => {
+                this.checkRequiredRefProperties(item, i, related);
+
+                const toNode = this.cypher.Node();
+
+                const matchTo = this.cypher.Match(
+                    this.cypher.Pattern(toNode, {
+                        labels: [item.type],
+                        properties: {
+                            uuid: this.cypher.Param(item.uuid),
+                        },
+                    }),
+                );
+                clauses.push(matchTo);
+
+                const mergeTo = this.cypher
+                    .Merge(
+                        this.cypher
+                            .Pattern(from)
+                            .related(this.cypher.Relationship(), {
+                                type: related,
+                            })
+                            .to(toNode),
+                    )
+                    .with(toNode, from);
+                clauses.push(mergeTo);
+            });
+
+            return this.cypher.concat(
+                ...clauses,
+                returnClause ? this.cypher.Return(from) : undefined,
+            );
+        } catch (error) {
+            console.log(error);
+            throw this.error("Could not create relationships query.", error);
+        }
+    }
+
+    checkRequiredRefProperties(
+        data: Record<string, unknown>,
+        i: number,
+        label: string,
+    ) {
+        if (!data.uuid) {
+            throw this.error(
+                `Must have a UUID, check index ${i} from "to" parameter in ${label} relationship`,
+            );
+        }
+        if (!data.type) {
+            throw this.error(
+                `Must have a type, check index ${i} from "to" parameter in ${label} relationship`,
+            );
+        }
+    }
+
+    error(message: string, details?: unknown) {
+        return new QueryError(message, details);
     }
 }

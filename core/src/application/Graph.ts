@@ -12,12 +12,11 @@ import {
     isDuration,
     RecordShape,
 } from "neo4j-driver";
-
-import { isGraphError, GraphError, isNeo4jError } from "@/errors";
-import { MapNeo4jError, PropertyConstraint, Hooks } from "@/types";
-import { getDriver } from "./driver";
-import { Cypher } from "./Cypher";
 import { MdorimBase } from "@elucidario/mdorim";
+
+import { isGraphError, GraphError, isNeo4jError } from "@/domain/errors";
+import { MapNeo4jError, PropertyConstraint, Hooks } from "@/types";
+import { Cypher } from "./Cypher";
 
 export class Graph {
     /**
@@ -38,10 +37,15 @@ export class Graph {
      */
     protected driver: Driver;
 
-    constructor(cypher: Cypher, hooks: Hooks) {
+    /**
+     * @param cypher Cypher instance used for building Cypher queries.
+     *               This is initialized in the constructor and used for executing queries.
+     * @param hooks Hooks instance used for managing filters and actions.
+     */
+    constructor(driver: Driver, cypher: Cypher, hooks: Hooks) {
+        this.driver = driver;
         this.cypher = cypher;
         this.hooks = hooks;
-        this.driver = getDriver();
     }
 
     async setup() {
@@ -229,7 +233,7 @@ export class Graph {
      *                 - Defaults to ["password"].
      * @returns Parsed data
      */
-    parseNode<T extends MdorimBase>(data: RecordShape): T {
+    parseNode<T extends Partial<MdorimBase>>(data: RecordShape): T {
         const type = data.labels![0] as string;
         return Object.entries(data.properties).reduce(
             (acc, [key, value]) => {

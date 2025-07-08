@@ -1,24 +1,51 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { Workspace } from "@elucidario/mdorim";
+import {
+    DefaultLocale,
+    I18n,
+    Mdorim,
+    User as UserType,
+    Workspace as WorkspaceType,
+} from "@elucidario/mdorim";
 
-import { lcdr } from "@/app";
-import { FastifyInstance } from "fastify";
 import { testSetup } from "@/tests/setup";
+import Core from "@/Core";
+import {
+    ConfigService,
+    UserService,
+    WorkspaceService,
+} from "@/application/services";
+import { Validator } from "@/application/Validator";
+import {
+    ConfigQuery,
+    UserQuery,
+    WorkspaceQuery,
+} from "@/application/queries/core";
 
 describe("WorkspaceService", async () => {
-    let app: FastifyInstance;
-    let workspace: Workspace;
+    let lcdr: Core;
+    let service: WorkspaceService;
+    let user: UserType | null | undefined;
+
+    let workspace: WorkspaceType | null | undefined;
 
     const adminUser = {
+        type: "User" as const,
         email: "admin@example.com",
         username: "username_admin",
     };
 
     beforeAll(async () => {
-        app = await lcdr(false);
-        const graph = app.lcdr.graph;
+        lcdr = new Core();
+        service = new WorkspaceService(
+            new Validator(new Mdorim(new I18n(DefaultLocale))),
+            new WorkspaceQuery(lcdr.cypher),
+            lcdr.authorization,
+            lcdr.graph,
+            lcdr.hooks,
+        );
 
-        await graph.writeTransaction(async (tx) => {
+        await lcdr.setup();
+        await lcdr.graph.writeTransaction(async (tx) => {
             await tx.run("MATCH (u:User {email: $email}) DETACH DELETE u", {
                 email: adminUser.email,
             });
@@ -28,21 +55,35 @@ describe("WorkspaceService", async () => {
             await tx.run("MATCH (w:Workspace) DETACH DELETE w");
         });
 
-        await app.inject({
-            method: "POST",
-            url: "/api/v1/config",
-            payload: {
-                type: "MainConfig",
-                sysadmins: [adminUser],
-            },
+        const config = new ConfigService(
+            new Validator(new Mdorim(new I18n(DefaultLocale))),
+            new ConfigQuery(lcdr.cypher),
+            lcdr.authorization,
+            lcdr.graph,
+            lcdr.hooks,
+        );
+        await config.setMainConfig({
+            type: "MainConfig",
+            sysadmins: [adminUser],
         });
+
+        const userService = new UserService(
+            new Validator(new Mdorim(new I18n(DefaultLocale))),
+            new UserQuery(lcdr.cypher),
+            lcdr.authorization,
+            lcdr.graph,
+            lcdr.hooks,
+        );
+        userService.setContext({
+            user: adminUser,
+            role: "admin",
+        });
+        user = await userService.read({ email: adminUser.email });
     });
 
     afterAll(async () => {
-        const graph = app.lcdr.graph;
-
         if (!testSetup.DELETE.skip) {
-            await graph.writeTransaction(async (tx) => {
+            await lcdr.graph.writeTransaction(async (tx) => {
                 await tx.run("MATCH (u:User {email: $email}) DETACH DELETE u", {
                     email: adminUser.email,
                 });
@@ -57,25 +98,23 @@ describe("WorkspaceService", async () => {
             );
         }
 
-        app.close();
+        await lcdr.close();
     });
 
     it("should be defined", () => {
-        expect(app).toBeDefined();
-        expect(app.services.workspace).toBeDefined();
+        expect(service).toBeDefined();
     });
 
     describe("CREATE", testSetup.CREATE, async () => {
         it("should create a workspace", async () => {
-            const response = await app.inject({
-                method: "POST",
-                url: "/api/v1/workspaces",
-                payload: {
-                    name: "Test Workspace from WorkspaceModel.test",
-                },
+            service.setContext({
+                user: user!,
+                role: "admin",
             });
-            expect(response.statusCode).toBe(201);
-            workspace = response.json() as Workspace;
+            workspace = await service.create({
+                name: "Test Workspace from WorkspaceModel.test",
+            });
+
             expect(workspace).toBeDefined();
             expect(workspace.name).toBe(
                 "Test Workspace from WorkspaceModel.test",
@@ -85,14 +124,8 @@ describe("WorkspaceService", async () => {
     });
 
     describe("READ", testSetup.READ, async () => {
-        it("should read a workspace by ID", async () => {
-            const response = await app.inject({
-                method: "GET",
-                url: `/api/v1/workspaces/profile/${workspace.uuid}`,
-            });
-
-            expect(response.statusCode).toBe(200);
-            const readWorkspace = response.json() as Workspace;
+        it("should read a workspace by UUID", async () => {
+            const readWorkspace = await service.read({ uuid: workspace!.uuid });
             expect(readWorkspace).toBeDefined();
             expect(readWorkspace.name).toBe(
                 "Test Workspace from WorkspaceModel.test",
@@ -100,13 +133,7 @@ describe("WorkspaceService", async () => {
         });
 
         it("should list all workspaces", async () => {
-            const response = await app.inject({
-                method: "GET",
-                url: "/api/v1/workspaces",
-            });
-
-            expect(response.statusCode).toBe(200);
-            const workspaces = response.json() as Workspace[];
+            const workspaces = await service.list();
             expect(workspaces).toBeDefined();
             expect(workspaces.length).toBeGreaterThan(0);
         });
@@ -114,22 +141,14 @@ describe("WorkspaceService", async () => {
 
     describe("UPDATE", testSetup.UPDATE, async () => {
         it("should update a workspace", async () => {
-            const updatedWorkspace = {
+            const updatedWorkspace = await service.update(workspace!.uuid!, {
                 name: "Updated Workspace Name",
                 description: "Updated description for the workspace.",
-            };
-
-            const response = await app.inject({
-                method: "PUT",
-                url: `/api/v1/workspaces/profile/${workspace.uuid}`,
-                payload: updatedWorkspace,
             });
 
-            expect(response.statusCode).toBe(200);
-            const readWorkspace = response.json() as Workspace;
-            expect(readWorkspace).toBeDefined();
-            expect(readWorkspace.name).toBe("Updated Workspace Name");
-            expect(readWorkspace.description).toBe(
+            expect(updatedWorkspace).toBeDefined();
+            expect(updatedWorkspace.name).toBe("Updated Workspace Name");
+            expect(updatedWorkspace.description).toBe(
                 "Updated description for the workspace.",
             );
         });
@@ -137,20 +156,8 @@ describe("WorkspaceService", async () => {
 
     describe("DELETE", testSetup.DELETE, async () => {
         it("should delete a workspace", async () => {
-            const response = await app.inject({
-                method: "DELETE",
-                url: `/api/v1/workspaces/${workspace.uuid}`,
-            });
-
-            expect(response.statusCode).toBe(204);
-
-            // Verify if the workspace is deleted
-            const checkResponse = await app.inject({
-                method: "GET",
-                url: `/api/v1/workspaces/profile/${workspace.uuid}`,
-            });
-
-            expect(checkResponse.statusCode).toBe(403); // Should return 403 Forbidden since the workspace is deleted
+            const deleted = await service.delete(workspace!.uuid!);
+            expect(deleted).toBe(true);
         });
     });
 });

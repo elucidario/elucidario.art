@@ -1,24 +1,31 @@
-import { FastifyRequest, FastifyReply, FastifyInstance } from "fastify";
-
-import { Hooks, QueryStrings, Body, ParamsWithWorkspace } from "@/types";
+import { FastifyRequest, FastifyReply } from "fastify";
+import { RawRuleOf, MongoAbility } from "@casl/ability";
 import { InvitedMember, TeamMemberOrInvitedMember } from "@elucidario/mdorim";
-import { MembershipQuery } from "@/queries";
-import { Graph } from "@/db";
 
-import AbstractService from "../AbstractService";
-import { Membership } from "@/model";
+import {
+    Hooks,
+    QueryStrings,
+    Body,
+    ParamsWithWorkspace,
+    AuthContext,
+} from "@/types";
+import { MembershipQuery } from "@/application/queries/core";
+import { Graph } from "@/application/Graph";
+
+import AService from "../AService";
+import { Membership } from "@/domain/models/core";
+import { Validator } from "@/application/Validator";
+import { Authorization } from "@/application/Authorization";
 
 /**
  * # MembershipService
  * This service class provides methods to manage memberships in the application.
- * It extends the AbstractService class and implements methods for creating,
+ * It extends the AService class and implements methods for creating,
  * reading, updating, deleting, and listing memberships.
  */
-export class MembershipService extends AbstractService<
+export class MembershipService extends AService<
     TeamMemberOrInvitedMember,
-    Membership,
-    MembershipQuery,
-    ParamsWithWorkspace["Params"]
+    MembershipQuery
 > {
     /**
      * MembershipService constructor
@@ -29,13 +36,37 @@ export class MembershipService extends AbstractService<
      * @param fastify - The Fastify instance
      */
     constructor(
-        model: Membership,
-        query: MembershipQuery,
-        graph: Graph,
-        hooks: Hooks,
-        fastify: FastifyInstance,
+        protected validator: Validator,
+        protected query: MembershipQuery,
+        protected authorization: Authorization,
+        protected graph: Graph,
+        protected hooks: Hooks,
     ) {
-        super(model, query, graph, hooks, fastify);
+        super(validator, query, authorization, graph, hooks);
+        this.register();
+    }
+
+    /**
+     * ## Registers the service hooks for authorization rules.
+     * This method adds a filter to the "authorization.rules" hook
+     * to set abilities based on the user's role.
+     */
+    protected register() {
+        this.hooks.filters.add<
+            RawRuleOf<MongoAbility>[],
+            [AuthContext<TeamMemberOrInvitedMember>]
+        >("authorization.rules", (abilities, context) =>
+            this.setAbilities(abilities, context),
+        );
+    }
+
+    setAbilities(
+        abilities: RawRuleOf<MongoAbility>[],
+        context: AuthContext<TeamMemberOrInvitedMember>,
+    ): RawRuleOf<MongoAbility>[] {
+        console.log({ abilities, context });
+
+        return abilities;
     }
 
     async invite(

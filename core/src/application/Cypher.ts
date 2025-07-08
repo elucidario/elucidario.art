@@ -6,6 +6,7 @@ import CypherPrimitive, {
 } from "@neo4j/cypher-builder";
 import { MatchClausePattern } from "node_modules/@neo4j/cypher-builder/dist/clauses/Match";
 import { WithProjection } from "node_modules/@neo4j/cypher-builder/dist/clauses/With";
+
 import { PropertyConstraint } from "@/types";
 
 /**
@@ -22,6 +23,12 @@ export class Cypher {
         return callback(cypher);
     }
 
+    /**
+     * Creates a Cypher expression that checks if two expressions are equal.
+     * @param leftExpr The left expression to compare.
+     * @param rightExpr The right expression to compare.
+     * @returns A Cypher expression that evaluates to true if the two expressions are equal.
+     */
     eq(leftExpr: Expr, rightExpr: Expr): CypherPrimitive.ComparisonOp {
         return CypherPrimitive.eq(leftExpr, rightExpr);
     }

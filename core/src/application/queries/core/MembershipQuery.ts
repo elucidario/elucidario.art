@@ -1,6 +1,4 @@
-import { Cypher } from "@/db";
-import { AbstractQuery } from "../AbstractQuery";
-import { Hooks, PropertyConstraint } from "@/types";
+import { AQuery } from "../AQuery";
 import {
     Email,
     TeamMemberOrInvitedMember,
@@ -11,24 +9,7 @@ import {
 } from "@elucidario/mdorim";
 import { CompositeClause, Expr } from "@neo4j/cypher-builder";
 
-export class MembershipQuery extends AbstractQuery<TeamMemberOrInvitedMember> {
-    constraints: PropertyConstraint[] = [
-        {
-            name: "member_unique_uuid",
-            labels: ["Member"],
-            prop: "uuid",
-        },
-        {
-            name: "member_unique_email",
-            labels: ["Member"],
-            prop: "email",
-        },
-    ];
-
-    constructor(cypher: Cypher, hooks: Hooks) {
-        super(cypher, hooks);
-    }
-
+export class MembershipQuery extends AQuery<TeamMemberOrInvitedMember> {
     /**
      * Verify that the workspace and user exist in the database.
      * @param tx - The managed transaction.

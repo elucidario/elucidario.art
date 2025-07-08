@@ -3,27 +3,19 @@ import { RawRuleOf, MongoAbility } from "@casl/ability";
 import {
     TeamMemberRole,
     User,
+    UUID,
     Workspace as WorkspaceType,
 } from "@elucidario/mdorim";
-import AbstractService from "../AbstractService";
-import { WorkspaceQuery } from "@/queries";
-import { Graph } from "@/db";
-import {
-    Hooks,
-    Body,
-    QueryStrings,
-    AuthContext,
-    ParamsWithWorkspace,
-} from "@/types";
-import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { Workspace } from "@/model";
 
-export class WorkspaceService extends AbstractService<
-    WorkspaceType,
-    Workspace,
-    WorkspaceQuery,
-    { workspaceUUID?: string }
-> {
+import AService from "../AService";
+import { MembershipQuery, WorkspaceQuery } from "@/application/queries/core";
+import { Graph } from "@/application/Graph";
+import { Hooks, AuthContext, ListParams } from "@/types";
+import { Workspace } from "@/domain/models/core";
+import { Validator } from "@/application/Validator";
+import { Authorization } from "@/application/Authorization";
+
+export class WorkspaceService extends AService<WorkspaceType, WorkspaceQuery> {
     /**
      * WorkspaceService constructor
      * @param model - The workspace model
@@ -33,13 +25,13 @@ export class WorkspaceService extends AbstractService<
      * @param fastify - The Fastify instance
      */
     constructor(
-        model: Workspace,
-        query: WorkspaceQuery,
-        graph: Graph,
-        hooks: Hooks,
-        fastify: FastifyInstance,
+        protected validator: Validator,
+        protected query: WorkspaceQuery,
+        protected authorization: Authorization,
+        protected graph: Graph,
+        protected hooks: Hooks,
     ) {
-        super(model, query, graph, hooks, fastify);
+        super(validator, query, authorization, graph, hooks);
         this.register();
     }
 
@@ -87,28 +79,22 @@ export class WorkspaceService extends AbstractService<
      * @returns The created workspace.
      * @throws MdorimError if the workspace is invalid or creation fails.
      */
-    async create(
-        request: FastifyRequest<
-            ParamsWithWorkspace & Body<WorkspaceType> & QueryStrings
-        >,
-        reply: FastifyReply,
-    ): Promise<WorkspaceType> {
+    async create(data: Partial<WorkspaceType>): Promise<WorkspaceType> {
         try {
-            await this.processRequest(request);
-
-            if (!this.getPermissions().can("create", this.model)) {
+            const model = new Workspace();
+            if (!this.getPermissions().can("create", model)) {
                 throw this.error("Unauthorized", 403);
             }
+            this.validator.setModel(model);
+            await this.validator.validateEntity({ data });
 
-            const data = this.parseBodyRequest(request);
+            const context = this.getContext();
 
-            await this.model.validateEntity(data);
-
-            const user = this.getUser(request);
-
-            if (!user) {
+            if (!context?.user) {
                 throw this.error("User not found", 404);
             }
+
+            const user = context.user as User;
 
             const workspace = await this.graph.writeTransaction(async (tx) => {
                 const workspaceNode = this.graph.cypher.NamedNode("workspace");
@@ -133,7 +119,7 @@ export class WorkspaceService extends AbstractService<
                     records[0].get("workspace"),
                 );
 
-                const membershipQuery = this.fastify.services.membership.query;
+                const membershipQuery = new MembershipQuery(this.query.cypher);
 
                 const { cypher, params } = membershipQuery
                     .addToWorkspace({
@@ -170,11 +156,10 @@ export class WorkspaceService extends AbstractService<
                 };
             });
 
-            this.model.set(workspace);
+            model.set(workspace);
 
-            return reply.code(201).send(this.model.get());
+            return model.get();
         } catch (e: unknown) {
-            console.error(e);
             throw this.error(e);
         }
     }
@@ -185,49 +170,43 @@ export class WorkspaceService extends AbstractService<
      * @returns The workspace data or null if not found.
      * @throws MdorimError if the ID is invalid or reading fails.
      */
-    async read(
-        request: FastifyRequest<
-            ParamsWithWorkspace & Body<WorkspaceType> & QueryStrings
-        >,
-        reply: FastifyReply,
-    ): Promise<WorkspaceType | null> {
+    async read(data: Partial<WorkspaceType>): Promise<WorkspaceType> {
         try {
-            await this.processRequest(request);
-
-            if (!this.getPermissions().can("read", this.model)) {
+            const model = new Workspace();
+            if (!this.getPermissions().can("read", model)) {
                 throw this.error("Unauthorized", 403);
             }
 
-            const { workspaceUUID } = this.getParams(request);
+            this.validator.setModel(model);
 
-            await this.model.validateUUID(workspaceUUID);
+            await this.validator.validateEntity({ data });
 
             const { cypher, params } = this.query
                 .read({
-                    data: { uuid: workspaceUUID },
+                    data,
                     labels: "Workspace",
                 })
                 .build();
 
-            this.model.set(
-                await this.graph.executeQuery<WorkspaceType | null>(
-                    (response) => {
-                        if (response.records.length === 0) {
-                            throw this.error("Workspace not found", 404);
-                        }
+            const workspace = await this.graph.executeQuery<
+                WorkspaceType | undefined
+            >(
+                ({ records }) => {
+                    if (records.length === 0) {
+                        throw this.error("Workspace not found", 404);
+                    }
 
-                        const [first] = response.records;
+                    const [first] = records;
 
-                        return this.graph.parseNode<WorkspaceType>(
-                            first.get("u"),
-                        );
-                    },
-                    cypher,
-                    params,
-                ),
+                    return this.graph.parseNode<WorkspaceType>(first.get("u"));
+                },
+                cypher,
+                params,
             );
 
-            return reply.send(this.model.get());
+            model.set(workspace);
+
+            return model.get();
         } catch (e) {
             throw this.error(e);
         }
@@ -241,23 +220,18 @@ export class WorkspaceService extends AbstractService<
      * @throws MdorimError if the ID is invalid, the data is invalid, or updating fails.
      */
     async update(
-        request: FastifyRequest<
-            ParamsWithWorkspace & Body<WorkspaceType> & QueryStrings
-        >,
-        reply: FastifyReply,
+        workspaceUUID: UUID,
+        data: Partial<WorkspaceType>,
     ): Promise<WorkspaceType> {
         try {
-            await this.processRequest(request);
-
-            if (!this.getPermissions().can("update", this.model)) {
+            const model = new Workspace();
+            if (!this.getPermissions().can("update", model)) {
                 throw this.error("Unauthorized", 403);
             }
 
-            const { workspaceUUID } = this.getParams(request);
-            const data = this.parseBodyRequest(request);
-
-            await this.model.validateUUID(workspaceUUID);
-            await this.model.validateEntity(data);
+            this.validator.setModel(model);
+            await this.validator.validateUUID(workspaceUUID);
+            await this.validator.validateEntity({ data });
 
             const { cypher, params } = this.query
                 .update({
@@ -267,7 +241,7 @@ export class WorkspaceService extends AbstractService<
                 })
                 .build();
 
-            this.model.set(
+            model.set(
                 await this.graph.executeQuery<WorkspaceType>(
                     (response) => {
                         if (response.records.length === 0) {
@@ -285,9 +259,8 @@ export class WorkspaceService extends AbstractService<
                 ),
             );
 
-            return reply.send(this.model.get());
+            return model.get();
         } catch (e) {
-            console.log(e);
             throw this.error(e);
         }
     }
@@ -298,21 +271,15 @@ export class WorkspaceService extends AbstractService<
      * @returns true if the workspace was deleted, false otherwise.
      * @throws MdorimError if the ID is invalid or deletion fails.
      */
-    async delete(
-        request: FastifyRequest<
-            ParamsWithWorkspace & Body<WorkspaceType> & QueryStrings
-        >,
-        reply: FastifyReply,
-    ): Promise<boolean> {
+    async delete(workspaceUUID: UUID): Promise<boolean> {
         try {
-            await this.processRequest(request);
-
-            if (!this.getPermissions().can("delete", this.model)) {
+            const model = new Workspace();
+            if (!this.getPermissions().can("delete", model)) {
                 throw this.error("Unauthorized", 403);
             }
 
-            const { workspaceUUID } = this.getParams(request);
-            await this.model.validateUUID(workspaceUUID);
+            this.validator.setModel(model);
+            await this.validator.validateUUID(workspaceUUID);
 
             const workspaceNode = this.graph.cypher.NamedNode("workspace");
             const memberNode = this.graph.cypher.NamedNode("member");
@@ -357,13 +324,12 @@ export class WorkspaceService extends AbstractService<
             );
 
             if (removed) {
-                this.model.set(null);
-                return reply.code(204).send();
+                model.set(undefined);
+                return true;
             } else {
                 throw this.error("Workspace not deleted", 500);
             }
         } catch (e) {
-            console.error(e);
             throw this.error(e);
         }
     }
@@ -375,51 +341,42 @@ export class WorkspaceService extends AbstractService<
      * @returns An array of workspaces.
      * @throws MdorimError if the limit or offset is invalid or listing fails.
      */
-    async list(
-        request: FastifyRequest<
-            ParamsWithWorkspace & Body<WorkspaceType> & QueryStrings
-        >,
-        reply: FastifyReply,
-    ): Promise<WorkspaceType[]> {
+    async list(args?: ListParams): Promise<WorkspaceType[]> {
         try {
-            await this.processRequest(request);
-
-            if (!this.getPermissions().can("read", this.model)) {
+            const model = new Workspace();
+            if (!this.getPermissions().can("read", model)) {
                 throw this.error("Unauthorized", 403);
             }
 
-            const { limit, offset } = this.getQueryStrings(request);
-
-            await this.model.validateNumber(limit, true);
-            await this.model.validateNumber(offset, true);
+            this.validator.setModel(model);
+            await this.validator.validateNumber(args?.limit, true);
+            await this.validator.validateNumber(args?.offset, true);
 
             const { cypher, params } = this.query
                 .list({
-                    limit,
-                    offset,
+                    limit: args?.limit,
+                    offset: args?.offset,
                     labels: "Workspace",
                 })
                 .build();
 
-            return reply.send(
-                this.processList(
-                    await this.graph.executeQuery<WorkspaceType[]>(
-                        (response) => {
-                            const { records } = response;
+            return this.processList(
+                await this.graph.executeQuery<WorkspaceType[]>(
+                    (response) => {
+                        const { records } = response;
 
-                            if (records.length === 0) {
-                                return [];
-                            }
+                        if (records.length === 0) {
+                            return [];
+                        }
 
-                            return records.map((record) => {
-                                return this.graph.parseNode<WorkspaceType>(
-                                    record.get("u"),
-                                );
-                            });
-                        },
-                        cypher,
-                        params,
-                    ),
+                        return records.map((record) => {
+                            return this.graph.parseNode<WorkspaceType>(
+                                record.get("u"),
+                            );
+                        });
+                    },
+                    cypher,
+                    params,
                 ),
             );
         } catch (e) {
@@ -444,11 +401,7 @@ export class WorkspaceService extends AbstractService<
                     workspace !== null && workspace !== undefined,
             )
             .map(
-                (workspace) =>
-                    new Workspace(
-                        this.model.mdorim,
-                        workspace,
-                    ).get() as WorkspaceType,
+                (workspace) => new Workspace(workspace).get() as WorkspaceType,
             );
     }
 }
