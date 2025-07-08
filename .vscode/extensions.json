@@ -1,0 +1,14 @@
+{
+    "recommendations": [
+        "humao.rest-client",
+        "streetsidesoftware.code-spell-checker",
+        "streetsidesoftware.code-spell-checker-portuguese-brazilian",
+        "ms-azuretools.vscode-containers",
+        "oderwat.indent-rainbow",
+        "davidanson.vscode-markdownlint",
+        "bierner.markdown-mermaid",
+        "bpruitt-goddard.mermaid-markdown-syntax-highlighting",
+        "miguelsolorio.symbols",
+        "bradlc.vscode-tailwindcss"
+    ]
+}
