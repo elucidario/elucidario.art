@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { Actions } from "@/hooks";
+import { Actions } from "@/domain/hooks";
 import { ActionCallback } from "@/types";
 
 describe("Actions Class", () => {

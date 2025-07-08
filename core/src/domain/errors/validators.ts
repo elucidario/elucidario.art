@@ -3,6 +3,8 @@ import { Neo4jError } from "neo4j-driver";
 import { GraphError } from "./GraphError";
 import { ServiceError } from "./ServiceError";
 import { QueryError } from "./QueryError";
+import { ModelError } from "./ModelError";
+import { ValidatorError } from "./ValidatorError";
 
 export function isGraphError(error: unknown): error is GraphError {
     return (
@@ -34,6 +36,28 @@ export function isQueryError(error: unknown): error is QueryError {
             "name" in error &&
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (error as any).name === "QueryError")
+    );
+}
+
+export function isModelError(error: unknown): error is ModelError {
+    return (
+        error instanceof ModelError ||
+        (typeof error === "object" &&
+            error !== null &&
+            "name" in error &&
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (error as any).name === "ModelError")
+    );
+}
+
+export function isValidatorError(error: unknown): error is ValidatorError {
+    return (
+        error instanceof ValidatorError ||
+        (typeof error === "object" &&
+            error !== null &&
+            "name" in error &&
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (error as any).name === "ValidatorError")
     );
 }
 

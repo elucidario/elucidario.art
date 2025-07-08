@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { Filters } from "@/hooks"; // Ajuste o caminho de importação
+import { Filters } from "@/domain/hooks";
 import { FilterCallback } from "@/types";
 
 describe("Filters Class", () => {
@@ -16,7 +16,8 @@ describe("Filters Class", () => {
 
     describe("add() method", () => {
         it("should add a filter for a new event name", () => {
-            const callback: FilterCallback<string> = (value) => value;
+            const callback: FilterCallback<string, unknown[]> = (value) =>
+                value;
 
             filters.add("test:filter", callback);
 
@@ -25,7 +26,8 @@ describe("Filters Class", () => {
         });
 
         it("should assign a default priority of 10 if not provided", () => {
-            const callback: FilterCallback<string> = (value) => value;
+            const callback: FilterCallback<string, unknown[]> = (value) =>
+                value;
 
             filters.add("test:filter", callback);
             const hook = filters.hooks.get("test:filter")![0];
@@ -61,7 +63,7 @@ describe("Filters Class", () => {
 
         it("should apply a single filter to a value", () => {
             const initialValue = "start";
-            const filterCallback: FilterCallback<string> = (value) =>
+            const filterCallback: FilterCallback<string, unknown[]> = (value) =>
                 `${value}-filtered`;
             filters.add("single:filter", filterCallback);
 
@@ -88,9 +90,12 @@ describe("Filters Class", () => {
             const initialValue = "Start:";
 
             // Os callbacks modificarão o valor em uma sequência previsível (A, B, C)
-            const filterA: FilterCallback<string> = (val) => `${val}A`;
-            const filterB: FilterCallback<string> = (val) => `${val}B`;
-            const filterC: FilterCallback<string> = (val) => `${val}C`;
+            const filterA: FilterCallback<string, unknown[]> = (val) =>
+                `${val}A`;
+            const filterB: FilterCallback<string, unknown[]> = (val) =>
+                `${val}B`;
+            const filterC: FilterCallback<string, unknown[]> = (val) =>
+                `${val}C`;
 
             // Adiciona em ordem de prioridade misturada
             filters.add("chain:filter", filterB, 10);
@@ -107,8 +112,8 @@ describe("Filters Class", () => {
         });
 
         it("should handle different data types correctly", () => {
-            const filter1: FilterCallback<number> = (num) => num * 2; // 5 -> 10
-            const filter2: FilterCallback<number> = (num) => num + 5; // 10 -> 15
+            const filter1: FilterCallback<number, unknown[]> = (num) => num * 2; // 5 -> 10
+            const filter2: FilterCallback<number, unknown[]> = (num) => num + 5; // 10 -> 15
             filters.add("math:filter", filter1, 10);
             filters.add("math:filter", filter2, 20);
 
