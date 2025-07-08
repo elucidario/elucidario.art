@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { Concept as ConceptType } from "@elucidario/mdorim";
 import { Concept } from "@/domain/models/linked-art";
 
-describe("Concept Model", () => {
+describe("Concept Model", { skip: false }, () => {
     it("should create a Concept instance with default values", () => {
         const user = new Concept();
         expect(user).toBeInstanceOf(Concept);

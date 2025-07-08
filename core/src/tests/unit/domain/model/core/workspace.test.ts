@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { Workspace as WorkspaceType } from "@elucidario/mdorim";
 import { Workspace } from "@/domain/models/core";
 
-describe("Workspace Model", () => {
+describe("Workspace Model", { skip: false }, () => {
     it("should create a Workspace instance with default values", () => {
         const user = new Workspace();
         expect(user).toBeInstanceOf(Workspace);

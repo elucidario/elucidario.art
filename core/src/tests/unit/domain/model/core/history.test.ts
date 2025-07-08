@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { History as HistoryType } from "@elucidario/mdorim";
 import { History } from "@/domain/models/core";
 
-describe("History Model", () => {
+describe("History Model", { skip: false }, () => {
     it("should create a History instance with default values", () => {
         const user = new History();
         expect(user).toBeInstanceOf(History);

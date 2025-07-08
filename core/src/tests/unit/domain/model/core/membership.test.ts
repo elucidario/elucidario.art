@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { TeamMemberOrInvitedMember } from "@elucidario/mdorim";
 import { Membership } from "@/domain/models/core";
 
-describe("Membership Model", () => {
+describe("Membership Model", { skip: false }, () => {
     it("should create a Membership instance with default values", () => {
         const member = new Membership();
         expect(member).toBeInstanceOf(Membership);

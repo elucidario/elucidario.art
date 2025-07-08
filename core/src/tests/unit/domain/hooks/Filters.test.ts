@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { Filters } from "@/domain/hooks";
 import { FilterCallback } from "@/types";
 
-describe("Filters Class", () => {
+describe("Filters Class", { skip: false }, () => {
     let filters: Filters;
 
     beforeEach(() => {

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { User as UserType } from "@elucidario/mdorim";
 import { User } from "@/domain/models/core";
 
-describe("User Model", () => {
+describe("User Model", { skip: false }, () => {
     it("should create a User instance with default values", () => {
         const user = new User();
         expect(user).toBeInstanceOf(User);

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { Reference as ReferenceType, GenericType } from "@elucidario/mdorim";
 import { Reference } from "@/domain/models/linked-art";
 
-describe("Reference Model", () => {
+describe("Reference Model", { skip: false }, () => {
     it("should create a Reference instance with default values", () => {
         const user = new Reference();
         expect(user).toBeInstanceOf(Reference);

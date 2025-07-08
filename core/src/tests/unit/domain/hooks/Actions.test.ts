@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { Actions } from "@/domain/hooks";
 import { ActionCallback } from "@/types";
 
-describe("Actions Class", () => {
+describe("Actions Class", { skip: false }, () => {
     let actions: Actions;
 
     beforeEach(() => {

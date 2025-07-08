@@ -21,7 +21,7 @@ import { ReferenceQuery } from "@/application/queries/linked-art";
 import { ConfigQuery } from "@/application/queries/core/ConfigQuery";
 import { WorkspaceQuery } from "@/application/queries/core/WorkspaceQuery";
 
-describe("ReferenceService", async () => {
+describe("ReferenceService", { skip: false }, async () => {
     let lcdr: Core;
     let service: ReferenceService;
 

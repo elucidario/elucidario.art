@@ -5,7 +5,7 @@ import { Cypher } from "@/application/Cypher";
 import { Actions, Filters } from "@/domain/hooks";
 import { getDriver } from "@/infrastructure/db/driver";
 
-describe("Graph db", () => {
+describe("Graph db", { skip: false }, () => {
     let graph: Graph | undefined;
 
     beforeAll(() => {

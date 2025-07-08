@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { IdentifierOrName } from "@elucidario/mdorim";
 import { NameOrIdentifier } from "@/domain/models/linked-art";
 
-describe("NameOrIdentifier Model", () => {
+describe("NameOrIdentifier Model", { skip: false }, () => {
     it("should create a NameOrIdentifier instance with default values", () => {
         const name = new NameOrIdentifier();
         expect(name).toBeInstanceOf(NameOrIdentifier);

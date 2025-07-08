@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { Config as ConfigType, ConfigTypes } from "@elucidario/mdorim";
 import { Config } from "@/domain/models/core";
 
-describe("Config Model", () => {
+describe("Config Model", { skip: false }, () => {
     it("should create a Config instance", () => {
         const user = new Config();
         expect(user).toBeInstanceOf(Config);

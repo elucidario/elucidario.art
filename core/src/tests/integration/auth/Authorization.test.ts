@@ -4,7 +4,7 @@ import { MongoAbility, RawRuleOf } from "@casl/ability";
 import { Authorization } from "@/application/Authorization";
 import { Actions, Filters } from "@/domain/hooks";
 
-describe("Authorization", { only: true }, () => {
+describe("Authorization", { skip: false }, () => {
     const hooks = {
         actions: new Actions(),
         filters: new Filters(),

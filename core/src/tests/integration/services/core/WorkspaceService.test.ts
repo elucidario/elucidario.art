@@ -21,7 +21,7 @@ import {
     WorkspaceQuery,
 } from "@/application/queries/core";
 
-describe("WorkspaceService", async () => {
+describe("WorkspaceService", { skip: false }, async () => {
     let lcdr: Core;
     let service: WorkspaceService;
     let user: UserType | null | undefined;

@@ -4,7 +4,7 @@ import { Validator } from "@/application/Validator";
 import { DefaultLocale, I18n, Mdorim } from "@elucidario/mdorim";
 import { User } from "@/domain/models/core";
 
-describe("Validator", () => {
+describe("Validator", { skip: false }, () => {
     let validator: Validator;
 
     beforeAll(() => {

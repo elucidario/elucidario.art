@@ -7,7 +7,7 @@ import { ConfigService } from "@/application/services";
 import { Validator } from "@/application/Validator";
 import { ConfigQuery } from "@/application/queries/core";
 
-describe("ConfigService", async () => {
+describe("ConfigService", { skip: false }, async () => {
     let lcdr: Core;
     let service: ConfigService;
 

@@ -12,7 +12,7 @@ import {
     isNeo4jError,
 } from "@/domain/errors";
 
-describe("Errors", () => {
+describe("Errors", { skip: false }, () => {
     it("should identify GraphError", () => {
         const error = new GraphError("Test Graph Error");
         expect(isGraphError(error)).toBe(true);
