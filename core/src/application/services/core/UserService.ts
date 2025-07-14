@@ -8,7 +8,7 @@ import { Graph } from "@/application/Graph";
 import AService from "../AService";
 import { User } from "@/domain/models/core";
 import { Validator } from "@/application/Validator";
-import { Authorization } from "@/application/Authorization";
+import { Auth } from "@/application/auth/Auth";
 
 /**
  * # UserService
@@ -28,11 +28,11 @@ export class UserService extends AService<UserType, UserQuery> {
     constructor(
         protected validator: Validator,
         protected query: UserQuery,
-        protected authorization: Authorization,
+        protected auth: Auth,
         protected graph: Graph,
         protected hooks: Hooks,
     ) {
-        super(validator, query, authorization, graph, hooks);
+        super(validator, query, auth, graph, hooks);
         this.register();
     }
 
@@ -42,11 +42,9 @@ export class UserService extends AService<UserType, UserQuery> {
      * to set abilities based on the user's role.
      */
     protected register() {
-        this.hooks.filters.add<
-            RawRuleOf<MongoAbility>[],
-            [AuthContext<UserType>]
-        >("authorization.rules", (abilities, context) =>
-            this.setAbilities(abilities, context),
+        this.hooks.filters.add<RawRuleOf<MongoAbility>[], [AuthContext]>(
+            "authorization.rules",
+            (abilities, context) => this.setAbilities(abilities, context),
         );
     }
 
@@ -60,7 +58,7 @@ export class UserService extends AService<UserType, UserQuery> {
      */
     protected setAbilities(
         abilities: RawRuleOf<MongoAbility>[],
-        context: AuthContext<UserType>,
+        context: AuthContext,
     ): RawRuleOf<MongoAbility>[] {
         const { role } = context;
 

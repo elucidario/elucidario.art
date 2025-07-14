@@ -22,7 +22,7 @@ describe("ConfigService", { skip: false }, async () => {
         service = new ConfigService(
             new Validator(new Mdorim(new I18n(DefaultLocale))),
             new ConfigQuery(lcdr.cypher),
-            lcdr.authorization,
+            lcdr.auth,
             lcdr.graph,
             lcdr.hooks,
         );
@@ -85,6 +85,10 @@ describe("ConfigService", { skip: false }, async () => {
 
     describe("READ", testSetup.READ, async () => {
         it("should getMainConfig", async () => {
+            service.setContext({
+                user: adminUser,
+                role: "sysadmin",
+            });
             const config = await service.getMainConfig();
             expect(config).toHaveProperty("type", "MainConfig");
             expect(config).toHaveProperty("sysadmins");

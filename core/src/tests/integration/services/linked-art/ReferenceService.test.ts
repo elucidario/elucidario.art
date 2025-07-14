@@ -46,7 +46,7 @@ describe("ReferenceService", { skip: false }, async () => {
         service = new ReferenceService(
             new Validator(new Mdorim(new I18n(DefaultLocale))),
             new ReferenceQuery(lcdr.cypher),
-            lcdr.authorization,
+            lcdr.auth,
             lcdr.graph,
             lcdr.hooks,
         );
@@ -67,7 +67,7 @@ describe("ReferenceService", { skip: false }, async () => {
         const config = new ConfigService(
             new Validator(new Mdorim(new I18n(DefaultLocale))),
             new ConfigQuery(lcdr.cypher),
-            lcdr.authorization,
+            lcdr.auth,
             lcdr.graph,
             lcdr.hooks,
         );
@@ -79,7 +79,7 @@ describe("ReferenceService", { skip: false }, async () => {
         const workspaceService = new WorkspaceService(
             new Validator(new Mdorim(new I18n(DefaultLocale))),
             new WorkspaceQuery(lcdr.cypher),
-            lcdr.authorization,
+            lcdr.auth,
             lcdr.graph,
             lcdr.hooks,
         );
@@ -188,7 +188,7 @@ describe("ReferenceService", { skip: false }, async () => {
                 uuid: basicRef.uuid,
             });
             expect(result).toBeDefined();
-            expect(result.uuid).toBeDefined();
+            expect(result!.uuid).toBeDefined();
         });
 
         it("should read a Reference with equivalents by UUID", async () => {
@@ -197,9 +197,9 @@ describe("ReferenceService", { skip: false }, async () => {
                 uuid: completeRef.uuid,
             });
             expect(result).toBeDefined();
-            expect(result.uuid).toBeDefined();
-            expect(result.equivalent).toBeDefined();
-            expect(result.equivalent?.length).toBe(2);
+            expect(result!.uuid).toBeDefined();
+            expect(result!.equivalent).toBeDefined();
+            expect(result!.equivalent?.length).toBe(2);
         });
 
         it("should list references", async () => {
@@ -230,8 +230,8 @@ describe("ReferenceService", { skip: false }, async () => {
             const result = await service.update(basicRef.uuid!, params);
 
             expect(result).toBeDefined();
-            expect(result.uuid).toBeDefined();
-            expect(result._label).toBe("Test Reference Update");
+            expect(result!.uuid).toBeDefined();
+            expect(result!._label).toBe("Test Reference Update");
         });
     });
 

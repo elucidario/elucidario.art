@@ -39,7 +39,7 @@ describe("WorkspaceService", { skip: false }, async () => {
         service = new WorkspaceService(
             new Validator(new Mdorim(new I18n(DefaultLocale))),
             new WorkspaceQuery(lcdr.cypher),
-            lcdr.authorization,
+            lcdr.auth,
             lcdr.graph,
             lcdr.hooks,
         );
@@ -58,7 +58,7 @@ describe("WorkspaceService", { skip: false }, async () => {
         const config = new ConfigService(
             new Validator(new Mdorim(new I18n(DefaultLocale))),
             new ConfigQuery(lcdr.cypher),
-            lcdr.authorization,
+            lcdr.auth,
             lcdr.graph,
             lcdr.hooks,
         );
@@ -70,7 +70,7 @@ describe("WorkspaceService", { skip: false }, async () => {
         const userService = new UserService(
             new Validator(new Mdorim(new I18n(DefaultLocale))),
             new UserQuery(lcdr.cypher),
-            lcdr.authorization,
+            lcdr.auth,
             lcdr.graph,
             lcdr.hooks,
         );

@@ -13,7 +13,7 @@ import { Graph } from "@/application/Graph";
 import { Hooks, AuthContext, ListParams } from "@/types";
 import { Workspace } from "@/domain/models/core";
 import { Validator } from "@/application/Validator";
-import { Authorization } from "@/application/Authorization";
+import { Auth } from "@/application/auth/Auth";
 
 export class WorkspaceService extends AService<WorkspaceType, WorkspaceQuery> {
     /**
@@ -27,11 +27,11 @@ export class WorkspaceService extends AService<WorkspaceType, WorkspaceQuery> {
     constructor(
         protected validator: Validator,
         protected query: WorkspaceQuery,
-        protected authorization: Authorization,
+        protected auth: Auth,
         protected graph: Graph,
         protected hooks: Hooks,
     ) {
-        super(validator, query, authorization, graph, hooks);
+        super(validator, query, auth, graph, hooks);
         this.register();
     }
 
@@ -41,11 +41,9 @@ export class WorkspaceService extends AService<WorkspaceType, WorkspaceQuery> {
      * to set abilities based on the user's role.
      */
     protected register() {
-        this.hooks.filters.add<
-            RawRuleOf<MongoAbility>[],
-            [AuthContext<WorkspaceType>]
-        >("authorization.rules", (abilities, context) =>
-            this.setAbilities(abilities, context),
+        this.hooks.filters.add<RawRuleOf<MongoAbility>[], [AuthContext]>(
+            "authorization.rules",
+            (abilities, context) => this.setAbilities(abilities, context),
         );
     }
 
@@ -59,7 +57,7 @@ export class WorkspaceService extends AService<WorkspaceType, WorkspaceQuery> {
      */
     protected setAbilities(
         abilities: RawRuleOf<MongoAbility>[],
-        context: AuthContext<WorkspaceType>,
+        context: AuthContext,
     ): RawRuleOf<MongoAbility>[] {
         const { role } = context;
 

@@ -34,7 +34,7 @@ describe("UserService", { skip: false }, async () => {
         service = new UserService(
             new Validator(new Mdorim(new I18n(DefaultLocale))),
             new UserQuery(lcdr.cypher),
-            lcdr.authorization,
+            lcdr.auth,
             lcdr.graph,
             lcdr.hooks,
         );
@@ -53,10 +53,14 @@ describe("UserService", { skip: false }, async () => {
         const config = new ConfigService(
             new Validator(new Mdorim(new I18n(DefaultLocale))),
             new ConfigQuery(lcdr.cypher),
-            lcdr.authorization,
+            lcdr.auth,
             lcdr.graph,
             lcdr.hooks,
         );
+        config.setContext({
+            user: adminUser,
+            role: "sysadmin",
+        })
         await config.setMainConfig({
             type: "MainConfig",
             sysadmins: [adminUser],

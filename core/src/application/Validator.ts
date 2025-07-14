@@ -29,7 +29,6 @@ export class Validator {
      * This class provides methods to validate data against schemas defined in the Mdorim instance.
      * It is used to ensure that the data conforms to the expected structure before being processed or saved.
      *
-     * @param model - The model instance that this validator is associated with.
      * @param mdorim - The instance of the Mdorim class, which is used for schema validation.
      * @param model - The model instance that this validator is associated with.
      */
@@ -112,7 +111,13 @@ export class Validator {
                     "Model is not defined. Please set the model before getting the schema.",
                 );
             }
-            const data: Partial<MdorimBase> = args?.data || this.model.get();
+            const data: Partial<MdorimBase> | null =
+                args?.data || this.model.get();
+            if (!data) {
+                throw this.error(
+                    "Data is not set. Please set the data before validating.",
+                );
+            }
             const isValid = await this.validate(
                 data,
                 this.model.schemaName(args?.schemaName),

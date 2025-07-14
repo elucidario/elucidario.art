@@ -6,7 +6,7 @@ import { Graph } from "@/application/Graph";
 import { Cypher } from "@/application/Cypher";
 import { Actions, Filters } from "@/domain/hooks";
 import { Hooks, PropertyConstraint } from "@/types";
-import { Authorization } from "@/application/Authorization";
+import { Auth } from "@/application/auth/Auth";
 import { History, User, Workspace } from "@/domain/models/core";
 import {
     Concept,
@@ -24,7 +24,7 @@ export default class Core {
     graph: Graph;
     cypher: Cypher;
     hooks: Hooks;
-    authorization: Authorization;
+    auth: Auth;
 
     /**
      * # Core constructor
@@ -43,7 +43,7 @@ export default class Core {
 
         this.mdorim = new Mdorim(new I18n(DefaultLocale));
 
-        this.authorization = new Authorization(this.hooks);
+        this.auth = new Auth(this.cypher, this.graph, this.hooks);
     }
 
     /**
