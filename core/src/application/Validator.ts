@@ -31,6 +31,7 @@ export class Validator {
      *
      * @param model - The model instance that this validator is associated with.
      * @param mdorim - The instance of the Mdorim class, which is used for schema validation.
+     * @param model - The model instance that this validator is associated with.
      */
     constructor(mdorim: Mdorim, model?: IModel<MdorimBase>) {
         this.mdorim = mdorim;
@@ -56,7 +57,7 @@ export class Validator {
     getSchema(id?: string): SchemaObject {
         try {
             if (!this.model) {
-                throw new ValidatorError(
+                throw this.error(
                     "Model is not defined. Please set the model before getting the schema.",
                 );
             }
