@@ -2,9 +2,9 @@ import { MdorimBase, MdorimError } from "@elucidario/mdorim";
 import { ModelError } from "../errors";
 
 export default interface IModel<T extends MdorimBase> {
-    set(data?: T): void;
+    set(data?: T | null): void;
 
-    get(): T;
+    get(): T | null;
 
     /**
      * ## checkSchemaType

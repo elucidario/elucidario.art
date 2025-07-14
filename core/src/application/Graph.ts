@@ -233,7 +233,12 @@ export class Graph {
      *                 - Defaults to ["password"].
      * @returns Parsed data
      */
-    parseNode<T extends Partial<MdorimBase>>(data: RecordShape): T {
+    parseNode<T extends Partial<MdorimBase>>(
+        data: RecordShape | null,
+    ): T | null {
+        if (!data) {
+            return null;
+        }
         const type = data.labels![0] as string;
         return Object.entries(data.properties).reduce(
             (acc, [key, value]) => {

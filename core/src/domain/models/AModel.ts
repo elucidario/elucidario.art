@@ -9,8 +9,7 @@ import { PropertyConstraint } from "@/types";
  * This abstract class provides a base for all models in the application.
  */
 export default abstract class AModel<T extends MdorimBase>
-    implements IModel<T>
-{
+    implements IModel<T> {
     /**
      * ## AbstractQuery.constraints
      * This static property holds an array of Cypher constraints that should be applied to the model.
@@ -24,7 +23,7 @@ export default abstract class AModel<T extends MdorimBase>
      * It can be a single object, or undefined.
      * It is protected to allow access in subclasses.
      */
-    protected data?: T;
+    protected data?: T | null;
 
     /**
      * ## AbstractModel.schema
@@ -42,7 +41,7 @@ export default abstract class AModel<T extends MdorimBase>
      * @param data - Optional initial data for the model.
      * @throws MdorimError if the schema is not a string or a Map
      */
-    constructor(schema: string | string[], data?: T) {
+    constructor(schema: string | string[], data?: T | null) {
         this.schema = Array.isArray(schema)
             ? new Map(schema.map((s) => [s, s]))
             : schema;
@@ -57,7 +56,7 @@ export default abstract class AModel<T extends MdorimBase>
      *
      * @param data - The data to set for the model. It can be a single object, an array of objects, or null.
      */
-    public set(data?: T): void {
+    public set(data?: T | null): void {
         this.data = data;
     }
 
@@ -68,9 +67,9 @@ export default abstract class AModel<T extends MdorimBase>
      *
      * @returns The data for the model. It can be a single object, an array of objects, null, or undefined.
      */
-    public get(): T {
+    public get(): T | null {
         try {
-            if (!this.data) {
+            if (typeof this.data === "undefined") {
                 throw this.error(
                     "Data is not set. Please set the data before getting it.",
                 );
