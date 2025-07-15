@@ -99,12 +99,6 @@
             "description": "One or more Acquisition activities in which the object changed ownership",
             "type": "array",
             "items": { "$ref": "#/$defs/EmbeddedAcquisition" }
-        },
-        "used_for": {
-            "title": "crm:P16i_was_used_for",
-            "description": "One or more other activities without their own identities in which this object was used",
-            "type": "array",
-            "items": { "$ref": "core.json#/$defs/Activity" }
         }
     },
 
