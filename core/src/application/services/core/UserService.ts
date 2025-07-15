@@ -1,6 +1,4 @@
-import { RawRuleOf, MongoAbility } from "@casl/ability";
-
-import { Hooks, AuthContext, ListParams } from "@/types";
+import { Hooks, ListParams } from "@/types";
 import { User as UserType, UUID } from "@elucidario/mdorim";
 import { UserQuery } from "@/application/queries/core";
 import { Graph } from "@/application/Graph";
@@ -8,7 +6,7 @@ import { Graph } from "@/application/Graph";
 import AService from "../AService";
 import { User } from "@/domain/models/core";
 import { Validator } from "@/application/Validator";
-import { Authorization } from "@/application/Authorization";
+import { Auth } from "@/application/auth/Auth";
 
 /**
  * # UserService
@@ -28,50 +26,11 @@ export class UserService extends AService<UserType, UserQuery> {
     constructor(
         protected validator: Validator,
         protected query: UserQuery,
-        protected authorization: Authorization,
+        protected auth: Auth,
         protected graph: Graph,
         protected hooks: Hooks,
     ) {
-        super(validator, query, authorization, graph, hooks);
-        this.register();
-    }
-
-    /**
-     * ## Registers the service hooks for authorization rules.
-     * This method adds a filter to the "authorization.rules" hook
-     * to set abilities based on the user's role.
-     */
-    protected register() {
-        this.hooks.filters.add<
-            RawRuleOf<MongoAbility>[],
-            [AuthContext<UserType>]
-        >("authorization.rules", (abilities, context) =>
-            this.setAbilities(abilities, context),
-        );
-    }
-
-    /**
-     * ## Sets the abilities for the user based on their role.
-     * This method modifies the abilities array to include management permissions.
-     *
-     * @param abilities - The current abilities array.
-     * @param context - The authentication context containing user and role information.
-     * @returns The modified abilities array.
-     */
-    protected setAbilities(
-        abilities: RawRuleOf<MongoAbility>[],
-        context: AuthContext<UserType>,
-    ): RawRuleOf<MongoAbility>[] {
-        const { role } = context;
-
-        if (["admin", "sysadmin"].includes(role)) {
-            abilities.push({
-                action: "manage",
-                subject: "User",
-            });
-        }
-
-        return abilities;
+        super(User, validator, query, auth, graph, hooks);
     }
 
     /**
@@ -100,23 +59,29 @@ export class UserService extends AService<UserType, UserQuery> {
                 })
                 .build();
 
-            model.set(
-                await this.graph.executeQuery<UserType>(
-                    (response) => {
-                        if (response.records.length === 0) {
-                            throw this.error("User not created", 500);
-                        }
+            const user = await this.graph.writeTransaction(async (tx) => {
+                const { records } = await tx.run(cypher, params);
 
-                        const [first] = response.records;
+                if (records.length === 0) {
+                    throw this.error("User not created", 500);
+                }
 
-                        return this.graph.parseNode<UserType>(first.get(node));
-                    },
-                    cypher,
-                    params,
-                ),
-            );
+                const [first] = records;
 
-            return model.get();
+                const user = this.graph.parseNode<UserType>(first.get(node));
+
+                if (!user) {
+                    throw this.error("User not created", 500);
+                }
+
+                await this.history(tx, "CREATE", user, user.uuid!);
+
+                return user;
+            });
+
+            model.set(user);
+
+            return model.get() as UserType;
         } catch (e: unknown) {
             throw this.error(e);
         }
@@ -131,6 +96,7 @@ export class UserService extends AService<UserType, UserQuery> {
     async read(data: Partial<UserType>): Promise<UserType | null> {
         try {
             const model = new User();
+
             if (!this.getPermissions().can("read", model)) {
                 throw this.error("Unauthorized", 403);
             }
@@ -146,10 +112,10 @@ export class UserService extends AService<UserType, UserQuery> {
                 .build();
 
             model.set(
-                await this.graph.executeQuery<UserType | undefined>(
+                await this.graph.executeQuery<UserType>(
                     (response) => {
                         if (response.records.length === 0) {
-                            return undefined;
+                            throw this.error("User not found", 404);
                         }
 
                         const [first] = response.records;
@@ -157,6 +123,10 @@ export class UserService extends AService<UserType, UserQuery> {
                         const user = this.graph.parseNode<UserType>(
                             first.get("u"),
                         );
+
+                        if (!user) {
+                            throw this.error("User not found", 404);
+                        }
 
                         return user;
                     },
@@ -197,23 +167,36 @@ export class UserService extends AService<UserType, UserQuery> {
                 })
                 .build();
 
-            model.set(
-                await this.graph.executeQuery<UserType>(
-                    ({ records }) => {
-                        if (records.length === 0) {
-                            throw this.error("User not found.", 404);
-                        }
+            const user = await this.graph.writeTransaction(async (tx) => {
+                const res = await tx.run(cypher, params);
+                if (res.records.length === 0) {
+                    throw this.error("User not found.", 404);
+                }
+                const [first] = res.records;
 
-                        const [first] = records;
+                const user = this.graph.parseNode<UserType>(first.get("u"));
 
-                        return this.graph.parseNode<UserType>(first.get("u"));
+                if (!user) {
+                    throw this.error("User not found.", 404);
+                }
+
+                await this.history(
+                    tx,
+                    "UPDATE",
+                    {
+                        type: user.type,
+                        uuid: user.uuid,
+                        ...data,
                     },
-                    cypher,
-                    params,
-                ),
-            );
+                    user.uuid!,
+                );
 
-            return model.get();
+                return user;
+            });
+
+            model.set(user);
+
+            return model.get() as UserType;
         } catch (e) {
             throw this.error(e);
         }
@@ -235,6 +218,11 @@ export class UserService extends AService<UserType, UserQuery> {
             this.validator.setModel(model);
             await this.validator.validateUUID(userUUID);
 
+            const user = await this.read({ uuid: userUUID });
+            if (!user) {
+                throw this.error("User not found", 404);
+            }
+
             const { cypher, params } = this.query
                 .delete({
                     uuid: userUUID,
@@ -242,18 +230,23 @@ export class UserService extends AService<UserType, UserQuery> {
                 })
                 .build();
 
-            const removed = await this.graph.executeQuery<boolean>(
-                ({ records }) => {
-                    if (records.length === 0) {
-                        throw this.error("User not found", 404);
-                    }
+            const removed = await this.graph.writeTransaction(async (tx) => {
+                const res = await tx.run(cypher, params);
+                if (res.records.length === 0) {
+                    throw this.error("User not found", 404);
+                }
+                const [first] = res.records;
 
-                    const [first] = records;
-                    return first.get("removed") as boolean;
-                },
-                cypher,
-                params,
-            );
+                const removed = first.get("removed") as boolean;
+
+                if (!removed) {
+                    throw this.error("Could not delete user", 500);
+                }
+
+                await this.history(tx, "DELETE", user, user.uuid!);
+
+                return removed;
+            });
 
             if (removed) {
                 model.set(undefined);
@@ -273,7 +266,7 @@ export class UserService extends AService<UserType, UserQuery> {
      * @returns An array of users.
      * @throws MdorimError if listing fails.
      */
-    async list(args?: ListParams): Promise<UserType[]> {
+    async list(args?: ListParams): Promise<UserType[] | []> {
         try {
             const model = new User();
             if (!this.getPermissions().can("read", model)) {
@@ -293,7 +286,7 @@ export class UserService extends AService<UserType, UserQuery> {
                 .build();
 
             return this.processList(
-                await this.graph.executeQuery<UserType[]>(
+                await this.graph.executeQuery<UserType[] | []>(
                     (response) => {
                         const { records } = response;
 
@@ -304,7 +297,7 @@ export class UserService extends AService<UserType, UserQuery> {
                         return records.map((record) => {
                             return this.graph.parseNode<UserType>(
                                 record.get("u"),
-                            );
+                            ) as UserType;
                         });
                     },
                     cypher,

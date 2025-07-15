@@ -90,7 +90,7 @@ export class Graph {
                         },
                     },
                 },
-                (error as GraphError).statusCode || 409,
+                (error as GraphError).statusCode,
             );
         }
     }
@@ -114,7 +114,17 @@ export class Graph {
             await session.close();
             return response;
         } catch (error) {
-            throw this.error(error);
+            throw this.error(
+                error,
+                {
+                    mdorim: {
+                        ConstraintValidationFailed: {
+                            message: "Entity already exists.",
+                        },
+                    },
+                },
+                (error as GraphError).statusCode,
+            );
         }
     }
 
@@ -233,7 +243,12 @@ export class Graph {
      *                 - Defaults to ["password"].
      * @returns Parsed data
      */
-    parseNode<T extends Partial<MdorimBase>>(data: RecordShape): T {
+    parseNode<T extends Partial<MdorimBase>>(
+        data: RecordShape | null,
+    ): T | null {
+        if (!data) {
+            return null;
+        }
         const type = data.labels![0] as string;
         return Object.entries(data.properties).reduce(
             (acc, [key, value]) => {

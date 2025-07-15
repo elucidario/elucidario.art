@@ -5,14 +5,9 @@ import { closeDriver, getDriver } from "./infrastructure/db/driver";
 import { Graph } from "@/application/Graph";
 import { Cypher } from "@/application/Cypher";
 import { Actions, Filters } from "@/domain/hooks";
-import { Hooks, PropertyConstraint } from "@/types";
-import { Authorization } from "@/application/Authorization";
-import { History, User, Workspace } from "@/domain/models/core";
-import {
-    Concept,
-    NameOrIdentifier,
-    Reference,
-} from "@/domain/models/linked-art";
+import { Hooks } from "@/types";
+import { Auth } from "@/application/auth/Auth";
+import { Config, History, User, Workspace } from "@/domain/models/core";
 
 /**
  * # Core
@@ -24,7 +19,7 @@ export default class Core {
     graph: Graph;
     cypher: Cypher;
     hooks: Hooks;
-    authorization: Authorization;
+    auth: Auth;
 
     /**
      * # Core constructor
@@ -43,7 +38,7 @@ export default class Core {
 
         this.mdorim = new Mdorim(new I18n(DefaultLocale));
 
-        this.authorization = new Authorization(this.hooks);
+        this.auth = new Auth(this.cypher, this.graph, this.hooks);
     }
 
     /**
@@ -52,33 +47,24 @@ export default class Core {
      * This method should be called after the Core instance is created.
      */
     async setup() {
-        this.registerModels();
+        this.register();
         await this.graph.setup();
     }
 
     /**
-     * ## Register Models
-     * Registers the models and their constraints.
+     * ## Register
+     * Registers the models.
+     * see specific register methods in models.
      */
-    protected registerModels() {
-        const models = new Map<string, PropertyConstraint[]>([
-            ["Core/History", new History().constraints],
-            ["Core/User", new User().constraints],
-            ["Core/Workspace", new Workspace().constraints],
-            ["LinkedArt/Concept", new Concept().constraints],
-            ["LinkedArt/NameOrIdentifier", new NameOrIdentifier().constraints],
-            ["LinkedArt/Reference", new Reference().constraints],
-        ]);
-
-        models.forEach((constraints) => {
-            this.hooks.filters.add<PropertyConstraint[], unknown[]>(
-                "graph.setConstraints",
-                (c) => {
-                    c.push(...constraints);
-                    return c;
-                },
-            );
-        });
+    protected register() {
+        new Config(null, this.hooks).register();
+        new History(null, this.hooks).register();
+        new User(null, this.hooks).register();
+        new Workspace(null, this.hooks).register();
+        // new History(null, this.hooks).register();
+        // new Concept(null, this.hooks).register();
+        // new NameOrIdentifier(null, this.hooks).register();
+        // new Reference(null, this.hooks).register();
     }
 
     /**

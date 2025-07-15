@@ -1,6 +1,6 @@
-import { RawRuleOf, MongoAbility } from "@casl/ability";
 
 import {
+    TeamMemberOrInvitedMember,
     TeamMemberRole,
     User,
     UUID,
@@ -10,10 +10,11 @@ import {
 import AService from "../AService";
 import { MembershipQuery, WorkspaceQuery } from "@/application/queries/core";
 import { Graph } from "@/application/Graph";
-import { Hooks, AuthContext, ListParams } from "@/types";
+import { Hooks, ListParams } from "@/types";
 import { Workspace } from "@/domain/models/core";
 import { Validator } from "@/application/Validator";
-import { Authorization } from "@/application/Authorization";
+import { Auth } from "@/application/auth/Auth";
+import { ManagedTransaction, RecordShape } from "neo4j-driver";
 
 export class WorkspaceService extends AService<WorkspaceType, WorkspaceQuery> {
     /**
@@ -27,50 +28,11 @@ export class WorkspaceService extends AService<WorkspaceType, WorkspaceQuery> {
     constructor(
         protected validator: Validator,
         protected query: WorkspaceQuery,
-        protected authorization: Authorization,
+        protected auth: Auth,
         protected graph: Graph,
         protected hooks: Hooks,
     ) {
-        super(validator, query, authorization, graph, hooks);
-        this.register();
-    }
-
-    /**
-     * ## Registers the service hooks for authorization rules.
-     * This method adds a filter to the "authorization.rules" hook
-     * to set abilities based on the user's role.
-     */
-    protected register() {
-        this.hooks.filters.add<
-            RawRuleOf<MongoAbility>[],
-            [AuthContext<WorkspaceType>]
-        >("authorization.rules", (abilities, context) =>
-            this.setAbilities(abilities, context),
-        );
-    }
-
-    /**
-     * ## Sets the abilities for the user based on their role.
-     * This method modifies the abilities array to include management permissions.
-     *
-     * @param abilities - The current abilities array.
-     * @param context - The authentication context containing user and role information.
-     * @returns The modified abilities array.
-     */
-    protected setAbilities(
-        abilities: RawRuleOf<MongoAbility>[],
-        context: AuthContext<WorkspaceType>,
-    ): RawRuleOf<MongoAbility>[] {
-        const { role } = context;
-
-        if (["admin", "sysadmin"].includes(role)) {
-            abilities.push({
-                action: "manage",
-                subject: "Workspace",
-            });
-        }
-
-        return abilities;
+        super(Workspace, validator, query, auth, graph, hooks);
     }
 
     /**
@@ -119,6 +81,13 @@ export class WorkspaceService extends AService<WorkspaceType, WorkspaceQuery> {
                     records[0].get("workspace"),
                 );
 
+                if (!workspaceRecord) {
+                    // in case workspace is null
+                    throw this.error("Workspace not created", 500);
+                }
+
+                await this.history(tx, "CREATE", workspaceRecord, user.uuid!);
+
                 const membershipQuery = new MembershipQuery(this.query.cypher);
 
                 const { cypher, params } = membershipQuery
@@ -141,6 +110,17 @@ export class WorkspaceService extends AService<WorkspaceType, WorkspaceQuery> {
                     first.get("user"),
                 );
 
+                const memberRecord =
+                    this.graph.parseNode<TeamMemberOrInvitedMember>(
+                        first.get("member"),
+                    );
+
+                if (!memberRecord) {
+                    throw this.error("Could not create member", 500);
+                }
+
+                await this.history(tx, "CREATE", memberRecord, user.uuid!);
+
                 const memberOfRecord = this.graph.parseRelationship<{
                     role: TeamMemberRole;
                 }>(first.get("memberOf"));
@@ -158,7 +138,7 @@ export class WorkspaceService extends AService<WorkspaceType, WorkspaceQuery> {
 
             model.set(workspace);
 
-            return model.get();
+            return model.get() as WorkspaceType;
         } catch (e: unknown) {
             throw this.error(e);
         }
@@ -198,7 +178,15 @@ export class WorkspaceService extends AService<WorkspaceType, WorkspaceQuery> {
 
                     const [first] = records;
 
-                    return this.graph.parseNode<WorkspaceType>(first.get("u"));
+                    const workspaceRecord = this.graph.parseNode<WorkspaceType>(
+                        first.get("u"),
+                    );
+
+                    if (!workspaceRecord) {
+                        throw this.error("Workspace not found", 404);
+                    }
+
+                    return workspaceRecord;
                 },
                 cypher,
                 params,
@@ -206,7 +194,7 @@ export class WorkspaceService extends AService<WorkspaceType, WorkspaceQuery> {
 
             model.set(workspace);
 
-            return model.get();
+            return model.get() as WorkspaceType;
         } catch (e) {
             throw this.error(e);
         }
@@ -241,25 +229,46 @@ export class WorkspaceService extends AService<WorkspaceType, WorkspaceQuery> {
                 })
                 .build();
 
-            model.set(
-                await this.graph.executeQuery<WorkspaceType>(
-                    (response) => {
-                        if (response.records.length === 0) {
-                            throw this.error("Workspace not found", 404);
-                        }
+            const workspace = await this.graph.writeTransaction(async (tx) => {
+                const { records } = await tx.run(cypher, params);
 
-                        const [first] = response.records;
+                if (records.length === 0) {
+                    throw this.error("Workspace not found", 404);
+                }
 
-                        return this.graph.parseNode<WorkspaceType>(
-                            first.get("u"),
-                        );
+                const [first] = records;
+
+                const workspaceRecord = this.graph.parseNode<WorkspaceType>(
+                    first.get("u"),
+                );
+
+                if (!workspaceRecord) {
+                    throw this.error("Workspace not found", 404);
+                }
+
+                const user = this.getContext()!.user as User;
+
+                if (!user || !user.uuid) {
+                    throw this.error("User not found", 404);
+                }
+
+                await this.history(
+                    tx,
+                    "UPDATE",
+                    {
+                        type: workspaceRecord.type,
+                        uuid: workspaceRecord.uuid,
+                        ...data,
                     },
-                    cypher,
-                    params,
-                ),
-            );
+                    user.uuid!,
+                );
 
-            return model.get();
+                return workspaceRecord;
+            });
+
+            model.set(workspace);
+
+            return model.get() as WorkspaceType;
         } catch (e) {
             throw this.error(e);
         }
@@ -278,50 +287,59 @@ export class WorkspaceService extends AService<WorkspaceType, WorkspaceQuery> {
                 throw this.error("Unauthorized", 403);
             }
 
+            const workspace = await this.read({ uuid: workspaceUUID });
+            if (!workspace) {
+                throw this.error("Workspace not found", 404);
+            }
+
+            const user = this.getContext()?.user as User;
+            if (!user || !user.uuid) {
+                throw this.error("User not found", 404);
+            }
+
             this.validator.setModel(model);
             await this.validator.validateUUID(workspaceUUID);
 
-            const workspaceNode = this.graph.cypher.NamedNode("workspace");
-            const memberNode = this.graph.cypher.NamedNode("member");
+            const removed = await this.graph.writeTransaction(async (tx) => {
+                await this.history(tx, "DELETE", workspace, user.uuid);
 
-            const matchWorkspace = this.graph.cypher.Match(
-                this.graph.cypher.Pattern(workspaceNode, {
-                    labels: ["Workspace"],
-                    properties: {
-                        uuid: this.graph.cypher.Param(workspaceUUID),
-                    },
-                }),
-            );
+                const workspaceNode = this.graph.cypher.NamedNode("workspace");
 
-            const matchMember = this.graph.cypher
-                .OptionalMatch(
-                    this.graph.cypher
-                        .Pattern(memberNode, {
-                            labels: ["Member"],
-                        })
-                        .related(this.graph.cypher.Relationship())
-                        .to(workspaceNode),
-                )
-                .detachDelete(memberNode, workspaceNode)
-                .with(memberNode, workspaceNode)
-                .return([this.query.cypher.Literal(true), "removed"]);
+                const deleteWorkspace = this.graph.cypher
+                    .Match(
+                        this.graph.cypher.Pattern(workspaceNode, {
+                            labels: ["Workspace"],
+                            properties: {
+                                uuid: this.graph.cypher.Param(workspaceUUID),
+                            },
+                        }),
+                    )
+                    .with(workspaceNode)
+                    .detachDelete(workspaceNode)
+                    .return([this.graph.cypher.Literal(true), "removed"]);
 
-            const { cypher, params } = this.query.cypher
-                .concat(matchWorkspace, matchMember)
-                .build();
+                const { cypher, params } = this.query.cypher
+                    .concat(deleteWorkspace)
+                    .build();
 
-            const removed = await this.graph.executeQuery<boolean>(
-                ({ records }) => {
-                    if (records.length === 0) {
-                        throw this.error("WorkspaceType not found", 404);
-                    }
+                await this.removeWorkspaceMembers(
+                    tx,
+                    workspaceUUID,
+                    user.uuid!,
+                );
 
-                    const [first] = records;
-                    return first.get("removed") as boolean;
-                },
-                cypher,
-                params,
-            );
+                const { records } = await tx.run(cypher, params);
+
+                if (records.length === 0) {
+                    throw this.error("Workspace not found", 404);
+                }
+
+                const [first] = records;
+
+                const removed = first.get("removed") as boolean;
+
+                return removed;
+            });
 
             if (removed) {
                 model.set(undefined);
@@ -332,6 +350,115 @@ export class WorkspaceService extends AService<WorkspaceType, WorkspaceQuery> {
         } catch (e) {
             throw this.error(e);
         }
+    }
+
+    /**
+     * Removes all members from a workspace.
+     * @param tx - The transaction to use.
+     * @param workspaceUUID - The UUID of the workspace.
+     * @param userUUID - The UUID of the user performing the action.
+     * @returns A promise that resolves to true if members were removed, false otherwise.
+     */
+    protected async removeWorkspaceMembers(
+        tx: ManagedTransaction,
+        workspaceUUID: UUID,
+        userUUID: UUID,
+    ) {
+        const memberNode = this.graph.cypher.NamedNode("member");
+        const workspaceNode = this.graph.cypher.NamedNode("workspace");
+
+        const matchWorkspace = this.graph.cypher.Match(
+            this.graph.cypher.Pattern(workspaceNode, {
+                labels: ["Workspace"],
+                properties: {
+                    uuid: this.graph.cypher.Param(workspaceUUID),
+                },
+            }),
+        );
+
+        const matchMembers = this.graph.cypher
+            .OptionalMatch(
+                this.graph.cypher
+                    .Pattern(memberNode, {
+                        labels: ["Member"],
+                    })
+                    .related(this.graph.cypher.Relationship())
+                    .to(workspaceNode),
+            )
+            .with(memberNode, workspaceNode)
+            .return(workspaceNode, [
+                this.graph.cypher.collect(memberNode),
+                "members",
+            ]);
+
+        const { cypher, params } = this.query.cypher
+            .concat(matchWorkspace, matchMembers)
+            .build();
+
+        return tx.run(cypher, params).then(async (response) => {
+            if (response.records.length === 0) {
+                throw this.error("Workspace not found", 404);
+            }
+
+            const [first] = response.records;
+            // first we get the members of the workspace
+            const members: TeamMemberOrInvitedMember[] = first
+                .get("members")
+                .map((node: RecordShape) => {
+                    return this.graph.parseNode<TeamMemberOrInvitedMember>(
+                        node,
+                    );
+                })
+                .filter(
+                    (
+                        member: null | TeamMemberOrInvitedMember,
+                    ): member is TeamMemberOrInvitedMember =>
+                        member !== null && member !== undefined,
+                );
+
+            if (!members || members.length === 0) {
+                return false; // No members to remove
+            }
+            // then we add the history for each member to be removed
+            await Promise.all(
+                members.map((member) => {
+                    return this.history(tx, "DELETE", member, userUUID);
+                }),
+            );
+
+            // finally we delete the members from the workspace
+            const deleteMemberNode = this.graph.cypher.NamedNode("member");
+            const deleteMembers = this.graph.cypher
+                .Match(
+                    this.graph.cypher
+                        .Pattern(deleteMemberNode, {
+                            labels: ["Member"],
+                        })
+                        .related(this.graph.cypher.Relationship(), {
+                            type: "MEMBER_OF",
+                        })
+                        .to(this.graph.cypher.NamedNode("workspace"), {
+                            labels: ["Workspace"],
+                            properties: {
+                                uuid: this.graph.cypher.Param(workspaceUUID),
+                            },
+                        }),
+                )
+                .detachDelete(deleteMemberNode)
+                .return([this.graph.cypher.Literal(true), "removed"])
+                .build();
+
+            const deleted = await tx.run(
+                deleteMembers.cypher,
+                deleteMembers.params,
+            );
+
+            if (deleted.records.length === 0) {
+                throw this.error("Members not deleted", 500);
+            }
+
+            return deleted.records[0].get("removed") as boolean;
+        });
     }
 
     /**
@@ -369,11 +496,17 @@ export class WorkspaceService extends AService<WorkspaceType, WorkspaceQuery> {
                             return [];
                         }
 
-                        return records.map((record) => {
-                            return this.graph.parseNode<WorkspaceType>(
-                                record.get("u"),
+                        return records
+                            .map((record) => {
+                                return this.graph.parseNode<WorkspaceType>(
+                                    record.get("u"),
+                                );
+                            })
+                            .filter(
+                                (workspace): workspace is WorkspaceType =>
+                                    workspace !== null &&
+                                    workspace !== undefined,
                             );
-                        });
                     },
                     cypher,
                     params,

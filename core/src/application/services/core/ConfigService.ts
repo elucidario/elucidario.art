@@ -1,15 +1,15 @@
 import { RecordShape } from "neo4j-driver";
-import { RawRuleOf, MongoAbility } from "@casl/ability";
 import { Config as ConfigType, ConfigTypes, User } from "@elucidario/mdorim";
 
-import { Hooks, AuthContext } from "@/types";
+import { Hooks } from "@/types";
 import { Config } from "@/domain/models/core";
 import { ConfigQuery, UserQuery } from "@/application/queries/core";
 import { Graph } from "@/application/Graph";
 
 import AService from "@/application/services/AService";
 import { Validator } from "@/application/Validator";
-import { Authorization } from "@/application/Authorization";
+import { Auth } from "@/application/auth/Auth";
+import { ServiceError } from "@/domain/errors";
 
 /**
  * # ConfigService
@@ -27,68 +27,30 @@ export class ConfigService extends AService<
     constructor(
         protected validator: Validator,
         protected query: ConfigQuery,
-        protected authorization: Authorization,
+        protected auth: Auth,
         protected graph: Graph,
         protected hooks: Hooks,
     ) {
-        super(validator, query, authorization, graph, hooks);
-        this.register();
+        super(Config, validator, query, auth, graph, hooks);
     }
 
     /**
-     * ## Registers the service hooks for authorization rules.
-     * This method adds a filter to the "authorization.rules" hook
-     * to set abilities based on the user's role.
-     */
-    protected register() {
-        this.hooks.filters.add<
-            RawRuleOf<MongoAbility>[],
-            [AuthContext<ConfigType<ConfigTypes>>]
-        >("authorization.rules", (abilities, context) =>
-            this.setAbilities(abilities, context),
-        );
-    }
-
-    /**
-     * ## Sets the abilities for the user based on their role.
-     * This method modifies the abilities array to include management permissions.
-     *
-     * @param abilities - The current abilities array.
-     * @param context - The authentication context containing user and role information.
-     * @returns The modified abilities array.
-     */
-    protected setAbilities(
-        abilities: RawRuleOf<MongoAbility>[],
-        context: AuthContext<ConfigType<ConfigTypes>>,
-    ): RawRuleOf<MongoAbility>[] {
-        const { role } = context;
-
-        if (role === "sysadmin") {
-            abilities.push({
-                action: "manage",
-                subject: "Config",
-            });
-        }
-
-        return abilities;
-    }
-
-    /**
-     * ## Retrieves the main configuration from the database.
-     * This method queries the database to find the main configuration node
+     * ## Retrieves a configuration by its label.
+     * This method queries the database to find a configuration node with the specified label
      * and returns it along with its associated sysadmins.
      *
-     * @returns The main configuration or null if not found.
-     * @throws Error if the query fails.
+     * @param label - The label of the configuration to retrieve.
+     * @returns The configuration or null if not found.
+     * @throws Error if unauthorized or if the configuration is not found.
      */
-    public async getMainConfig(): Promise<ConfigType<ConfigTypes>> {
+    protected async getConfig(label: string): Promise<ConfigType<ConfigTypes>> {
         const cypher = this.query.cypher;
         const configNode = cypher.NamedNode("c");
         const userNode = cypher.NamedNode("u");
         const matchMainConfig = cypher.Match(
             cypher
                 .Pattern(configNode, {
-                    labels: "MainConfig",
+                    labels: label,
                 })
                 .related(cypher.Relationship(), {
                     type: "SYSADMIN",
@@ -118,7 +80,9 @@ export class ConfigService extends AService<
 
                 const [first] = records;
 
-                const config = first.get("c");
+                const config = this.graph.parseNode<ConfigType<ConfigTypes>>(
+                    first.get("c"),
+                );
 
                 if (!config) {
                     return undefined;
@@ -131,7 +95,7 @@ export class ConfigService extends AService<
                     );
 
                 return {
-                    ...this.graph.parseNode<ConfigType<ConfigTypes>>(config),
+                    ...config,
                     sysadmins: sysadmins.length > 0 ? sysadmins : undefined,
                 };
             },
@@ -139,8 +103,47 @@ export class ConfigService extends AService<
             params,
         );
 
+        if (!config) {
+            throw this.error(`${label} config not found`, 404);
+        }
+
         const model = new Config(config);
-        return model.get();
+        return model.get() as ConfigType<ConfigTypes>;
+    }
+
+    /**
+     * ## Retrieves the main configuration from the database.
+     * This method queries the database to find the main configuration node
+     * and returns it along with its associated sysadmins.
+     *
+     * @returns The main configuration or null if not found.
+     * @throws Error if the query fails.
+     */
+    public async getMainConfig(): Promise<ConfigType<ConfigTypes>> {
+        if (this.getPermissions().cannot("read", new Config())) {
+            throw this.error("Unauthorized to read config", 403);
+        }
+
+        return await this.getConfig("MainConfig");
+    }
+
+    /**
+     * ## Checks if the main configuration exists in the database.
+     * This method queries the database to determine if a main configuration node exists.
+     *
+     * @returns True if the main configuration exists, false otherwise.
+     * @throws Error if the query fails.
+     */
+    protected async hasMainConfig(): Promise<boolean> {
+        try {
+            const config = await this.getConfig("MainConfig");
+            return !!config;
+        } catch (error) {
+            if ((error as ServiceError).statusCode === 404) {
+                return false;
+            }
+            throw this.error(error);
+        }
     }
 
     /**
@@ -155,7 +158,13 @@ export class ConfigService extends AService<
         data: Partial<ConfigType<ConfigTypes>>,
     ): Promise<ConfigType<ConfigTypes>> {
         try {
+            if (await this.hasMainConfig()) {
+                // throw 401 unauthorized if config already exists
+                throw this.error("Main config already exists.", 401);
+            }
+
             const model = new Config();
+
             this.validator.setModel(model);
             await this.validator.validateEntity({ data });
 
@@ -200,31 +209,38 @@ export class ConfigService extends AService<
                 .concat(createConfig, createFirsUser, createSysadmins)
                 .build();
 
-            const config = await this.graph.executeQuery<
-                ConfigType<ConfigTypes>
-            >(
-                (res) => {
-                    if (res.records.length === 0) {
-                        throw this.error("Failed to create config", 500);
-                    }
-                    const [first] = res.records;
+            const config = await this.graph.writeTransaction(async (tx) => {
+                const res = await tx.run(cypher, params);
+                if (res.records.length === 0) {
+                    throw this.error("Failed to create config", 500);
+                }
+                const [first] = res.records;
 
-                    const config = this.graph.parseNode<
-                        ConfigType<ConfigTypes>
-                    >(first.get("c"));
+                const config = this.graph.parseNode<ConfigType<ConfigTypes>>(
+                    first.get("c"),
+                );
 
-                    const sysadmin = this.graph.parseNode<User>(first.get("u"));
+                if (!config) {
+                    throw this.error("Could not create config", 500);
+                }
 
-                    config.sysadmins = [sysadmin];
-                    return config;
-                },
-                cypher,
-                params,
-            );
+                const sysadmin = this.graph.parseNode<User>(first.get("u"));
+
+                if (!sysadmin) {
+                    throw this.error("Could not create sysadmin", 500);
+                }
+
+                await this.history(tx, "CREATE", config, sysadmin.uuid!);
+
+                await this.history(tx, "CREATE", sysadmin, sysadmin.uuid!);
+
+                config.sysadmins = [sysadmin];
+                return config;
+            });
 
             model.set(config);
 
-            return model.get();
+            return model.get() as ConfigType<ConfigTypes>;
         } catch (error) {
             throw this.error(error);
         }

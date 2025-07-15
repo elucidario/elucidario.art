@@ -11,7 +11,7 @@
         "build": "NODE_ENV=production rollup -c",
         "typecheck": "tsc --noEmit",
         "dev": "NODE_ENV=development nodemon",
-        "dev:start": "tsx src/app/server.ts",
+        "dev:start": "tsx src/http/server.ts",
         "lint": "pnpm eslint 'src/**' --fix",
         "test": "NODE_ENV=test vitest",
         "test:coverage": "NODE_ENV=test vitest run --coverage",
@@ -20,6 +20,7 @@
     "dependencies": {
         "@casl/ability": "^6.7.3",
         "@elucidario/mdorim": "workspace:^",
+        "@fastify/accepts": "^5.0.2",
         "@fastify/auth": "^5.0.2",
         "@fastify/basic-auth": "^6.2.0",
         "@fastify/cookie": "^11.0.2",

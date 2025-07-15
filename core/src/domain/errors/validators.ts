@@ -5,6 +5,7 @@ import { ServiceError } from "./ServiceError";
 import { QueryError } from "./QueryError";
 import { ModelError } from "./ModelError";
 import { ValidatorError } from "./ValidatorError";
+import { ControllerError } from "./ControllerError";
 
 export function isGraphError(error: unknown): error is GraphError {
     return (
@@ -58,6 +59,17 @@ export function isValidatorError(error: unknown): error is ValidatorError {
             "name" in error &&
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (error as any).name === "ValidatorError")
+    );
+}
+
+export function isControllerError(error: unknown): error is ControllerError {
+    return (
+        error instanceof ControllerError ||
+        (typeof error === "object" &&
+            error !== null &&
+            "name" in error &&
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (error as any).name === "ControllerError")
     );
 }
 

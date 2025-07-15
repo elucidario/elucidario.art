@@ -2,15 +2,15 @@ import { isMdorimError, MdorimBase, MdorimError } from "@elucidario/mdorim";
 
 import IModel from "./IModel";
 import { isModelError, ModelError } from "@/domain/errors";
-import { PropertyConstraint } from "@/types";
+import { AuthContext, Hooks, PropertyConstraint } from "@/types";
+import { MongoAbility, RawRuleOf } from "@casl/ability";
 
 /**
  * # AModel
  * This abstract class provides a base for all models in the application.
  */
 export default abstract class AModel<T extends MdorimBase>
-    implements IModel<T>
-{
+    implements IModel<T> {
     /**
      * ## AbstractQuery.constraints
      * This static property holds an array of Cypher constraints that should be applied to the model.
@@ -24,7 +24,7 @@ export default abstract class AModel<T extends MdorimBase>
      * It can be a single object, or undefined.
      * It is protected to allow access in subclasses.
      */
-    protected data?: T;
+    protected data?: T | null;
 
     /**
      * ## AbstractModel.schema
@@ -40,9 +40,14 @@ export default abstract class AModel<T extends MdorimBase>
      *
      * @param schema - The schema to use for the model. It can be a string or a Array of strings.
      * @param data - Optional initial data for the model.
+     * @param hooks - Optional hooks for the model.
      * @throws MdorimError if the schema is not a string or a Map
      */
-    constructor(schema: string | string[], data?: T) {
+    constructor(
+        schema: string | string[],
+        data?: T | null,
+        protected hooks?: Hooks,
+    ) {
         this.schema = Array.isArray(schema)
             ? new Map(schema.map((s) => [s, s]))
             : schema;
@@ -51,13 +56,52 @@ export default abstract class AModel<T extends MdorimBase>
     }
 
     /**
+     * ## Registers the service hooks for authorization rules.
+     * This method adds a filter to the "authorization.rules" hook
+     * to set abilities based on the user's role.
+     */
+    register() {
+        if (!this.hooks) {
+            throw this.error(
+                "Hooks are not defined. Please provide hooks to the model.",
+            );
+        }
+
+        this.hooks.filters.add<PropertyConstraint[], unknown[]>(
+            "graph.setConstraints",
+            (c) => {
+                c.push(...this.constraints);
+                return c;
+            },
+        );
+
+        this.hooks.filters.add<RawRuleOf<MongoAbility>[], [AuthContext]>(
+            "authorization.rules",
+            (abilities, context) => this.setAbilities(abilities, context),
+        );
+    }
+
+    /**
+     * ## Sets the abilities for the user based on their role.
+     * This method modifies the abilities array to include management permissions.
+     *
+     * @param abilities - The current abilities array.
+     * @param context - The authentication context containing user and role information.
+     * @returns The modified abilities array.
+     */
+    protected abstract setAbilities(
+        abilities: RawRuleOf<MongoAbility>[],
+        context: AuthContext,
+    ): RawRuleOf<MongoAbility>[];
+
+    /**
      * ## set
      * This method sets the data for the model.
      * It can accept a single object, an array of objects, or null.
      *
      * @param data - The data to set for the model. It can be a single object, an array of objects, or null.
      */
-    public set(data?: T): void {
+    public set(data?: T | null): void {
         this.data = data;
     }
 
@@ -68,9 +112,9 @@ export default abstract class AModel<T extends MdorimBase>
      *
      * @returns The data for the model. It can be a single object, an array of objects, null, or undefined.
      */
-    public get(): T {
+    public get(): T | null {
         try {
-            if (!this.data) {
+            if (typeof this.data === "undefined") {
                 throw this.error(
                     "Data is not set. Please set the data before getting it.",
                 );

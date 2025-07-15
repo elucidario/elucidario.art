@@ -39,23 +39,7 @@ export abstract class AQuery<T extends Partial<MdorimBase>>
      */
     constructor(cypher: Cypher) {
         this.cypher = cypher;
-        // this.register();
     }
-
-    // /**
-    //  * ## register
-    //  * This method registers the constraints defined in the `constraints` property
-    //  * to the Neo4j database using the `graph.setConstraints` filter.
-    //  */
-    // register() {
-    //     this.hooks.filters.add(
-    //         "graph.setConstraints",
-    //         (constraints: PropertyConstraint[]) => [
-    //             ...constraints,
-    //             ...((this.constructor as typeof Query).constraints || []),
-    //         ],
-    //     );
-    // }
 
     /**
      * ## A Cypher query to create a new entity in the database.
@@ -428,7 +412,6 @@ export abstract class AQuery<T extends Partial<MdorimBase>>
                 returnClause ? this.cypher.Return(from) : undefined,
             );
         } catch (error) {
-            console.log(error);
             throw this.error("Could not create relationships query.", error);
         }
     }
