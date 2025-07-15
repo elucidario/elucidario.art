@@ -1,0 +1,38 @@
+{
+    "title": "i18n:history",
+    "description": "description-history",
+    "type": "object",
+    "properties": {
+        "uuid": {
+            "$ref": "/core/Definitions#/$defs/uuid"
+        },
+        "type": {
+            "type": "string",
+            "const": "HistoryEvent"
+        },
+        "action": {
+            "type": "string",
+            "enum": ["CREATE", "UPDATE", "DELETE"]
+        },
+        "timestamp": {
+            "$ref": "/core/Definitions#/$defs/timestamp"
+        },
+        "user": {
+            "$ref": "/core/User"
+        },
+        "snapshot": {
+            "$ref": "#/$defs/Snapshot"
+        },
+        "previous": {
+            "$ref": "#"
+        }
+    },
+    "required": ["uuid", "type", "action", "timestamp", "user", "snapshot"],
+    "additionalProperties": false,
+    "$defs": {
+        "Snapshot": {
+            "type": "string",
+            "description": "A JSON string representing the state of the object at the time of the event."
+        }
+    }
+}

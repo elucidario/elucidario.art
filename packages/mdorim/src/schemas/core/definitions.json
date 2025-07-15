@@ -5,6 +5,10 @@
         "number": {
             "type": "number"
         },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time"
+        },
         "created_at": {
             "title": "i18n:created_at",
             "type": "string",
@@ -59,6 +63,11 @@
                 "token": { "type": "string" }
             },
             "required": ["token"]
+        },
+        "entity_status": {
+            "title": "i18n:status",
+            "type": "string",
+            "enum": ["draft", "published", "private"]
         }
     }
 }

@@ -15,6 +15,10 @@
         },
         "email": {
             "$ref": "/core/Definitions#/$defs/email"
+        },
+        "provider_uid": {
+            "type": "string",
+            "description": "The unique identifier for the user in the authentication provider's system."
         }
     },
     "additionalProperties": false

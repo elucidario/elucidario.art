@@ -1,7 +1,6 @@
-import { MdorimBase } from "../mdorim";
-import { LinkedArtEntity, LinkedArtProperties } from "./core";
+import { LinkedArtEntity, LinkedArtProperties, LinkedArtSharedStructure } from "./core";
 
-export type DigitalObject = MdorimBase<
+export type DigitalObject =
     LinkedArtEntity<
         Pick<
             LinkedArtProperties,
@@ -15,21 +14,20 @@ export type DigitalObject = MdorimBase<
             | "access_point"
             | "created_by"
             | "used_for"
-        >
-    >,
-    "DigitalObject"
->;
+        >,
+        "DigitalObject"
+    >
 
-export type DigitalService = MdorimBase<
+
+export type DigitalService =
     Omit<
-        LinkedArtEntity<
-            Pick<LinkedArtProperties, "access_point" | "conforms_to">
+        LinkedArtSharedStructure<
+            Pick<LinkedArtProperties, "access_point" | "conforms_to">,
+            "DigitalService"
         >,
         | "equivalent"
         | "representation"
         | "member_of"
         | "subject_of"
         | "attributed_by"
-    >,
-    "DigitalService"
->;
+    >;
