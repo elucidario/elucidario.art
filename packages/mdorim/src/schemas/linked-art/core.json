@@ -1393,7 +1393,7 @@
                             "$ref": "#/$defs/typeProp"
                         },
                         {
-                            "Title": "Specific",
+                            "title": "Specific",
                             "type": "string",
                             "enum": [
                                 "HumanMadeObject",
