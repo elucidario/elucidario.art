@@ -1,6 +1,4 @@
-import { RawRuleOf, MongoAbility } from "@casl/ability";
-
-import { Hooks, AuthContext, ListParams } from "@/types";
+import { Hooks, ListParams } from "@/types";
 import { User as UserType, UUID } from "@elucidario/mdorim";
 import { UserQuery } from "@/application/queries/core";
 import { Graph } from "@/application/Graph";
@@ -32,44 +30,7 @@ export class UserService extends AService<UserType, UserQuery> {
         protected graph: Graph,
         protected hooks: Hooks,
     ) {
-        super(validator, query, auth, graph, hooks);
-        this.register();
-    }
-
-    /**
-     * ## Registers the service hooks for authorization rules.
-     * This method adds a filter to the "authorization.rules" hook
-     * to set abilities based on the user's role.
-     */
-    protected register() {
-        this.hooks.filters.add<RawRuleOf<MongoAbility>[], [AuthContext]>(
-            "authorization.rules",
-            (abilities, context) => this.setAbilities(abilities, context),
-        );
-    }
-
-    /**
-     * ## Sets the abilities for the user based on their role.
-     * This method modifies the abilities array to include management permissions.
-     *
-     * @param abilities - The current abilities array.
-     * @param context - The authentication context containing user and role information.
-     * @returns The modified abilities array.
-     */
-    protected setAbilities(
-        abilities: RawRuleOf<MongoAbility>[],
-        context: AuthContext,
-    ): RawRuleOf<MongoAbility>[] {
-        const { role } = context;
-
-        if (["admin", "sysadmin"].includes(role)) {
-            abilities.push({
-                action: "manage",
-                subject: "User",
-            });
-        }
-
-        return abilities;
+        super(User, validator, query, auth, graph, hooks);
     }
 
     /**
@@ -219,11 +180,16 @@ export class UserService extends AService<UserType, UserQuery> {
                     throw this.error("User not found.", 404);
                 }
 
-                await this.history(tx, "UPDATE", {
-                    type: user.type,
-                    uuid: user.uuid,
-                    ...data
-                }, user.uuid!);
+                await this.history(
+                    tx,
+                    "UPDATE",
+                    {
+                        type: user.type,
+                        uuid: user.uuid,
+                        ...data,
+                    },
+                    user.uuid!,
+                );
 
                 return user;
             });

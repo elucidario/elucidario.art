@@ -1,8 +1,7 @@
 import { RecordShape } from "neo4j-driver";
-import { RawRuleOf, MongoAbility } from "@casl/ability";
 import { Config as ConfigType, ConfigTypes, User } from "@elucidario/mdorim";
 
-import { Hooks, AuthContext } from "@/types";
+import { Hooks } from "@/types";
 import { Config } from "@/domain/models/core";
 import { ConfigQuery, UserQuery } from "@/application/queries/core";
 import { Graph } from "@/application/Graph";
@@ -32,44 +31,7 @@ export class ConfigService extends AService<
         protected graph: Graph,
         protected hooks: Hooks,
     ) {
-        super(validator, query, auth, graph, hooks);
-        this.register();
-    }
-
-    /**
-     * ## Registers the service hooks for authorization rules.
-     * This method adds a filter to the "authorization.rules" hook
-     * to set abilities based on the user's role.
-     */
-    protected register() {
-        this.hooks.filters.add<RawRuleOf<MongoAbility>[], [AuthContext]>(
-            "authorization.rules",
-            (abilities, context) => this.setAbilities(abilities, context),
-        );
-    }
-
-    /**
-     * ## Sets the abilities for the user based on their role.
-     * This method modifies the abilities array to include management permissions.
-     *
-     * @param abilities - The current abilities array.
-     * @param context - The authentication context containing user and role information.
-     * @returns The modified abilities array.
-     */
-    protected setAbilities(
-        abilities: RawRuleOf<MongoAbility>[],
-        context: AuthContext,
-    ): RawRuleOf<MongoAbility>[] {
-        const { role } = context;
-
-        if (role === "sysadmin") {
-            abilities.push({
-                action: "manage",
-                subject: "Config",
-            });
-        }
-
-        return abilities;
+        super(Config, validator, query, auth, graph, hooks);
     }
 
     /**
@@ -262,7 +224,6 @@ export class ConfigService extends AService<
                     throw this.error("Could not create config", 500);
                 }
 
-
                 const sysadmin = this.graph.parseNode<User>(first.get("u"));
 
                 if (!sysadmin) {
@@ -275,7 +236,7 @@ export class ConfigService extends AService<
 
                 config.sysadmins = [sysadmin];
                 return config;
-            })
+            });
 
             model.set(config);
 

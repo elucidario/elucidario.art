@@ -1,4 +1,4 @@
-import { MongoAbility, RawRuleOf } from "@casl/ability";
+import { MongoAbility } from "@casl/ability";
 import {
     isMdorimError,
     MdorimBase,
@@ -21,6 +21,7 @@ import { Validator } from "@/application/Validator";
 import { Auth } from "@/application/auth/Auth";
 import { ManagedTransaction } from "neo4j-driver";
 import { Clause } from "@neo4j/cypher-builder";
+import AModel from "@/domain/models/AModel";
 
 /**
  * # AbstractService
@@ -39,6 +40,7 @@ export default abstract class AService<
     /**
      * # AbstractService constructor
      *
+     * @param model - The model class for the service.
      * @param validator - The Validator instance used for validating data.
      * @param query - The query instance used for database operations.
      * @param auth - The Auth instance used for managing user permissions.
@@ -46,12 +48,20 @@ export default abstract class AService<
      * @param hooks - The Hooks instance used for managing application hooks.
      */
     constructor(
+        protected model: new (
+            data?: TType | null,
+            hooks?: Hooks,
+        ) => AModel<TType>,
         protected validator: Validator,
         protected query: TQuery,
         protected auth: Auth,
         protected graph: Graph,
         protected hooks: Hooks,
     ) { }
+
+    modelFactory(data?: TType | null, hooks?: Hooks): AModel<TType> {
+        return new this.model(data, hooks);
+    }
 
     /**
      * ## Sets the authentication context for the service.
@@ -74,24 +84,14 @@ export default abstract class AService<
     }
 
     /**
-     * ## Sets the abilities for the user based on their role.
-     * This method modifies the abilities array to include management permissions.
-     *
-     * @param abilities - The current abilities array.
-     * @param context - The authentication context containing user and role information.
-     * @returns The modified abilities array.
-     */
-    protected abstract setAbilities(
-        abilities: RawRuleOf<MongoAbility>[],
-        context: AuthContext,
-    ): RawRuleOf<MongoAbility>[];
-
-    /**
      * ## Registers the service hooks for authorization rules.
      * This method adds a filter to the "authorization.rules" hook
      * to set abilities based on the user's role.
      */
-    protected abstract register(): void;
+    register(): void {
+        const model = this.modelFactory(null, this.hooks);
+        model.register();
+    }
 
     /**
      * ## Retrieves the permissions for the user based on their context.

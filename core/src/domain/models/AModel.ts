@@ -2,7 +2,8 @@ import { isMdorimError, MdorimBase, MdorimError } from "@elucidario/mdorim";
 
 import IModel from "./IModel";
 import { isModelError, ModelError } from "@/domain/errors";
-import { PropertyConstraint } from "@/types";
+import { AuthContext, Hooks, PropertyConstraint } from "@/types";
+import { MongoAbility, RawRuleOf } from "@casl/ability";
 
 /**
  * # AModel
@@ -39,15 +40,59 @@ export default abstract class AModel<T extends MdorimBase>
      *
      * @param schema - The schema to use for the model. It can be a string or a Array of strings.
      * @param data - Optional initial data for the model.
+     * @param hooks - Optional hooks for the model.
      * @throws MdorimError if the schema is not a string or a Map
      */
-    constructor(schema: string | string[], data?: T | null) {
+    constructor(
+        schema: string | string[],
+        data?: T | null,
+        protected hooks?: Hooks,
+    ) {
         this.schema = Array.isArray(schema)
             ? new Map(schema.map((s) => [s, s]))
             : schema;
         this.checkSchemaType();
         this.set(data);
     }
+
+    /**
+     * ## Registers the service hooks for authorization rules.
+     * This method adds a filter to the "authorization.rules" hook
+     * to set abilities based on the user's role.
+     */
+    register() {
+        if (!this.hooks) {
+            throw this.error(
+                "Hooks are not defined. Please provide hooks to the model.",
+            );
+        }
+
+        this.hooks.filters.add<PropertyConstraint[], unknown[]>(
+            "graph.setConstraints",
+            (c) => {
+                c.push(...this.constraints);
+                return c;
+            },
+        );
+
+        this.hooks.filters.add<RawRuleOf<MongoAbility>[], [AuthContext]>(
+            "authorization.rules",
+            (abilities, context) => this.setAbilities(abilities, context),
+        );
+    }
+
+    /**
+     * ## Sets the abilities for the user based on their role.
+     * This method modifies the abilities array to include management permissions.
+     *
+     * @param abilities - The current abilities array.
+     * @param context - The authentication context containing user and role information.
+     * @returns The modified abilities array.
+     */
+    protected abstract setAbilities(
+        abilities: RawRuleOf<MongoAbility>[],
+        context: AuthContext,
+    ): RawRuleOf<MongoAbility>[];
 
     /**
      * ## set
