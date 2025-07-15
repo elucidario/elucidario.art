@@ -24,6 +24,10 @@ export type Content = string;
 
 export type Value = number;
 
+export type Timestamp = string; // ISO 8601 format, e.g., "2023-10-01T12:00:00Z"
+
+export type EntityStatus = "draft" | "public" | "private";
+
 /**
  * Represents a Well-Known Text (WKT) format for representing geometric objects.
  * @link https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
@@ -34,7 +38,5 @@ export type Value = number;
 export type WKT = string;
 
 export type Locales = keyof typeof translations;
-
-export const DefaultLocale: Locales = "pt-BR";
 
 export type NoUUID<T> = Omit<T, "uuid">;

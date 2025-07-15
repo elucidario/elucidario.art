@@ -1,7 +1,7 @@
 import { I18n as I18nBase } from "i18n-js";
 
-import { DefaultLocale, Locales } from "@/types";
-import { translations } from "./translations";
+import { Locales } from "@/types";
+import { translations, DefaultLocale } from "./translations";
 import { JSONSchema } from "@apidevtools/json-schema-ref-parser";
 
 /**
