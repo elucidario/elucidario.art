@@ -73,21 +73,22 @@ export class ConfigService extends AService<
     }
 
     /**
-     * ## Retrieves the main configuration from the database.
-     * This method queries the database to find the main configuration node
+     * ## Retrieves a configuration by its label.
+     * This method queries the database to find a configuration node with the specified label
      * and returns it along with its associated sysadmins.
      *
-     * @returns The main configuration or null if not found.
-     * @throws Error if the query fails.
+     * @param label - The label of the configuration to retrieve.
+     * @returns The configuration or null if not found.
+     * @throws Error if unauthorized or if the configuration is not found.
      */
-    public async getMainConfig(): Promise<ConfigType<ConfigTypes>> {
+    protected async getConfig(label: string): Promise<ConfigType<ConfigTypes>> {
         const cypher = this.query.cypher;
         const configNode = cypher.NamedNode("c");
         const userNode = cypher.NamedNode("u");
         const matchMainConfig = cypher.Match(
             cypher
                 .Pattern(configNode, {
-                    labels: "MainConfig",
+                    labels: label,
                 })
                 .related(cypher.Relationship(), {
                     type: "SYSADMIN",
@@ -117,7 +118,9 @@ export class ConfigService extends AService<
 
                 const [first] = records;
 
-                const config = first.get("c");
+                const config = this.graph.parseNode<ConfigType<ConfigTypes>>(
+                    first.get("c"),
+                );
 
                 if (!config) {
                     return undefined;
@@ -130,7 +133,7 @@ export class ConfigService extends AService<
                     );
 
                 return {
-                    ...this.graph.parseNode<ConfigType<ConfigTypes>>(config),
+                    ...config,
                     sysadmins: sysadmins.length > 0 ? sysadmins : undefined,
                 };
             },
@@ -138,8 +141,47 @@ export class ConfigService extends AService<
             params,
         );
 
+        if (!config) {
+            throw this.error(`${label} config not found`, 404);
+        }
+
         const model = new Config(config);
-        return model.get();
+        return model.get() as ConfigType<ConfigTypes>;
+    }
+
+    /**
+     * ## Retrieves the main configuration from the database.
+     * This method queries the database to find the main configuration node
+     * and returns it along with its associated sysadmins.
+     *
+     * @returns The main configuration or null if not found.
+     * @throws Error if the query fails.
+     */
+    public async getMainConfig(): Promise<ConfigType<ConfigTypes>> {
+        if (this.getPermissions().cannot("read", new Config())) {
+            throw this.error("Unauthorized to read config", 403);
+        }
+
+        return await this.getConfig("MainConfig");
+    }
+
+    /**
+     * ## Checks if the main configuration exists in the database.
+     * This method queries the database to determine if a main configuration node exists.
+     *
+     * @returns True if the main configuration exists, false otherwise.
+     * @throws Error if the query fails.
+     */
+    protected async hasMainConfig(): Promise<boolean> {
+        try {
+            const config = await this.getConfig("MainConfig");
+            return !!config;
+        } catch (error) {
+            if ((error as ServiceError).statusCode === 404) {
+                return false;
+            }
+            throw this.error(error);
+        }
     }
 
     /**
@@ -154,7 +196,13 @@ export class ConfigService extends AService<
         data: Partial<ConfigType<ConfigTypes>>,
     ): Promise<ConfigType<ConfigTypes>> {
         try {
+            if (await this.hasMainConfig()) {
+                // throw 401 unauthorized if config already exists
+                throw this.error("Main config already exists.", 401);
+            }
+
             const model = new Config();
+
             this.validator.setModel(model);
             await this.validator.validateEntity({ data });
 
