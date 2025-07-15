@@ -1,5 +1,11 @@
 import { MongoAbility, RawRuleOf } from "@casl/ability";
-import { isMdorimError, MdorimBase, MdorimError } from "@elucidario/mdorim";
+import {
+    isMdorimError,
+    MdorimBase,
+    HistoryAction,
+    MdorimError,
+    LinkedArtBase,
+} from "@elucidario/mdorim";
 
 import IQuery from "@/application/queries/IQuery";
 import { Graph } from "@/application/Graph";
@@ -13,6 +19,8 @@ import {
 import { Hooks, AuthContext } from "@/types";
 import { Validator } from "@/application/Validator";
 import { Auth } from "@/application/auth/Auth";
+import { ManagedTransaction } from "neo4j-driver";
+import { Clause } from "@neo4j/cypher-builder";
 
 /**
  * # AbstractService
@@ -100,6 +108,175 @@ export default abstract class AService<
         } catch (error) {
             throw this.error(error);
         }
+    }
+
+    /**
+     * Records the history of changes made to an entity.
+     * @param tx - The transaction to use.
+     * @param action - The action performed (CREATE, UPDATE, DELETE).
+     * @param entity - The entity that was changed.
+     * @param userUuid - The UUID of the user who performed the action.
+     */
+    protected async history<T extends MdorimBase | LinkedArtBase>(
+        tx: ManagedTransaction,
+        action: HistoryAction,
+        entity: T,
+        userUuid?: string,
+    ) {
+        if (!["CREATE", "UPDATE", "DELETE"].includes(action)) {
+            throw this.error("Invalid action for history", 400);
+        }
+
+        if (!entity || !userUuid) {
+            throw this.error("Entity and user UUID are required", 400);
+        }
+
+        const cypher = this.query.cypher;
+
+        const entityNode = cypher.NamedNode("entity");
+        const userNode = cypher.NamedNode("user");
+        const historyNode = cypher.NamedNode("history");
+        const previousNode = cypher.NamedNode("previous");
+
+        const clauses: Array<Clause | undefined> = [];
+
+        const { uuid, type } = entity;
+
+        const matchEntity = cypher
+            .OptionalMatch(
+                cypher.Pattern(entityNode, {
+                    labels: [type],
+                    properties: {
+                        uuid: cypher.Param(uuid),
+                    },
+                }),
+            )
+            .with(entityNode);
+        clauses.push(matchEntity);
+
+        const matchUser = cypher
+            .OptionalMatch(
+                cypher.Pattern(userNode, {
+                    labels: ["User"],
+                    properties: {
+                        uuid: cypher.Param(userUuid),
+                    },
+                }),
+            )
+            .with(entityNode, userNode);
+        clauses.push(matchUser);
+
+        const optionalMatchPrevious = cypher
+            .OptionalMatch(
+                cypher.Pattern(previousNode, {
+                    labels: ["HistoryEvent"],
+                    properties: {
+                        entityUuid: cypher.Param(uuid),
+                    },
+                }),
+            )
+            .orderBy([previousNode.property("timestamp"), "DESC"])
+            .limit(1)
+            .with(previousNode, entityNode, userNode);
+        clauses.push(optionalMatchPrevious);
+
+        const createHistory = cypher
+            .Create(
+                cypher.Pattern(historyNode, {
+                    labels: ["HistoryEvent"],
+                    properties: {
+                        uuid: cypher.Uuid(),
+                        action: cypher.Param(action),
+                        timestamp: cypher.Timestamp(),
+                        entityUuid: cypher.Param(uuid),
+                        snapshot: cypher.Param(JSON.stringify(entity)),
+                    },
+                }),
+            )
+            .with(entityNode, userNode, previousNode, historyNode);
+        clauses.push(createHistory);
+
+        const createRelationshipIfEntityNotNull = cypher
+            .Foreach(cypher.Variable())
+            .in(
+                cypher
+                    .Case()
+                    .when(cypher.notNull(entityNode))
+                    .then(cypher.Param([cypher.Literal(1)]))
+                    .else(cypher.Param([])),
+            )
+            .do(
+                cypher.Create(
+                    cypher
+                        .Pattern(historyNode)
+                        .related(cypher.Relationship(), {
+                            type: "HISTORY_OF",
+                        })
+                        .to(entityNode),
+                ),
+            )
+            .with(historyNode, previousNode, entityNode, userNode);
+        clauses.push(createRelationshipIfEntityNotNull);
+
+        const createUserRelationshipIfUserNotNull = cypher
+            .Foreach(cypher.Variable())
+            .in(
+                cypher
+                    .Case()
+                    .when(cypher.notNull(userNode))
+                    .then(cypher.Param([cypher.Literal(1)]))
+                    .else(cypher.Param([])),
+            )
+            .do(
+                cypher.Create(
+                    cypher
+                        .Pattern(userNode)
+                        .related(cypher.Relationship(), {
+                            type: "EXECUTED",
+                        })
+                        .to(historyNode),
+                ),
+            )
+            .with(historyNode, previousNode, entityNode, userNode);
+        clauses.push(createUserRelationshipIfUserNotNull);
+
+        if (["UPDATE", "DELETE"].includes(action)) {
+            const mergePreviousIfNotNull = cypher
+                .Foreach(cypher.Variable())
+                .in(
+                    cypher
+                        .Case()
+                        .when(cypher.notNull(previousNode))
+                        .then(cypher.Param([cypher.Literal(1)]))
+                        .else(cypher.Param([])),
+                )
+                .do(
+                    cypher.Merge(
+                        cypher
+                            .Pattern(historyNode)
+                            .related(cypher.Relationship(), {
+                                type: "PREVIOUS",
+                            })
+                            .to(previousNode),
+                    ),
+                )
+                .with(historyNode, previousNode, entityNode, userNode);
+            clauses.push(mergePreviousIfNotNull);
+        }
+
+        const returnClause = cypher.Return(
+            historyNode,
+            previousNode,
+            entityNode,
+            userNode,
+        );
+        clauses.push(returnClause);
+
+        const { cypher: cypherQuery, params } = cypher
+            .concat(...clauses)
+            .build();
+
+        await tx.run(cypherQuery, params);
     }
 
     /**

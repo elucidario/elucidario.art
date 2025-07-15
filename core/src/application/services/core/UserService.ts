@@ -98,23 +98,29 @@ export class UserService extends AService<UserType, UserQuery> {
                 })
                 .build();
 
-            model.set(
-                await this.graph.executeQuery<UserType>(
-                    (response) => {
-                        if (response.records.length === 0) {
-                            throw this.error("User not created", 500);
-                        }
+            const user = await this.graph.writeTransaction(async (tx) => {
+                const { records } = await tx.run(cypher, params);
 
-                        const [first] = response.records;
+                if (records.length === 0) {
+                    throw this.error("User not created", 500);
+                }
 
-                        return this.graph.parseNode<UserType>(first.get(node));
-                    },
-                    cypher,
-                    params,
-                ),
-            );
+                const [first] = records;
 
-            return model.get();
+                const user = this.graph.parseNode<UserType>(first.get(node));
+
+                if (!user) {
+                    throw this.error("User not created", 500);
+                }
+
+                await this.history(tx, "CREATE", user, user.uuid!);
+
+                return user;
+            });
+
+            model.set(user);
+
+            return model.get() as UserType;
         } catch (e: unknown) {
             throw this.error(e);
         }
@@ -129,6 +135,7 @@ export class UserService extends AService<UserType, UserQuery> {
     async read(data: Partial<UserType>): Promise<UserType | null> {
         try {
             const model = new User();
+
             if (!this.getPermissions().can("read", model)) {
                 throw this.error("Unauthorized", 403);
             }
@@ -144,10 +151,10 @@ export class UserService extends AService<UserType, UserQuery> {
                 .build();
 
             model.set(
-                await this.graph.executeQuery<UserType | undefined>(
+                await this.graph.executeQuery<UserType>(
                     (response) => {
                         if (response.records.length === 0) {
-                            return undefined;
+                            throw this.error("User not found", 404);
                         }
 
                         const [first] = response.records;
@@ -155,6 +162,10 @@ export class UserService extends AService<UserType, UserQuery> {
                         const user = this.graph.parseNode<UserType>(
                             first.get("u"),
                         );
+
+                        if (!user) {
+                            throw this.error("User not found", 404);
+                        }
 
                         return user;
                     },
@@ -195,23 +206,31 @@ export class UserService extends AService<UserType, UserQuery> {
                 })
                 .build();
 
-            model.set(
-                await this.graph.executeQuery<UserType>(
-                    ({ records }) => {
-                        if (records.length === 0) {
-                            throw this.error("User not found.", 404);
-                        }
+            const user = await this.graph.writeTransaction(async (tx) => {
+                const res = await tx.run(cypher, params);
+                if (res.records.length === 0) {
+                    throw this.error("User not found.", 404);
+                }
+                const [first] = res.records;
 
-                        const [first] = records;
+                const user = this.graph.parseNode<UserType>(first.get("u"));
 
-                        return this.graph.parseNode<UserType>(first.get("u"));
-                    },
-                    cypher,
-                    params,
-                ),
-            );
+                if (!user) {
+                    throw this.error("User not found.", 404);
+                }
 
-            return model.get();
+                await this.history(tx, "UPDATE", {
+                    type: user.type,
+                    uuid: user.uuid,
+                    ...data
+                }, user.uuid!);
+
+                return user;
+            });
+
+            model.set(user);
+
+            return model.get() as UserType;
         } catch (e) {
             throw this.error(e);
         }
@@ -233,6 +252,11 @@ export class UserService extends AService<UserType, UserQuery> {
             this.validator.setModel(model);
             await this.validator.validateUUID(userUUID);
 
+            const user = await this.read({ uuid: userUUID });
+            if (!user) {
+                throw this.error("User not found", 404);
+            }
+
             const { cypher, params } = this.query
                 .delete({
                     uuid: userUUID,
@@ -240,18 +264,23 @@ export class UserService extends AService<UserType, UserQuery> {
                 })
                 .build();
 
-            const removed = await this.graph.executeQuery<boolean>(
-                ({ records }) => {
-                    if (records.length === 0) {
-                        throw this.error("User not found", 404);
-                    }
+            const removed = await this.graph.writeTransaction(async (tx) => {
+                const res = await tx.run(cypher, params);
+                if (res.records.length === 0) {
+                    throw this.error("User not found", 404);
+                }
+                const [first] = res.records;
 
-                    const [first] = records;
-                    return first.get("removed") as boolean;
-                },
-                cypher,
-                params,
-            );
+                const removed = first.get("removed") as boolean;
+
+                if (!removed) {
+                    throw this.error("Could not delete user", 500);
+                }
+
+                await this.history(tx, "DELETE", user, user.uuid!);
+
+                return removed;
+            });
 
             if (removed) {
                 model.set(undefined);
@@ -271,7 +300,7 @@ export class UserService extends AService<UserType, UserQuery> {
      * @returns An array of users.
      * @throws MdorimError if listing fails.
      */
-    async list(args?: ListParams): Promise<UserType[]> {
+    async list(args?: ListParams): Promise<UserType[] | []> {
         try {
             const model = new User();
             if (!this.getPermissions().can("read", model)) {
@@ -291,7 +320,7 @@ export class UserService extends AService<UserType, UserQuery> {
                 .build();
 
             return this.processList(
-                await this.graph.executeQuery<UserType[]>(
+                await this.graph.executeQuery<UserType[] | []>(
                     (response) => {
                         const { records } = response;
 
@@ -302,7 +331,7 @@ export class UserService extends AService<UserType, UserQuery> {
                         return records.map((record) => {
                             return this.graph.parseNode<UserType>(
                                 record.get("u"),
-                            );
+                            ) as UserType;
                         });
                     },
                     cypher,

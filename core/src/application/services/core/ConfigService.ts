@@ -247,31 +247,39 @@ export class ConfigService extends AService<
                 .concat(createConfig, createFirsUser, createSysadmins)
                 .build();
 
-            const config = await this.graph.executeQuery<
-                ConfigType<ConfigTypes>
-            >(
-                (res) => {
-                    if (res.records.length === 0) {
-                        throw this.error("Failed to create config", 500);
-                    }
-                    const [first] = res.records;
+            const config = await this.graph.writeTransaction(async (tx) => {
+                const res = await tx.run(cypher, params);
+                if (res.records.length === 0) {
+                    throw this.error("Failed to create config", 500);
+                }
+                const [first] = res.records;
 
-                    const config = this.graph.parseNode<
-                        ConfigType<ConfigTypes>
-                    >(first.get("c"));
+                const config = this.graph.parseNode<ConfigType<ConfigTypes>>(
+                    first.get("c"),
+                );
 
-                    const sysadmin = this.graph.parseNode<User>(first.get("u"));
+                if (!config) {
+                    throw this.error("Could not create config", 500);
+                }
 
-                    config.sysadmins = [sysadmin];
-                    return config;
-                },
-                cypher,
-                params,
-            );
+
+                const sysadmin = this.graph.parseNode<User>(first.get("u"));
+
+                if (!sysadmin) {
+                    throw this.error("Could not create sysadmin", 500);
+                }
+
+                await this.history(tx, "CREATE", config, sysadmin.uuid!);
+
+                await this.history(tx, "CREATE", sysadmin, sysadmin.uuid!);
+
+                config.sysadmins = [sysadmin];
+                return config;
+            })
 
             model.set(config);
 
-            return model.get();
+            return model.get() as ConfigType<ConfigTypes>;
         } catch (error) {
             throw this.error(error);
         }
