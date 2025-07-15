@@ -8,7 +8,9 @@ export type ListParams = {
     type?: string;
 };
 
-export type QueryStrings<T = Record<string, unknown>> = {
+export type QueryStrings<
+    T extends Record<string, unknown> = Record<string, unknown>,
+> = {
     Querystring: ListParams & T;
 };
 
@@ -18,9 +20,9 @@ export type Params<
     Params: T;
 };
 
-export type ParamsWithWorkspace<T = unknown> = Params<
-    { workspaceUUID?: UUID } & T
->;
+export type ParamsWithWorkspace<
+    T extends Record<string, unknown> = Record<string, unknown>,
+> = Params<{ workspaceUUID?: UUID } & T>;
 
 export type Body<T> = {
     Body: T;
