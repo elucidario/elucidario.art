@@ -90,7 +90,7 @@ export class Graph {
                         },
                     },
                 },
-                (error as GraphError).statusCode || 409,
+                (error as GraphError).statusCode,
             );
         }
     }
@@ -114,7 +114,17 @@ export class Graph {
             await session.close();
             return response;
         } catch (error) {
-            throw this.error(error);
+            throw this.error(
+                error,
+                {
+                    mdorim: {
+                        ConstraintValidationFailed: {
+                            message: "Entity already exists.",
+                        },
+                    },
+                },
+                (error as GraphError).statusCode,
+            );
         }
     }
 
