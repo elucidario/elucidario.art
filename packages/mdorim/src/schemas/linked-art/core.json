@@ -25,12 +25,7 @@
             "title": "rdf:type",
             "description": "The class of the entity",
             "type": "string",
-            "examples": [
-                "Person",
-                "Place",
-                "Type",
-                "HumanMadeObject"
-            ]
+            "examples": ["Person", "Place", "Type", "HumanMadeObject"]
         },
         "identified_byProp": {
             "title": "crm:P1_is_identified_by",
@@ -62,9 +57,9 @@
             }
         },
         "aboutProp": {
-            "title": "crm:P129_is_about", 
-            "description": "The main topic(s) of the content", 
-            "type": "array", 
+            "title": "crm:P129_is_about",
+            "description": "The main topic(s) of the content",
+            "type": "array",
             "items": {
                 "$ref": "core.json#/$defs/AnyRef"
             }
@@ -113,27 +108,19 @@
             "title": "crm:P90_has_value",
             "description": "The numeric value of a `Dimension` or `MonetaryAmount`",
             "type": "number",
-            "examples": [
-                10,
-                0.5,
-                42.75
-            ]
+            "examples": [10, 0.5, 42.75]
         },
         "upper_value_limitProp": {
             "title": "crm:P90a_has_upper_value_limit",
             "description": "The highest possible value for the `Dimension` or `MonetaryAmount`",
             "type": "number",
-            "examples": [
-                100
-            ]
+            "examples": [100]
         },
         "lower_value_limitProp": {
             "title": "crm:P90a_has_lower_value_limit",
             "description": "The lowest possible value for the `Dimension` or `MonetaryAmount`",
             "type": "number",
-            "examples": [
-                5
-            ]
+            "examples": [5]
         },
         "took_place_atProp": {
             "title": "crm:P7_took_place_at",
@@ -307,99 +294,96 @@
                 "$ref": "#/$defs/LinguisticObjectRef"
             }
         },
-		"subject_ofProp": {
+        "subject_ofProp": {
             "title": "crm:P129i_is_subject_of",
             "description": "One or more human-readable web pages or other digital objects where the focus of the content is this entity",
-			"type": "array", 
-			"items": {"$ref": "#/$defs/LinguisticObjectEmbed"}
-		},
+            "type": "array",
+            "items": { "$ref": "#/$defs/LinguisticObjectEmbed" }
+        },
         "subject_toProp": {
             "title": "crm:P104i_is_subject_to",
             "description": "One or more Rights that this object is subject to",
-            "type": "array", 
-            "items": {"$ref": "#/$defs/Right"}
+            "type": "array",
+            "items": { "$ref": "#/$defs/Right" }
         },
         "attributed_byProp": {
             "title": "crm:P140i_was_attributed_by",
             "description": "One or more AttributeAssignments that relate some other entity to this one",
-            "type": "array", 
-            "items": {"$ref": "#/$defs/AttributeAssignment"}
+            "type": "array",
+            "items": { "$ref": "#/$defs/AttributeAssignment" }
         },
         "attributed_byRelProp": {
             "title": "crm:P140i_was_attributed_by",
             "description": "One or more AttributeAssignments that relate some other entity to this one",
-            "type": "array", 
-            "items": {"$ref": "#/$defs/AttributeAssignment"}
+            "type": "array",
+            "items": { "$ref": "#/$defs/AttributeAssignment" }
         },
         "formatProp": {
             "title": "dc:format",
             "description": "The media type of the content of the embedded text, e.g. text/plain",
             "type": "string",
-            "examples": [
-                "text/html",
-                "image/jpeg"
-            ]
+            "examples": ["text/html", "image/jpeg"]
         },
         "conforms_toProp": {
             "title": "dcterms:conformsTo",
             "description": "A standard or specification that this entity conforms to or embodies",
             "type": "array",
-            "items": {"$ref": "#/$defs/InfoObjectRef"}
+            "items": { "$ref": "#/$defs/InfoObjectRef" }
         },
         "access_pointProp": {
             "title": "la:access_point",
             "description": "A URL from which the digital object is able to be retrieved",
             "type": "array",
-            "items": {"$ref": "#/$defs/DigitalObjectRef"}
+            "items": { "$ref": "#/$defs/DigitalObjectRef" }
         },
         "digitally_shown_byProp": {
             "title": "la:digitally_shown_by",
             "description": "A digital object that shows the current visual item",
             "type": "array",
-            "items": {"$ref": "#/$defs/DigitalObjectEmbed"}
+            "items": { "$ref": "#/$defs/DigitalObjectEmbed" }
         },
         "digitally_carried_byProp": {
             "title": "la:digitally_carried_by",
             "description": "A digital object that carries the current linguistic object",
             "type": "array",
-            "items": {"$ref": "#/$defs/DigitalObjectEmbed"}
+            "items": { "$ref": "#/$defs/DigitalObjectEmbed" }
         },
         "digitally_available_viaProp": {
             "title": "la:digitally_available_via",
             "description": "A digital service that may be interacted with in order to retrieve or act upon the digital object",
             "type": "array",
-            "items": {"$ref": "#/$defs/DigitalService"}
+            "items": { "$ref": "#/$defs/DigitalService" }
         },
         "conceptually_part_ofProp": {
             "title": "crm:P148i_is_component_of",
             "description": "An Abstract Work that the current work is conceptually part of",
             "type": "array",
-            "items": {"$ref": "#/$defs/AbstractWorkRef"}
+            "items": { "$ref": "#/$defs/AbstractWorkRef" }
         },
         "members_contained_byProp": {
             "title": "la:members_contained_by",
             "description": "A physical object that this object is contained by (like a box or folder) or supported by (like a shelf)",
             "type": "array",
-            "items": {"$ref": "#/$defs/HumanMadeObjectRef"}
+            "items": { "$ref": "#/$defs/HumanMadeObjectRef" }
         },
 
         "duringProp": {
             "title": "crm:P10_falls_within",
             "description": "A reference to a Period that the current temporal entity occurs during",
             "type": "array",
-            "items": {"$ref": "#/$defs/PeriodRef"}
+            "items": { "$ref": "#/$defs/PeriodRef" }
         },
         "beforeProp": {
             "title": "crm:P183_ends_before_the_start_of",
             "description": "A Period, Event or Activity that the current Period, Event or Activity is before. (e.g. the referenced temporal entity is after the current one)",
             "type": "array",
-            "items": {"$ref": "#/$defs/PeriodRefOrEventRefOrActivityRef"}
+            "items": { "$ref": "#/$defs/PeriodRefOrEventRefOrActivityRef" }
         },
         "afterProp": {
             "title": "crm:P183i_starts_after_the_end_of",
             "description": "A Period, Event or Activity that the current Period, Event or Activity is after. (e.g. the referenced temporal entity is before the current one)",
             "type": "array",
-            "items": {"$ref": "#/$defs/PeriodRefOrEventRefOrActivityRef"}
+            "items": { "$ref": "#/$defs/PeriodRefOrEventRefOrActivityRef" }
         },
 
         "Name": {
@@ -446,10 +430,7 @@
                     }
                 }
             },
-            "required": [
-                "type",
-                "content"
-            ],
+            "required": ["type", "content"],
             "additionalProperties": false,
             "examples": [
                 {
@@ -524,10 +505,7 @@
                     }
                 }
             },
-            "required": [
-                "type",
-                "content"
-            ],
+            "required": ["type", "content"],
             "additionalProperties": false
         },
         "Statement": {
@@ -570,10 +548,7 @@
                     "$ref": "#/$defs/formatProp"
                 }
             },
-            "required": [
-                "type",
-                "content"
-            ],
+            "required": ["type", "content"],
             "additionalProperties": false
         },
         "TimeSpan": {
@@ -633,9 +608,7 @@
                     "$ref": "#/$defs/Dimension"
                 }
             },
-            "required": [
-                "type"
-            ],
+            "required": ["type"],
             "additionalProperties": false
         },
         "Dimension": {
@@ -688,11 +661,7 @@
                     }
                 }
             },
-            "required": [
-                "type",
-                "value",
-                "unit"
-            ],
+            "required": ["type", "value", "unit"],
             "additionalProperties": false
         },
         "MonetaryAmount": {
@@ -735,11 +704,7 @@
                     "$ref": "#/$defs/CurrencyRef"
                 }
             },
-            "required": [
-                "type",
-                "value",
-                "currency"
-            ],
+            "required": ["type", "value", "currency"],
             "additionalProperties": false
         },
         "Right": {
@@ -773,7 +738,8 @@
                     "$ref": "#/$defs/referred_to_byProp"
                 },
                 "created_by": {
-                    "title": "crm:P94i_was_created_by", "$ref": "#/$defs/Creation"
+                    "title": "crm:P94i_was_created_by",
+                    "$ref": "#/$defs/Creation"
                 },
                 "possessed_by": {
                     "type": "array",
@@ -782,9 +748,7 @@
                     }
                 }
             },
-            "required": [
-                "type"
-            ],
+            "required": ["type"],
             "additionalProperties": false
         },
         "Creation": {
@@ -792,23 +756,52 @@
             "description": "The creation of the intellectual/conceptual entity",
             "type": "object",
             "properties": {
-                "type": {"allOf": [{"title": "General", "$ref": "core.json#/$defs/typeProp"},
-                    {"title": "Specific", "type": "string", "const": "Creation"}]},
-                "_label": {"$ref": "core.json#/$defs/labelProp"},
-                "identified_by": {"$ref": "core.json#/$defs/identified_byProp"},
-                "classified_as": {"$ref": "core.json#/$defs/classified_asProp"},
-                "referred_to_by": {"$ref": "core.json#/$defs/referred_to_byProp"},
-                "took_place_at": {"$ref": "core.json#/$defs/took_place_atProp"},
-                "timespan": {"$ref": "core.json#/$defs/timespanProp"},
-                "caused_by": {"$ref": "core.json#/$defs/caused_byProp"},
-                "carried_out_by": {"$ref": "core.json#/$defs/carried_out_byProp"},
-                "used_specific_object": {"$ref": "core.json#/$defs/used_specific_objectProp"},
-                "influenced_by": {"$ref": "core.json#/$defs/influenced_byProp"},
-                "technique": {"$ref": "core.json#/$defs/techniqueProp"},
-                "during": {"$ref": "core.json#/$defs/duringProp"},
-                "after": {"$ref": "core.json#/$defs/afterProp"},
-                "before": {"$ref": "core.json#/$defs/beforeProp"},
-                "part_of": {"title": "crm:P9i_forms_part_of", "description": "An identified event or activity which this creation is part of", "$ref": "core.json#/$defs/EventRefOrActivityRef"}
+                "type": {
+                    "allOf": [
+                        {
+                            "title": "General",
+                            "$ref": "core.json#/$defs/typeProp"
+                        },
+                        {
+                            "title": "Specific",
+                            "type": "string",
+                            "const": "Creation"
+                        }
+                    ]
+                },
+                "_label": { "$ref": "core.json#/$defs/labelProp" },
+                "identified_by": {
+                    "$ref": "core.json#/$defs/identified_byProp"
+                },
+                "classified_as": {
+                    "$ref": "core.json#/$defs/classified_asProp"
+                },
+                "referred_to_by": {
+                    "$ref": "core.json#/$defs/referred_to_byProp"
+                },
+                "took_place_at": {
+                    "$ref": "core.json#/$defs/took_place_atProp"
+                },
+                "timespan": { "$ref": "core.json#/$defs/timespanProp" },
+                "caused_by": { "$ref": "core.json#/$defs/caused_byProp" },
+                "carried_out_by": {
+                    "$ref": "core.json#/$defs/carried_out_byProp"
+                },
+                "used_specific_object": {
+                    "$ref": "core.json#/$defs/used_specific_objectProp"
+                },
+                "influenced_by": {
+                    "$ref": "core.json#/$defs/influenced_byProp"
+                },
+                "technique": { "$ref": "core.json#/$defs/techniqueProp" },
+                "during": { "$ref": "core.json#/$defs/duringProp" },
+                "after": { "$ref": "core.json#/$defs/afterProp" },
+                "before": { "$ref": "core.json#/$defs/beforeProp" },
+                "part_of": {
+                    "title": "crm:P9i_forms_part_of",
+                    "description": "An identified event or activity which this creation is part of",
+                    "$ref": "core.json#/$defs/EventRefOrActivityRef"
+                }
             }
         },
         "Concept": {
@@ -841,12 +834,9 @@
                 "classified_as": {
                     "$ref": "#/$defs/classified_asProp"
                 },
-                "equivalent": {"$ref": "#/$defs/equivalentProp"}
+                "equivalent": { "$ref": "#/$defs/equivalentProp" }
             },
-            "required": [
-                "id",
-                "type"
-            ],
+            "required": ["id", "uuid", "type"],
             "additionalProperties": false
         },
         "Activity": {
@@ -900,16 +890,14 @@
                 "technique": {
                     "$ref": "#/$defs/techniqueProp"
                 },
-                "during": {"$ref": "core.json#/$defs/duringProp"},
-                "after": {"$ref": "core.json#/$defs/afterProp"},
-                "before": {"$ref": "core.json#/$defs/beforeProp"},
+                "during": { "$ref": "core.json#/$defs/duringProp" },
+                "after": { "$ref": "core.json#/$defs/afterProp" },
+                "before": { "$ref": "core.json#/$defs/beforeProp" },
                 "part_of": {
                     "$ref": "#/$defs/EventRefOrActivityRef"
                 }
             },
-            "required": [
-                "type"
-            ],
+            "required": ["type"],
             "additionalProperties": false
         },
         "AttributeAssignment": {
@@ -963,9 +951,9 @@
                 "technique": {
                     "$ref": "#/$defs/techniqueProp"
                 },
-                "during": {"$ref": "core.json#/$defs/duringProp"},
-                "after": {"$ref": "core.json#/$defs/afterProp"},
-                "before": {"$ref": "core.json#/$defs/beforeProp"},
+                "during": { "$ref": "core.json#/$defs/duringProp" },
+                "after": { "$ref": "core.json#/$defs/afterProp" },
+                "before": { "$ref": "core.json#/$defs/beforeProp" },
                 "part_of": {
                     "$ref": "#/$defs/EventRefOrActivityRef"
                 },
@@ -977,12 +965,9 @@
                     "title": "crm:P177_assigned_property_type",
                     "description": "The relationship from the attributed entity to the assigned entity, given as a string which resolves to a relationship in the context definition",
                     "type": "string"
-
                 }
             },
-            "required": [
-                "type"
-            ],
+            "required": ["type"],
             "additionalProperties": false
         },
         "RelationshipAssignment": {
@@ -1021,14 +1006,14 @@
                 "carried_out_by": {
                     "$ref": "#/$defs/carried_out_byProp"
                 },
-                "during": {"$ref": "core.json#/$defs/duringProp"},
-                "after": {"$ref": "core.json#/$defs/afterProp"},
-                "before": {"$ref": "core.json#/$defs/beforeProp"},
+                "during": { "$ref": "core.json#/$defs/duringProp" },
+                "after": { "$ref": "core.json#/$defs/afterProp" },
+                "before": { "$ref": "core.json#/$defs/beforeProp" },
                 "assigned": {
                     "title": "*",
                     "description": "Attribute Assignments can assign any entity or structure",
                     "type": "array",
-                    "items": { "$ref": "#/$defs/AnyRef"}
+                    "items": { "$ref": "#/$defs/AnyRef" }
                 },
                 "assigned_property": {
                     "title": "crm:P177_assigned_property_type",
@@ -1036,10 +1021,7 @@
                     "type": "string"
                 }
             },
-            "required": [
-                "type",
-                "assigned"
-            ],
+            "required": ["type", "assigned"],
             "additionalProperties": false
         },
 
@@ -1119,7 +1101,7 @@
                 },
                 "conforms_to": {
                     "$ref": "#/$defs/conforms_toProp"
-                }                                
+                }
             }
         },
 
@@ -1157,10 +1139,8 @@
                     "$ref": "#/$defs/digitally_shown_byProp"
                 }
             },
-            "required": [
-                "type"
-            ],
-            "additionalProperties": false  
+            "required": ["type"],
+            "additionalProperties": false
         },
 
         "LinguisticObjectEmbed": {
@@ -1200,10 +1180,8 @@
                     "$ref": "#/$defs/digitally_carried_byProp"
                 }
             },
-            "required": [
-                "type"
-            ],
-            "additionalProperties": false            
+            "required": ["type"],
+            "additionalProperties": false
         },
 
         "HumanMadeObjectPart": {
@@ -1272,9 +1250,7 @@
                     }
                 }
             },
-            "required": [
-                "type"
-            ],
+            "required": ["type"],
             "additionalProperties": false
         },
         "NameOrIdentifier": {
@@ -1369,12 +1345,10 @@
                 {
                     "title": "Linked Art with Extensions",
                     "type": "array",
-                    "items": [
-                        {
-                            "type": "string",
-                            "format": "uri"
-                        }
-                    ]
+                    "items": {
+                        "type": "string",
+                        "format": "uri"
+                    }
                 }
             ]
         },
@@ -1420,12 +1394,9 @@
                 "_label": {
                     "$ref": "#/$defs/labelProp"
                 },
-                "equivalent": {"$ref": "#/$defs/equivalentProp"}
+                "equivalent": { "$ref": "#/$defs/equivalentProp" }
             },
-            "required": [
-                "id",
-                "type"
-            ],
+            "required": ["id", "type"],
             "additionalProperties": false
         },
         "PlaceRef": {
@@ -1452,12 +1423,9 @@
                 "_label": {
                     "$ref": "#/$defs/labelProp"
                 },
-                "equivalent": {"$ref": "#/$defs/equivalentProp"}
+                "equivalent": { "$ref": "#/$defs/equivalentProp" }
             },
-            "required": [
-                "id",
-                "type"
-            ],
+            "required": ["id", "type"],
             "additionalProperties": false
         },
         "PersonRef": {
@@ -1484,12 +1452,9 @@
                 "_label": {
                     "$ref": "#/$defs/labelProp"
                 },
-                "equivalent": {"$ref": "#/$defs/equivalentProp"}
+                "equivalent": { "$ref": "#/$defs/equivalentProp" }
             },
-            "required": [
-                "id",
-                "type"
-            ],
+            "required": ["id", "type"],
             "additionalProperties": false
         },
         "GroupRef": {
@@ -1515,12 +1480,9 @@
                 "_label": {
                     "$ref": "#/$defs/labelProp"
                 },
-                "equivalent": {"$ref": "#/$defs/equivalentProp"}
+                "equivalent": { "$ref": "#/$defs/equivalentProp" }
             },
-            "required": [
-                "id",
-                "type"
-            ],
+            "required": ["id", "type"],
             "additionalProperties": false
         },
         "HumanMadeObjectRef": {
@@ -1547,12 +1509,9 @@
                 "_label": {
                     "$ref": "#/$defs/labelProp"
                 },
-                "equivalent": {"$ref": "#/$defs/equivalentProp"}
+                "equivalent": { "$ref": "#/$defs/equivalentProp" }
             },
-            "required": [
-                "id",
-                "type"
-            ],
+            "required": ["id", "type"],
             "additionalProperties": false
         },
         "DigitalObjectRef": {
@@ -1579,12 +1538,9 @@
                 "_label": {
                     "$ref": "#/$defs/labelProp"
                 },
-                "equivalent": {"$ref": "#/$defs/equivalentProp"}
+                "equivalent": { "$ref": "#/$defs/equivalentProp" }
             },
-            "required": [
-                "id",
-                "type"
-            ],
+            "required": ["id", "type"],
             "additionalProperties": false
         },
         "LinguisticObjectRef": {
@@ -1610,12 +1566,9 @@
                 "_label": {
                     "$ref": "#/$defs/labelProp"
                 },
-                "equivalent": {"$ref": "#/$defs/equivalentProp"}
+                "equivalent": { "$ref": "#/$defs/equivalentProp" }
             },
-            "required": [
-                "id",
-                "type"
-            ],
+            "required": ["id", "type"],
             "additionalProperties": false
         },
         "SetRef": {
@@ -1641,12 +1594,9 @@
                 "_label": {
                     "$ref": "#/$defs/labelProp"
                 },
-                "equivalent": {"$ref": "#/$defs/equivalentProp"}
+                "equivalent": { "$ref": "#/$defs/equivalentProp" }
             },
-            "required": [
-                "id",
-                "type"
-            ],
+            "required": ["id", "type"],
             "additionalProperties": false
         },
         "InfoObjectRef": {
@@ -1672,12 +1622,9 @@
                 "_label": {
                     "$ref": "#/$defs/labelProp"
                 },
-                "equivalent": {"$ref": "#/$defs/equivalentProp"}
+                "equivalent": { "$ref": "#/$defs/equivalentProp" }
             },
-            "required": [
-                "id",
-                "type"
-            ],
+            "required": ["id", "type"],
             "additionalProperties": false
         },
         "PeriodRef": {
@@ -1703,12 +1650,9 @@
                 "_label": {
                     "$ref": "#/$defs/labelProp"
                 },
-                "equivalent": {"$ref": "#/$defs/equivalentProp"}
+                "equivalent": { "$ref": "#/$defs/equivalentProp" }
             },
-            "required": [
-                "id",
-                "type"
-            ],
+            "required": ["id", "type"],
             "additionalProperties": false
         },
         "EventRef": {
@@ -1734,12 +1678,9 @@
                 "_label": {
                     "$ref": "#/$defs/labelProp"
                 },
-                "equivalent": {"$ref": "#/$defs/equivalentProp"}
+                "equivalent": { "$ref": "#/$defs/equivalentProp" }
             },
-            "required": [
-                "id",
-                "type"
-            ],
+            "required": ["id", "type"],
             "additionalProperties": false
         },
         "ActivityRef": {
@@ -1765,12 +1706,9 @@
                 "_label": {
                     "$ref": "#/$defs/labelProp"
                 },
-                "equivalent": {"$ref": "#/$defs/equivalentProp"}
+                "equivalent": { "$ref": "#/$defs/equivalentProp" }
             },
-            "required": [
-                "id",
-                "type"
-            ],
+            "required": ["id", "type"],
             "additionalProperties": false
         },
         "VisualItemRef": {
@@ -1796,12 +1734,9 @@
                 "_label": {
                     "$ref": "#/$defs/labelProp"
                 },
-                "equivalent": {"$ref": "#/$defs/equivalentProp"}
+                "equivalent": { "$ref": "#/$defs/equivalentProp" }
             },
-            "required": [
-                "id",
-                "type"
-            ],
+            "required": ["id", "type"],
             "additionalProperties": false
         },
         "AbstractWorkRef": {
@@ -1827,12 +1762,9 @@
                 "_label": {
                     "$ref": "#/$defs/labelProp"
                 },
-                "equivalent": {"$ref": "#/$defs/equivalentProp"}
+                "equivalent": { "$ref": "#/$defs/equivalentProp" }
             },
-            "required": [
-                "id",
-                "type"
-            ],
+            "required": ["id", "type"],
             "additionalProperties": false
         },
         "UnitRef": {
@@ -1858,12 +1790,9 @@
                 "_label": {
                     "$ref": "#/$defs/labelProp"
                 },
-                "equivalent": {"$ref": "#/$defs/equivalentProp"}
+                "equivalent": { "$ref": "#/$defs/equivalentProp" }
             },
-            "required": [
-                "id",
-                "type"
-            ],
+            "required": ["id", "type"],
             "additionalProperties": false
         },
         "CurrencyRef": {
@@ -1889,12 +1818,9 @@
                 "_label": {
                     "$ref": "#/$defs/labelProp"
                 },
-                "equivalent": {"$ref": "#/$defs/equivalentProp"}
+                "equivalent": { "$ref": "#/$defs/equivalentProp" }
             },
-            "required": [
-                "id",
-                "type"
-            ],
+            "required": ["id", "type"],
             "additionalProperties": false
         },
         "MaterialRef": {
@@ -1920,12 +1846,9 @@
                 "_label": {
                     "$ref": "#/$defs/labelProp"
                 },
-                "equivalent": {"$ref": "#/$defs/equivalentProp"}
+                "equivalent": { "$ref": "#/$defs/equivalentProp" }
             },
-            "required": [
-                "id",
-                "type"
-            ],
+            "required": ["id", "type"],
             "additionalProperties": false
         },
         "LanguageRef": {
@@ -1951,12 +1874,9 @@
                 "_label": {
                     "$ref": "#/$defs/labelProp"
                 },
-                "equivalent": {"$ref": "#/$defs/equivalentProp"}
+                "equivalent": { "$ref": "#/$defs/equivalentProp" }
             },
-            "required": [
-                "id",
-                "type"
-            ],
+            "required": ["id", "type"],
             "additionalProperties": false
         },
         "TypeRef": {
@@ -1982,12 +1902,9 @@
                 "_label": {
                     "$ref": "#/$defs/labelProp"
                 },
-                "equivalent": {"$ref": "#/$defs/equivalentProp"}
+                "equivalent": { "$ref": "#/$defs/equivalentProp" }
             },
-            "required": [
-                "id",
-                "type"
-            ],
+            "required": ["id", "type"],
             "additionalProperties": false
         },
         "AnyTypeRef": {
@@ -2006,20 +1923,23 @@
                         },
                         {
                             "type": "string",
-                            "enum": ["Type", "Language", "Material", "Currency", "MeasurementUnit"]
+                            "enum": [
+                                "Type",
+                                "Language",
+                                "Material",
+                                "Currency",
+                                "MeasurementUnit"
+                            ]
                         }
                     ]
                 },
                 "_label": {
                     "$ref": "#/$defs/labelProp"
                 },
-                "equivalent": {"$ref": "#/$defs/equivalentProp"}
+                "equivalent": { "$ref": "#/$defs/equivalentProp" }
             },
-            "required": [
-                "id",
-                "type"
-            ],
-            "additionalProperties": false            
+            "required": ["id", "type"],
+            "additionalProperties": false
         }
-    }        
+    }
 }
