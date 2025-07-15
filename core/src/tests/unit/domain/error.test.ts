@@ -5,11 +5,13 @@ import {
     ServiceError,
     ModelError,
     QueryError,
+    ControllerError,
     isGraphError,
     isServiceError,
     isModelError,
     isQueryError,
     isNeo4jError,
+    isControllerError,
 } from "@/domain/errors";
 
 describe("Errors", { skip: false }, () => {
@@ -47,6 +49,15 @@ describe("Errors", { skip: false }, () => {
         expect(isServiceError(error)).toBe(false);
         expect(isModelError(error)).toBe(false);
         expect(isNeo4jError(error)).toBe(false);
+    });
+
+    it("should identify ControllerError", () => {
+        const error = new ControllerError("Test Controller Error", 400);
+        expect(isControllerError(error)).toBe(true);
+        expect(isGraphError(error)).toBe(false);
+        expect(isServiceError(error)).toBe(false);
+        expect(isModelError(error)).toBe(false);
+        expect(isQueryError(error)).toBe(false);
     });
 
     it("should identify Neo4jError", () => {
