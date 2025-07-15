@@ -30,7 +30,7 @@ describe("Shared", () => {
     it("Should be a valid Statement", () => {
         const statement: Statement = {
             uuid: "0000000-0000-0000-0000-000000000002",
-            type: "Statement",
+            type: "LinguisticObject",
             id: "http://example.com/statement/1",
             _label: "Example Statement",
             content: "Example Content",

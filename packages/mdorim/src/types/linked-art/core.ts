@@ -6,6 +6,7 @@ import {
     LanguageTag,
     GenericType,
     WKT,
+    UUID,
 } from "../generic";
 import { MdorimBase } from "../mdorim";
 import { Concept } from "./concept";
@@ -38,7 +39,7 @@ import {
 import { Textual } from "./textual";
 import { Visual } from "./visual";
 import { Set } from "./set";
-import { PhysicalObject } from "./object";
+import { HumanMadeObject } from "./object";
 import { Place } from "./place";
 import { Person } from "./person";
 import { Group } from "./group";
@@ -66,7 +67,7 @@ export type LinkedArtProperties = {
     subject_of?: Textual[];
     attributed_by?: Assignment[];
     assigned_by?: Assignment[];
-    part_of?: PhysicalObject[];
+    part_of?: HumanMadeObject[];
     dimension?: Dimension[];
     made_of?: Material[];
     current_owner?: PersonOrGroup[];
@@ -74,7 +75,7 @@ export type LinkedArtProperties = {
     current_permanent_custodian?: PersonOrGroup[];
     current_location?: Place[];
     current_permanent_location?: Place[];
-    held_or_supported_by?: PhysicalObject;
+    held_or_supported_by?: HumanMadeObject;
     carries?: Textual[];
     shows?: Visual[];
     used_for?: Activity[];
@@ -106,7 +107,7 @@ export type LinkedArtProperties = {
     influenced_by?: LinkedArtEntity[];
     carried_out_by?: PersonOrGroup[];
     participant?: PersonOrGroup[];
-    used_specific_object?: PhysicalObject[];
+    used_specific_object?: HumanMadeObject[];
     technique?: Concept[];
     contact_point?: Identifier[];
     residence?: Place[];
@@ -119,7 +120,7 @@ export type LinkedArtProperties = {
     defined_by?: WKT;
     part?: Activity[];
     members_exemplified_by?: LinkedArtEntity[];
-    members_contained_by?: PhysicalObject[];
+    members_contained_by?: HumanMadeObject[];
     language?: Language[];
     content?: Content;
     represents?: LinkedArtEntity[];
@@ -127,12 +128,73 @@ export type LinkedArtProperties = {
     notation?: LanguageTag[];
 };
 
-export type LinkedArtBase<T = unknown> = {
-    id: ID;
-    _label: _Label;
+export type LinkedArtEntities =
+    | "Type"
+    | "PropositionalObject"
+    | "Material"
+    | "Language"
+    | "Currency"
+    | "MeasurementUnit"
+    | "DigitalObject"
+    | "Event"
+    | "Period"
+    | "Activity"
+    | "Group"
+    | "Person"
+    | "HumanMadeObject"
+    | "Place"
+    | "Set"
+    | "LinguisticObject"
+    | "VisualItem";
+
+export type LinkedArtSharedStructures =
+    | "LinguisticObject"
+    | "Identifier"
+    | "Name"
+    | "MonetaryAmount"
+    | "Period"
+    | "Event"
+    | "Creation"
+    | "Formation"
+    | "Dissolution"
+    | "Activity"
+    | "Birth"
+    | "Death"
+    | "Production"
+    | "PartRemoval"
+    | "Destruction"
+    | "Encounter"
+    | "Modification"
+    | "Dimension"
+    | "Right"
+    | "Timespan"
+    | "AttributeAssignment"
+    | "DigitalService"
+    | "Acquisition"
+    | "Payment"
+    | "TransferOfCustody"
+    | "Encounter"
+    | "RightAcquisition"
+    | "Move"
+    | "Promise"
+    | "Transfer";
+
+export type LinkedArtBase<
+    T extends Record<string, unknown> = Record<string, unknown>,
+    TType extends LinkedArtEntities | LinkedArtSharedStructures =
+    | LinkedArtEntities
+    | LinkedArtSharedStructures,
+> = {
+    type: TType;
+    id?: ID;
+    uuid?: UUID;
+    _label?: _Label;
 } & T;
 
-export type LinkedArtEntity<T = unknown> = LinkedArtBase<T> &
+export type LinkedArtEntity<
+    T extends Record<string, unknown> = Record<string, unknown>,
+    TType extends LinkedArtEntities = LinkedArtEntities,
+> = LinkedArtBase<T, TType> &
     Pick<
         LinkedArtProperties,
         | "classified_as"
@@ -145,7 +207,10 @@ export type LinkedArtEntity<T = unknown> = LinkedArtBase<T> &
         | "attributed_by"
     >;
 
-export type LinkedArtProperty<T = unknown> = LinkedArtBase<T> &
+export type LinkedArtSharedStructure<
+    T extends Record<string, unknown> = Record<string, unknown>,
+    TType extends LinkedArtSharedStructures = LinkedArtSharedStructures,
+> = LinkedArtBase<T, TType> &
     Pick<
         LinkedArtProperties,
         "classified_as" | "identified_by" | "referred_to_by"
